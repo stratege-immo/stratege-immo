@@ -4,45 +4,120 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tableau de bord — Stratège</title>
-  <meta name="description" content="Votre espace client Stratège : simulations sauvegardées, projets et profil." />
+  <meta name="description" content="Votre espace CGP Stratège : simulations, investissements, documents et analyse bancaire." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="assets/style.css" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 </head>
 <body>
 
   <nav class="navbar"></nav>
 
-  <main class="section" style="padding-top:120px;min-height:70vh">
-    <div class="container">
+  <div class="dash-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <h3 id="sidebar-name">Mon espace</h3>
+        <p id="sidebar-email"></p>
+      </div>
+      <div class="sidebar-section-label">Navigation</div>
+      <nav class="sidebar-nav">
+        <a href="#overview" class="active" onclick="showSection('overview', this)">
+          <span class="nav-icon">📊</span> Vue d'ensemble
+        </a>
+        <a href="#simulations" onclick="showSection('simulations', this)">
+          <span class="nav-icon">🧮</span> Mes simulations
+        </a>
+        <a href="#investissements" onclick="showSection('investissements', this)">
+          <span class="nav-icon">🏠</span> Mes investissements
+        </a>
+        <a href="#documents" onclick="showSection('documents', this)">
+          <span class="nav-icon">📄</span> Documents
+        </a>
+        <a href="#banque" onclick="showSection('banque', this)">
+          <span class="nav-icon">🏦</span> Banque
+        </a>
+      </nav>
+      <div class="sidebar-section-label">Compte</div>
+      <nav class="sidebar-nav">
+        <a href="#profil" onclick="showSection('profil', this)">
+          <span class="nav-icon">👤</span> Profil & Facturation
+        </a>
+        <a href="#" onclick="logout(); return false;">
+          <span class="nav-icon">🚪</span> Déconnexion
+        </a>
+      </nav>
+    </aside>
 
-      <div class="dash-header">
-        <div>
+    <!-- Mobile sidebar toggle -->
+    <button class="sidebar-toggle" id="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+
+    <!-- Main content -->
+    <main class="dash-main">
+
+      <!-- SECTION: Overview -->
+      <div id="section-overview" class="dash-section-content">
+        <div class="dash-main-header">
           <h1 id="dash-welcome">Bonjour</h1>
-          <p class="text-muted" id="dash-email"></p>
+          <p>Votre tableau de bord investisseur</p>
         </div>
-        <div class="dash-actions">
-          <span class="plan-badge" id="dash-plan">Express</span>
-          <button class="btn-secondary btn-small" onclick="logout()">Déconnexion</button>
+
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-icon teal">💰</div>
+            <div class="kpi-value mono" id="kpi-patrimoine">—</div>
+            <div class="kpi-label">Patrimoine total</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon gold">📈</div>
+            <div class="kpi-value mono" id="kpi-rendement">—</div>
+            <div class="kpi-label">Rendement moyen</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon green">💸</div>
+            <div class="kpi-value mono" id="kpi-effort">—</div>
+            <div class="kpi-label">Effort mensuel</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon blue">🏛️</div>
+            <div class="kpi-value mono" id="kpi-fiscal">—</div>
+            <div class="kpi-label">Économie fiscale/an</div>
+          </div>
+        </div>
+
+        <!-- Activity Timeline -->
+        <div class="dash-card">
+          <div class="dash-card-header">
+            <h3>Activité récente</h3>
+          </div>
+          <div class="timeline" id="timeline">
+            <div class="timeline-item">
+              <div class="timeline-dot"></div>
+              <div class="timeline-date">Aujourd'hui</div>
+              <div class="timeline-text">Bienvenue sur votre espace <strong>Stratège</strong></div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Simulations -->
-      <div class="dash-section">
-        <div class="dash-section-header">
-          <h2>Mes simulations</h2>
+      <!-- SECTION: Simulations -->
+      <div id="section-simulations" class="dash-section-content" style="display:none">
+        <div class="dash-main-header">
+          <h1>Mes simulations</h1>
+          <p>Retrouvez toutes vos simulations sauvegardées</p>
+        </div>
+        <div style="margin-bottom:20px">
           <a href="index.html#simulation" class="btn-primary btn-small">Nouvelle simulation</a>
         </div>
-
-        <div id="sim-loading" class="text-muted" style="padding:24px;text-align:center">Chargement…</div>
-
+        <div id="sim-loading" style="text-align:center;padding:40px;color:var(--neutral-400)">Chargement…</div>
         <div id="sim-empty" class="dash-empty" style="display:none">
           <p>Aucune simulation sauvegardée.</p>
           <a href="index.html#simulation" class="btn-primary btn-small">Lancer ma première simulation</a>
         </div>
-
-        <div class="table-responsive" id="sim-table-wrap" style="display:none">
+        <div class="dash-card" id="sim-table-wrap" style="display:none">
           <table class="dash-table">
             <thead>
               <tr>
@@ -59,46 +134,134 @@
         </div>
       </div>
 
-      <!-- Profile -->
-      <div class="dash-section">
-        <h2>Mon profil</h2>
-        <div class="dash-profile-grid" id="dash-profile">
+      <!-- SECTION: Investissements -->
+      <div id="section-investissements" class="dash-section-content" style="display:none">
+        <div class="dash-main-header">
+          <h1>Mes investissements</h1>
+          <p>Suivez vos réservations et investissements en cours</p>
+        </div>
+        <div id="invest-empty" class="dash-empty">
+          <p>Aucun investissement en cours.</p>
+          <a href="index.html#catalogue" class="btn-primary btn-small">Découvrir le catalogue</a>
+        </div>
+        <div id="invest-list" style="display:none"></div>
+      </div>
+
+      <!-- SECTION: Documents -->
+      <div id="section-documents" class="dash-section-content" style="display:none">
+        <div class="dash-main-header">
+          <h1>Documents</h1>
+          <p>Vos contrats et documents signés</p>
+        </div>
+        <div id="docs-empty" class="dash-empty">
+          <p>Aucun document pour le moment.</p>
+        </div>
+        <div class="doc-list" id="doc-list" style="display:none"></div>
+      </div>
+
+      <!-- SECTION: Banque -->
+      <div id="section-banque" class="dash-section-content" style="display:none">
+        <div class="dash-main-header">
+          <h1>Agrégation bancaire</h1>
+          <p>Connectez votre banque pour analyser votre capacité d'investissement</p>
+        </div>
+        <div id="bank-not-connected">
+          <div class="bank-connect-card">
+            <h4>Connectez votre banque</h4>
+            <p>Analysez automatiquement vos revenus, dépenses et capacité d'investissement.</p>
+            <button class="btn-primary" onclick="connectBank()">Connecter ma banque</button>
+          </div>
+        </div>
+        <div id="bank-connected" style="display:none">
+          <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:24px">
+            <div class="kpi-card">
+              <div class="kpi-value mono" id="bank-solde">—</div>
+              <div class="kpi-label">Solde total</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-value mono" id="bank-epargne">—</div>
+              <div class="kpi-label">Taux d'épargne</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-value mono" id="bank-capacite">—</div>
+              <div class="kpi-label">Capacité investissement</div>
+            </div>
+          </div>
+          <div class="dash-card">
+            <div class="dash-card-header"><h3>Comptes</h3></div>
+            <div class="bank-accounts" id="bank-accounts"></div>
+          </div>
         </div>
       </div>
 
-    </div>
-  </main>
+      <!-- SECTION: Profil -->
+      <div id="section-profil" class="dash-section-content" style="display:none">
+        <div class="dash-main-header">
+          <h1>Profil & Facturation</h1>
+          <p>Gérez vos informations et votre abonnement</p>
+        </div>
+        <div class="dash-grid-2">
+          <div class="dash-card">
+            <div class="dash-card-header"><h3>Informations</h3></div>
+            <div id="profile-info"></div>
+          </div>
+          <div class="dash-card">
+            <div class="dash-card-header"><h3>Vérification</h3></div>
+            <div id="profile-verification"></div>
+          </div>
+        </div>
+        <div class="dash-card" style="margin-top:24px">
+          <div class="dash-card-header">
+            <h3>Profil investisseur</h3>
+            <a href="register.html" class="btn-ghost btn-small">Modifier</a>
+          </div>
+          <div id="profile-kyc"></div>
+        </div>
+      </div>
 
-  <footer class="footer"></footer>
+    </main>
+  </div>
 
   <script src="assets/shared.js"></script>
   <script>
     renderNavbar();
-    renderFooter();
 
-    // Auth guard
-    if (!isLoggedIn()) {
-      window.location.href = 'login.html';
-    }
+    if (!isLoggedIn()) { window.location.href = 'login.html'; }
 
     var user = getUser();
+    var token = getToken();
+
     if (user) {
       document.getElementById('dash-welcome').textContent = 'Bonjour ' + user.prenom;
-      document.getElementById('dash-email').textContent = user.email;
-      document.getElementById('dash-plan').textContent = (user.plan || 'express').charAt(0).toUpperCase() + (user.plan || 'express').slice(1);
-      document.getElementById('dash-profile').innerHTML =
-        '<div class="dash-profile-item"><span class="label">Nom</span><span>' + user.prenom + ' ' + user.nom + '</span></div>' +
-        '<div class="dash-profile-item"><span class="label">Email</span><span>' + user.email + '</span></div>' +
-        '<div class="dash-profile-item"><span class="label">Forfait</span><span class="plan-badge">' + (user.plan || 'express') + '</span></div>';
+      document.getElementById('sidebar-name').textContent = user.prenom + ' ' + (user.nom || '');
+      document.getElementById('sidebar-email').textContent = user.email;
     }
 
-    // Load simulations
+    // Section routing
+    function showSection(name, el) {
+      document.querySelectorAll('.dash-section-content').forEach(function(s) { s.style.display = 'none'; });
+      document.getElementById('section-' + name).style.display = 'block';
+      document.querySelectorAll('.sidebar-nav a').forEach(function(a) { a.classList.remove('active'); });
+      if (el) el.classList.add('active');
+      document.getElementById('sidebar').classList.remove('open');
+    }
+
+    // Handle hash routing
+    var hash = window.location.hash.replace('#', '');
+    if (hash && document.getElementById('section-' + hash)) {
+      var link = document.querySelector('.sidebar-nav a[href="#' + hash + '"]');
+      showSection(hash, link);
+    }
+
+    // Load data
     loadSimulations();
+    loadProfile();
+    loadDocuments();
 
     async function loadSimulations() {
       try {
         var res = await fetch('/api/simulations', {
-          headers: { 'Authorization': 'Bearer ' + getToken() }
+          headers: { 'Authorization': 'Bearer ' + token }
         });
         var data = await res.json();
         document.getElementById('sim-loading').style.display = 'none';
@@ -112,18 +275,45 @@
         var tbody = document.getElementById('sim-tbody');
         tbody.innerHTML = '';
 
+        var totalBudget = 0, totalEffort = 0, totalFiscal = 0, count = 0;
+
         data.simulations.forEach(function(sim) {
+          count++;
+          totalBudget += sim.budget_total || sim.budgetTotal || 0;
+          totalEffort += sim.effort_reel || sim.effortReel || 0;
+          totalFiscal += sim.economie_fiscale_annuelle || 0;
+
           var tr = document.createElement('tr');
           var date = new Date(sim.created_at).toLocaleDateString('fr-FR');
           tr.innerHTML =
             '<td>' + date + '</td>' +
-            '<td>' + fmt(sim.budget_total || sim.budgetTotal || 0) + ' €</td>' +
-            '<td>' + fmt(sim.mensualite || 0) + ' €/mois</td>' +
-            '<td class="text-accent">' + fmt(sim.effort_reel || sim.effortReel || 0) + ' €/mois</td>' +
+            '<td class="mono">' + fmt(sim.budget_total || sim.budgetTotal || 0) + ' &euro;</td>' +
+            '<td class="mono">' + fmt(sim.mensualite || 0) + ' &euro;/mois</td>' +
+            '<td class="mono" style="color:var(--primary-600);font-weight:600">' + fmt(sim.effort_reel || sim.effortReel || 0) + ' &euro;/mois</td>' +
             '<td>' + (sim.dispositif || '-') + '</td>' +
             '<td><button class="btn-ghost btn-small" onclick="deleteSim(\'' + sim.id + '\', this)">Supprimer</button></td>';
           tbody.appendChild(tr);
         });
+
+        // Update KPIs
+        document.getElementById('kpi-patrimoine').textContent = fmt(totalBudget) + ' \u20ac';
+        document.getElementById('kpi-effort').textContent = fmt(Math.round(totalEffort / Math.max(count, 1))) + ' \u20ac/mois';
+        document.getElementById('kpi-fiscal').textContent = fmt(totalFiscal) + ' \u20ac';
+        if (totalBudget > 0 && count > 0) {
+          document.getElementById('kpi-rendement').textContent = '~4.5%';
+        }
+
+        // Timeline
+        var timeline = document.getElementById('timeline');
+        data.simulations.slice(0, 3).forEach(function(sim) {
+          var item = document.createElement('div');
+          item.className = 'timeline-item';
+          item.innerHTML = '<div class="timeline-dot green"></div><div class="timeline-date">' +
+            new Date(sim.created_at).toLocaleDateString('fr-FR') + '</div><div class="timeline-text">Simulation <strong>' +
+            (sim.dispositif || 'Jeanbrun') + '</strong> — ' + fmt(sim.budget_total || 0) + ' \u20ac</div>';
+          timeline.appendChild(item);
+        });
+
       } catch (err) {
         document.getElementById('sim-loading').textContent = 'Erreur de chargement.';
       }
@@ -136,7 +326,7 @@
       try {
         var res = await fetch('/api/simulations?id=' + encodeURIComponent(id), {
           method: 'DELETE',
-          headers: { 'Authorization': 'Bearer ' + getToken() }
+          headers: { 'Authorization': 'Bearer ' + token }
         });
         var data = await res.json();
         if (data.success) {
@@ -151,6 +341,86 @@
         showToast('Erreur réseau', 'error');
         btn.disabled = false;
         btn.textContent = 'Supprimer';
+      }
+    }
+
+    async function loadProfile() {
+      try {
+        var res = await fetch('/api/auth?action=me', {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        var data = await res.json();
+        if (!data.success) return;
+        var u = data.user;
+
+        document.getElementById('profile-info').innerHTML =
+          '<div style="display:flex;flex-direction:column;gap:12px">' +
+          '<div><span style="font-size:13px;color:var(--neutral-500)">Nom</span><div style="font-weight:600">' + (u.prenom || '') + ' ' + (u.nom || '') + '</div></div>' +
+          '<div><span style="font-size:13px;color:var(--neutral-500)">Email</span><div>' + u.email + '</div></div>' +
+          '<div><span style="font-size:13px;color:var(--neutral-500)">Forfait</span><div><span class="plan-badge ' + (u.plan || 'express') + '">' + (u.plan || 'Express') + '</span></div></div>' +
+          '</div>';
+
+        document.getElementById('profile-verification').innerHTML =
+          '<div style="display:flex;flex-direction:column;gap:12px">' +
+          '<div style="display:flex;align-items:center;gap:8px"><span style="font-size:18px">' + (u.email_verified ? '✅' : '⏳') + '</span><span>Email ' + (u.email_verified ? 'vérifié' : 'non vérifié') + '</span></div>' +
+          '<div style="display:flex;align-items:center;gap:8px"><span style="font-size:18px">' + (u.phone_verified ? '✅' : '⏳') + '</span><span>Téléphone ' + (u.phone_verified ? 'vérifié' : 'non vérifié') + '</span></div>' +
+          '<div style="display:flex;align-items:center;gap:8px"><span style="font-size:18px">' + (u.kyc_complete ? '✅' : '⏳') + '</span><span>Profil investisseur ' + (u.kyc_complete ? 'complété' : 'à compléter') + '</span></div>' +
+          '</div>';
+
+        if (u.profile) {
+          document.getElementById('profile-kyc').innerHTML =
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">' +
+            '<div><span style="font-size:13px;color:var(--neutral-500)">Revenus annuels</span><div class="mono" style="font-weight:600">' + fmt(u.profile.revenus_annuels || 0) + ' \u20ac</div></div>' +
+            '<div><span style="font-size:13px;color:var(--neutral-500)">Patrimoine net</span><div class="mono" style="font-weight:600">' + fmt(u.profile.patrimoine_net || 0) + ' \u20ac</div></div>' +
+            '<div><span style="font-size:13px;color:var(--neutral-500)">Objectif</span><div>' + (u.profile.objectif || '—') + '</div></div>' +
+            '<div><span style="font-size:13px;color:var(--neutral-500)">Expérience</span><div>' + (u.profile.experience || '—') + '</div></div>' +
+            '</div>';
+        } else {
+          document.getElementById('profile-kyc').innerHTML = '<p style="color:var(--neutral-400)">Profil investisseur non complété. <a href="register.html" style="color:var(--primary-500)">Compléter</a></p>';
+        }
+      } catch (err) {}
+    }
+
+    async function loadDocuments() {
+      if (!user) return;
+      try {
+        var res = await fetch('/api/signature?action=list&userId=' + user.id);
+        var data = await res.json();
+        if (data.success && data.signatures && data.signatures.length > 0) {
+          document.getElementById('docs-empty').style.display = 'none';
+          var list = document.getElementById('doc-list');
+          list.style.display = 'flex';
+          list.innerHTML = '';
+          data.signatures.forEach(function(sig) {
+            var item = document.createElement('div');
+            item.className = 'doc-item';
+            item.innerHTML =
+              '<div class="doc-info"><div class="doc-icon ' + (sig.status === 'signed' ? 'signed' : '') + '">' + (sig.status === 'signed' ? '✅' : '📄') + '</div>' +
+              '<div><div class="doc-name">Réservation ' + (sig.bien_id || '') + '</div><div class="doc-date">' + new Date(sig.created_at).toLocaleDateString('fr-FR') + ' — ' +
+              '<span class="status-badge ' + sig.status + '">' + sig.status + '</span></div></div></div>' +
+              (sig.status === 'signed' ? '<a href="/api/signature?action=download&id=' + sig.id + '" class="doc-download">Télécharger</a>' : '');
+            list.appendChild(item);
+          });
+        }
+      } catch (err) {}
+    }
+
+    async function connectBank() {
+      if (!user) return;
+      try {
+        var res = await fetch('/api/banque?action=connect', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ userId: user.id })
+        });
+        var data = await res.json();
+        if (data.success && data.url) {
+          window.location.href = data.url;
+        } else {
+          showToast(data.error || 'Erreur connexion bancaire', 'error');
+        }
+      } catch (err) {
+        showToast('Erreur réseau', 'error');
       }
     }
 

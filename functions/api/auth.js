@@ -110,17 +110,14 @@ export async function onRequestPost({ request, env }) {
   const JWT_SECRET = env.JWT_SECRET || 'stratege-default-secret-change-me';
 
   try {
-    if (action === 'register') {
-      return await handleRegister(request, env, JWT_SECRET);
-    } else if (action === 'login') {
-      return await handleLogin(request, env, JWT_SECRET);
-    } else if (action === 'me') {
-      return await handleMe(request, env, JWT_SECRET);
-    } else if (action === 'reset-request') {
-      return await handleResetRequest(request, env, JWT_SECRET);
-    } else if (action === 'reset') {
-      return await handleReset(request, env, JWT_SECRET);
-    }
+    if (action === 'register') return await handleRegister(request, env, JWT_SECRET);
+    if (action === 'login') return await handleLogin(request, env, JWT_SECRET);
+    if (action === 'me') return await handleMe(request, env, JWT_SECRET);
+    if (action === 'reset-request') return await handleResetRequest(request, env, JWT_SECRET);
+    if (action === 'reset') return await handleReset(request, env, JWT_SECRET);
+    if (action === 'send-sms') return await handleSendSMS(request, env, JWT_SECRET);
+    if (action === 'verify-sms') return await handleVerifySMS(request, env, JWT_SECRET);
+    if (action === 'update-profile') return await handleUpdateProfile(request, env, JWT_SECRET);
     return jsonResponse({ success: false, error: 'Action inconnue' }, 400);
   } catch (err) {
     return jsonResponse({ success: false, error: err.message }, 500);
@@ -128,7 +125,10 @@ export async function onRequestPost({ request, env }) {
 }
 
 export async function onRequestGet({ request, env }) {
+  const url = new URL(request.url);
+  const action = url.searchParams.get('action');
   const JWT_SECRET = env.JWT_SECRET || 'stratege-default-secret-change-me';
+  if (action === 'verify-email') return await handleVerifyEmail(request, env, JWT_SECRET);
   return await handleMe(request, env, JWT_SECRET);
 }
 
@@ -180,29 +180,37 @@ async function handleRegister(request, env, secret) {
     salt,
     hash,
     plan: 'express',
+    email_verified: false,
+    phone_verified: false,
+    kyc_complete: false,
     created_at: new Date().toISOString()
   };
 
   await env.STRATEGE_DB.put(userKey, JSON.stringify(user));
 
-  const token = await signJWT(
+  const jwtToken = await signJWT(
     { sub: userId, email: user.email, exp: Math.floor(Date.now() / 1000) + JWT_EXPIRY },
     secret
   );
 
-  // Send welcome email (fire and forget)
+  // Generate email verification token
+  const emailVerifyToken = crypto.randomUUID();
+  await env.STRATEGE_DB.put(`email_verify:${emailVerifyToken}`, JSON.stringify({ email, userId }), { expirationTtl: 86400 });
+
+  // Send welcome + verification email (fire and forget)
   try {
+    const verifyLink = `https://stratege-immo.fr/api/auth?action=verify-email&token=${emailVerifyToken}`;
     await sendEmail(env, {
       to: user.email,
-      subject: 'Bienvenue sur Stratège !',
-      html: welcomeEmailHTML(user.prenom)
+      subject: 'Bienvenue sur Stratège — Vérifiez votre email',
+      html: welcomeEmailHTML(user.prenom, verifyLink)
     });
   } catch (e) { /* email failure should not block registration */ }
 
   return jsonResponse({
     success: true,
-    token,
-    user: { id: userId, email: user.email, prenom: user.prenom, nom: user.nom, plan: user.plan }
+    token: jwtToken,
+    user: { id: userId, email: user.email, prenom: user.prenom, nom: user.nom, plan: user.plan, email_verified: false, phone_verified: false, kyc_complete: false }
   });
 }
 
@@ -256,7 +264,11 @@ async function handleMe(request, env, secret) {
   const user = JSON.parse(userData);
   return jsonResponse({
     success: true,
-    user: { id: user.id, email: user.email, prenom: user.prenom, nom: user.nom, plan: user.plan }
+    user: {
+      id: user.id, email: user.email, prenom: user.prenom, nom: user.nom, plan: user.plan,
+      phone: user.phone || null, email_verified: !!user.email_verified, phone_verified: !!user.phone_verified,
+      kyc_complete: !!user.kyc_complete, profile: user.profile || null
+    }
   });
 }
 
@@ -312,6 +324,149 @@ async function handleReset(request, env, secret) {
   return jsonResponse({ success: true, message: 'Mot de passe modifié avec succès' });
 }
 
+// ── SMS Verification (Twilio Verify) ────────────────────
+async function handleSendSMS(request, env, secret) {
+  const rateLimited = await checkRateLimit(request, env, 'sms');
+  if (rateLimited) return rateLimited;
+
+  const token = getToken(request);
+  if (!token) return jsonResponse({ success: false, error: 'Non authentifié' }, 401);
+  const payload = await verifyJWT(token, secret);
+  if (!payload) return jsonResponse({ success: false, error: 'Token invalide' }, 401);
+
+  const body = await request.json();
+  const phone = sanitize(body.phone);
+  if (!phone || !/^\+\d{10,15}$/.test(phone)) {
+    return jsonResponse({ success: false, error: 'Numéro de téléphone invalide (format +33...)' }, 400);
+  }
+
+  // Store phone on user
+  const userKey = `user:${payload.email}`;
+  const userData = await env.STRATEGE_DB.get(userKey);
+  if (!userData) return jsonResponse({ success: false, error: 'Utilisateur introuvable' }, 404);
+  const user = JSON.parse(userData);
+  user.phone = phone;
+  user.phone_verified = false;
+  await env.STRATEGE_DB.put(userKey, JSON.stringify(user));
+
+  // Send verification via Twilio Verify
+  const creds = btoa(`${env.TWILIO_ACCOUNT_SID}:${env.TWILIO_AUTH_TOKEN}`);
+  const res = await fetch(`https://verify.twilio.com/v2/Services/${env.TWILIO_VERIFY_SID}/Verifications`, {
+    method: 'POST',
+    headers: { 'Authorization': `Basic ${creds}`, 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({ To: phone, Channel: 'sms' })
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    return jsonResponse({ success: false, error: data.message || 'Erreur envoi SMS' }, 400);
+  }
+
+  return jsonResponse({ success: true, message: 'Code SMS envoyé', status: data.status });
+}
+
+async function handleVerifySMS(request, env, secret) {
+  const rateLimited = await checkRateLimit(request, env, 'verify-sms');
+  if (rateLimited) return rateLimited;
+
+  const token = getToken(request);
+  if (!token) return jsonResponse({ success: false, error: 'Non authentifié' }, 401);
+  const payload = await verifyJWT(token, secret);
+  if (!payload) return jsonResponse({ success: false, error: 'Token invalide' }, 401);
+
+  const body = await request.json();
+  const code = sanitize(body.code);
+  const phone = sanitize(body.phone);
+  if (!code || !phone) return jsonResponse({ success: false, error: 'Code et téléphone requis' }, 400);
+
+  const creds = btoa(`${env.TWILIO_ACCOUNT_SID}:${env.TWILIO_AUTH_TOKEN}`);
+  const res = await fetch(`https://verify.twilio.com/v2/Services/${env.TWILIO_VERIFY_SID}/VerificationCheck`, {
+    method: 'POST',
+    headers: { 'Authorization': `Basic ${creds}`, 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({ To: phone, Code: code })
+  });
+  const data = await res.json();
+
+  if (data.status === 'approved') {
+    const userKey = `user:${payload.email}`;
+    const userData = await env.STRATEGE_DB.get(userKey);
+    if (userData) {
+      const user = JSON.parse(userData);
+      user.phone_verified = true;
+      await env.STRATEGE_DB.put(userKey, JSON.stringify(user));
+    }
+    return jsonResponse({ success: true, message: 'Téléphone vérifié', verified: true });
+  }
+
+  return jsonResponse({ success: false, error: 'Code incorrect ou expiré', verified: false }, 400);
+}
+
+// ── Email Verification ─────────────────────────────────
+async function handleVerifyEmail(request, env, secret) {
+  const url = new URL(request.url);
+  const token = url.searchParams.get('token');
+  if (!token) return new Response('Token manquant', { status: 400 });
+
+  const data = await env.STRATEGE_DB.get(`email_verify:${token}`);
+  if (!data) {
+    return new Response(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Lien expiré</title></head>
+    <body style="font-family:Inter,sans-serif;text-align:center;padding:80px">
+    <h2>Lien expiré ou invalide</h2><p>Reconnectez-vous pour renvoyer un email de vérification.</p>
+    <a href="/login.html" style="color:#4ECDC4">Se connecter</a></body></html>`, {
+      status: 400, headers: { 'Content-Type': 'text/html;charset=utf-8' }
+    });
+  }
+
+  const { email } = JSON.parse(data);
+  const userKey = `user:${email}`;
+  const userData = await env.STRATEGE_DB.get(userKey);
+  if (userData) {
+    const user = JSON.parse(userData);
+    user.email_verified = true;
+    await env.STRATEGE_DB.put(userKey, JSON.stringify(user));
+  }
+
+  // Delete used token
+  await env.STRATEGE_DB.delete(`email_verify:${token}`);
+
+  return new Response(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Email vérifié</title>
+  <meta http-equiv="refresh" content="3;url=/dashboard.html"></head>
+  <body style="font-family:Inter,sans-serif;text-align:center;padding:80px">
+  <h2 style="color:#1B2A4A">Email vérifié avec succès !</h2>
+  <p>Redirection vers votre espace...</p>
+  <a href="/dashboard.html" style="color:#4ECDC4">Accéder au dashboard</a></body></html>`, {
+    status: 200, headers: { 'Content-Type': 'text/html;charset=utf-8' }
+  });
+}
+
+// ── KYC Profile Update ─────────────────────────────────
+async function handleUpdateProfile(request, env, secret) {
+  const token = getToken(request);
+  if (!token) return jsonResponse({ success: false, error: 'Non authentifié' }, 401);
+  const payload = await verifyJWT(token, secret);
+  if (!payload) return jsonResponse({ success: false, error: 'Token invalide' }, 401);
+
+  const body = await request.json();
+  const userKey = `user:${payload.email}`;
+  const userData = await env.STRATEGE_DB.get(userKey);
+  if (!userData) return jsonResponse({ success: false, error: 'Utilisateur introuvable' }, 404);
+
+  const user = JSON.parse(userData);
+  user.profile = {
+    revenus_annuels: parseInt(body.revenus_annuels) || 0,
+    patrimoine_net: parseInt(body.patrimoine_net) || 0,
+    objectif: sanitize(body.objectif || ''),
+    experience: sanitize(body.experience || ''),
+    situation_familiale: sanitize(body.situation_familiale || ''),
+    regime_fiscal: sanitize(body.regime_fiscal || ''),
+    updated_at: new Date().toISOString()
+  };
+  user.kyc_complete = true;
+
+  await env.STRATEGE_DB.put(userKey, JSON.stringify(user));
+
+  return jsonResponse({ success: true, message: 'Profil mis à jour', profile: user.profile });
+}
+
 // ── Email via Mailchannels ──────────────────────────────
 async function sendEmail(env, { to, subject, html }) {
   const payload = {
@@ -337,54 +492,53 @@ async function sendEmail(env, { to, subject, html }) {
 // ── Email templates ─────────────────────────────────────
 function emailWrapper(content) {
   return `<!DOCTYPE html><html><head><meta charset="utf-8"/></head>
-<body style="margin:0;padding:0;background:#EBF8F5;font-family:'DM Sans',Arial,sans-serif">
-<table width="100%" cellpadding="0" cellspacing="0" style="background:#EBF8F5;padding:40px 0">
+<body style="margin:0;padding:0;background:#F8F9FA;font-family:'Inter',Arial,sans-serif">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#F8F9FA;padding:40px 0">
 <tr><td align="center">
 <table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.06)">
-<tr><td style="background:#1E3040;padding:32px 40px;text-align:center">
-<span style="font-size:28px;font-weight:700;color:#3DD9BE;font-family:Georgia,serif">Stratège</span>
+<tr><td style="background:#1B2A4A;padding:32px 40px;text-align:center">
+<span style="font-size:28px;font-weight:700;color:#4ECDC4;font-family:Georgia,serif">Stratège</span>
 </td></tr>
 <tr><td style="padding:40px">${content}</td></tr>
-<tr><td style="background:#f5f9fb;padding:24px 40px;text-align:center;font-size:12px;color:#7FA3B9;line-height:1.6">
+<tr><td style="background:#f5f9fb;padding:24px 40px;text-align:center;font-size:12px;color:#6B7F99;line-height:1.6">
 JESPER SAS — 51 bis rue de Miromesnil, 75008 Paris<br>
 CPI 7501 2025 000 000 012 — Transaction<br>
-<a href="https://stratege-immo.fr/mentions-legales.html" style="color:#3DD9BE">Mentions légales</a> |
-<a href="https://stratege-immo.fr/politique-confidentialite.html" style="color:#3DD9BE">Confidentialité</a>
+<a href="https://stratege-immo.fr/mentions-legales.html" style="color:#4ECDC4">Mentions légales</a> |
+<a href="https://stratege-immo.fr/politique-confidentialite.html" style="color:#4ECDC4">Confidentialité</a>
 </td></tr>
 </table>
 </td></tr></table></body></html>`;
 }
 
-function welcomeEmailHTML(prenom) {
+function welcomeEmailHTML(prenom, verifyLink) {
   return emailWrapper(`
-<h2 style="color:#1E3040;font-family:Georgia,serif;margin:0 0 16px">Bienvenue ${prenom} !</h2>
-<p style="color:#3D566A;font-size:16px;line-height:1.6;margin:0 0 24px">
-Votre compte Stratège est maintenant actif. Vous pouvez simuler votre capacité d'investissement,
-sauvegarder vos projets et être accompagné par un conseiller dédié.
+<h2 style="color:#1B2A4A;font-family:Georgia,serif;margin:0 0 16px">Bienvenue ${prenom} !</h2>
+<p style="color:#3F4E66;font-size:16px;line-height:1.6;margin:0 0 24px">
+Votre compte Stratège est maintenant actif. Vérifiez votre email pour accéder à toutes les fonctionnalités.
 </p>
 <div style="text-align:center;margin:32px 0">
-<a href="https://stratege-immo.fr/index.html#simulation" style="background:#3DD9BE;color:#1E3040;padding:14px 32px;border-radius:999px;text-decoration:none;font-weight:600;font-size:15px;display:inline-block">
-Lancer ma première simulation
+<a href="${verifyLink}" style="background:#4ECDC4;color:#1B2A4A;padding:14px 32px;border-radius:999px;text-decoration:none;font-weight:600;font-size:15px;display:inline-block">
+Vérifier mon email
 </a>
 </div>
-<p style="color:#7FA3B9;font-size:14px;margin:0">
+<p style="color:#6B7F99;font-size:14px;margin:0">
 Si vous n'êtes pas à l'origine de cette inscription, ignorez cet email.
 </p>`);
 }
 
 function resetEmailHTML(prenom, resetLink) {
   return emailWrapper(`
-<h2 style="color:#1E3040;font-family:Georgia,serif;margin:0 0 16px">Réinitialisation du mot de passe</h2>
-<p style="color:#3D566A;font-size:16px;line-height:1.6;margin:0 0 24px">
+<h2 style="color:#1B2A4A;font-family:Georgia,serif;margin:0 0 16px">Réinitialisation du mot de passe</h2>
+<p style="color:#3F4E66;font-size:16px;line-height:1.6;margin:0 0 24px">
 Bonjour ${prenom}, vous avez demandé la réinitialisation de votre mot de passe.
 Cliquez sur le bouton ci-dessous (lien valable 1 heure).
 </p>
 <div style="text-align:center;margin:32px 0">
-<a href="${resetLink}" style="background:#3DD9BE;color:#1E3040;padding:14px 32px;border-radius:999px;text-decoration:none;font-weight:600;font-size:15px;display:inline-block">
+<a href="${resetLink}" style="background:#4ECDC4;color:#1B2A4A;padding:14px 32px;border-radius:999px;text-decoration:none;font-weight:600;font-size:15px;display:inline-block">
 Réinitialiser mon mot de passe
 </a>
 </div>
-<p style="color:#7FA3B9;font-size:14px;margin:0">
+<p style="color:#6B7F99;font-size:14px;margin:0">
 Si vous n'avez pas fait cette demande, ignorez cet email.
 </p>`);
 }

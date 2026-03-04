@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════
-   STRATÈGE — Shared Components (navbar, footer, auth state)
+   STRATÈGE — Shared Components (navbar, footer, auth, toasts)
    Include on every page: <script src="assets/shared.js"></script>
    ═══════════════════════════════════════════════════════════ */
 
@@ -20,9 +20,15 @@ function getInitials() {
   return ((u.prenom || '')[0] + (u.nom || '')[0]).toUpperCase();
 }
 
+// ── Logo SVG (navy + teal) ─────────────────────────────
+var LOGO_SVG = '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+  '<path d="M13 2C13 2 15.5 10.5 7 13C7 13 15.5 15.5 13 24C13 24 15.5 15.5 24 13C24 13 15.5 10.5 13 2Z" fill="#2D3A52"/>' +
+  '<path d="M20 10C20 10 22 16.5 15.5 18.5C15.5 18.5 22 20.5 20 27C20 27 22 20.5 28.5 18.5C28.5 18.5 22 16.5 20 10Z" fill="#4ECDC4"/>' +
+  '<path d="M26 2.5C26 2.5 27 5.5 24 6.5C24 6.5 27 7.5 26 10.5C26 10.5 27 7.5 30 6.5C30 6.5 27 5.5 26 2.5Z" fill="#95E8DF"/>' +
+  '</svg>';
+
 // ── Render Navbar ───────────────────────────────────────
 function renderNavbar(activePage) {
-  var user = getUser();
   var loggedIn = isLoggedIn();
 
   var authHTML = loggedIn
@@ -30,6 +36,8 @@ function renderNavbar(activePage) {
         '<button class="nav-avatar" onclick="toggleUserDropdown()">' + getInitials() + '</button>' +
         '<div class="nav-dropdown" id="nav-dropdown">' +
           '<a href="dashboard.html">Tableau de bord</a>' +
+          '<a href="dashboard.html#documents">Documents</a>' +
+          '<a href="dashboard.html#profil">Profil</a>' +
           '<a href="#" onclick="logout()">Déconnexion</a>' +
         '</div>' +
       '</div>'
@@ -44,19 +52,13 @@ function renderNavbar(activePage) {
   if (!nav) return;
   nav.innerHTML =
     '<div class="container">' +
-      '<a href="index.html" class="nav-logo">' +
-        '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">' +
-          '<path d="M13 2C13 2 15.5 10.5 7 13C7 13 15.5 15.5 13 24C13 24 15.5 15.5 24 13C24 13 15.5 10.5 13 2Z" fill="#3D566A"/>' +
-          '<path d="M20 10C20 10 22 16.5 15.5 18.5C15.5 18.5 22 20.5 20 27C20 27 22 20.5 28.5 18.5C28.5 18.5 22 16.5 20 10Z" fill="#3DD9BE"/>' +
-          '<path d="M26 2.5C26 2.5 27 5.5 24 6.5C24 6.5 27 7.5 26 10.5C26 10.5 27 7.5 30 6.5C30 6.5 27 5.5 26 2.5Z" fill="#6EE6D0"/>' +
-        '</svg>' +
-        'Stratège' +
-      '</a>' +
+      '<a href="index.html" class="nav-logo">' + LOGO_SVG + 'Stratège</a>' +
       '<ul class="nav-links">' +
         '<li><a href="index.html#simulation"' + isActive('simulation') + '>Simulation</a></li>' +
         '<li><a href="index.html#catalogue"' + isActive('catalogue') + '>Catalogue</a></li>' +
         '<li><a href="scpi.html"' + isActive('scpi') + '>SCPI</a></li>' +
         '<li><a href="pret.html"' + isActive('pret') + '>Prêt immobilier</a></li>' +
+        (loggedIn ? '<li><a href="dashboard.html"' + isActive('dashboard') + '>Dashboard</a></li>' : '') +
       '</ul>' +
       authHTML +
       '<button class="nav-hamburger" onclick="toggleMenu()" aria-label="Menu">' +
@@ -86,14 +88,7 @@ function renderFooter() {
     '<div class="container">' +
       '<div class="footer-grid">' +
         '<div class="footer-brand">' +
-          '<div class="nav-logo">' +
-            '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">' +
-              '<path d="M13 2C13 2 15.5 10.5 7 13C7 13 15.5 15.5 13 24C13 24 15.5 15.5 24 13C24 13 15.5 10.5 13 2Z" fill="#3D566A"/>' +
-              '<path d="M20 10C20 10 22 16.5 15.5 18.5C15.5 18.5 22 20.5 20 27C20 27 22 20.5 28.5 18.5C28.5 18.5 22 16.5 20 10Z" fill="#3DD9BE"/>' +
-              '<path d="M26 2.5C26 2.5 27 5.5 24 6.5C24 6.5 27 7.5 26 10.5C26 10.5 27 7.5 30 6.5C30 6.5 27 5.5 26 2.5Z" fill="#6EE6D0"/>' +
-            '</svg>' +
-            'Stratège' +
-          '</div>' +
+          '<div class="nav-logo">' + LOGO_SVG + 'Stratège</div>' +
           '<p>L\'immobilier malin et durable. Votre partenaire pour construire un patrimoine performant et responsable.</p>' +
           '<div class="footer-socials">' +
             '<a href="#" aria-label="LinkedIn">in</a>' +
@@ -113,11 +108,11 @@ function renderFooter() {
           '</ul>' +
         '</div>' +
         '<div class="footer-col">' +
-          '<h4>Ressources</h4>' +
+          '<h4>Investir</h4>' +
           '<ul>' +
             '<li><a href="pret.html">Simulateur prêt</a></li>' +
             '<li><a href="scpi.html">Comparatif SCPI</a></li>' +
-            '<li><a href="#">Guide investisseur</a></li>' +
+            '<li><a href="bien-detail.html?id=bien_001">Bien exemple</a></li>' +
           '</ul>' +
         '</div>' +
         '<div class="footer-col">' +
@@ -145,15 +140,54 @@ function toggleMenu() {
   document.querySelector('.navbar').classList.toggle('open');
 }
 
-// ── Toast notification ──────────────────────────────────
+// ── Toast notification (4 types) ────────────────────────
+var TOAST_ICONS = {
+  success: '\u2713',
+  error: '\u2717',
+  warning: '\u26A0',
+  info: '\u2139'
+};
+
 function showToast(message, type) {
+  type = type || 'success';
   var toast = document.createElement('div');
-  toast.className = 'toast toast-' + (type || 'success');
-  toast.textContent = message;
+  toast.className = 'toast toast-' + type;
+  toast.innerHTML = '<span class="toast-icon">' + (TOAST_ICONS[type] || '') + '</span> ' + message;
   document.body.appendChild(toast);
   setTimeout(function() { toast.classList.add('visible'); }, 10);
   setTimeout(function() {
     toast.classList.remove('visible');
     setTimeout(function() { toast.remove(); }, 300);
-  }, 3000);
+  }, 3500);
 }
+
+// ── Page loader ─────────────────────────────────────────
+function showLoader() {
+  var loader = document.getElementById('page-loader');
+  if (loader) loader.classList.remove('hidden');
+}
+
+function hideLoader() {
+  var loader = document.getElementById('page-loader');
+  if (loader) loader.classList.add('hidden');
+}
+
+// Auto-hide loader on DOMContentLoaded
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(hideLoader, 200);
+});
+
+// ── IntersectionObserver for animations ─────────────────
+document.addEventListener('DOMContentLoaded', function() {
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.fade-up, .pillar, .profile-card, .bien-card, .why-box').forEach(function(el) {
+    observer.observe(el);
+  });
+});

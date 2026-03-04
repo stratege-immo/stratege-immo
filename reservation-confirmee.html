@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Réservation confirmée — Stratège</title>
+  <meta name="description" content="Votre réservation a été confirmée. Prochaines étapes pour finaliser votre investissement." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+</head>
+<body>
+
+  <nav class="navbar"></nav>
+
+  <div class="tunnel-container">
+    <div class="tunnel-card">
+      <div class="icon-success">✅</div>
+      <h2>Réservation confirmée !</h2>
+      <p>Votre paiement a été traité avec succès. Votre réservation est désormais enregistrée.</p>
+
+      <div style="background:var(--surface-2);border-radius:var(--radius-md);padding:20px;margin-bottom:24px">
+        <div style="font-size:13px;color:var(--neutral-500);margin-bottom:4px">Référence</div>
+        <div class="mono" style="font-size:24px;font-weight:700;color:var(--neutral-800)" id="ref-id">—</div>
+      </div>
+
+      <div class="tunnel-steps">
+        <div class="tunnel-step">
+          <div class="tunnel-step-num">1</div>
+          <span><strong>Paiement</strong> — Frais de réservation encaissés ✅</span>
+        </div>
+        <div class="tunnel-step">
+          <div class="tunnel-step-num">2</div>
+          <span><strong>Signature</strong> — Vous recevrez le contrat par email pour signature électronique</span>
+        </div>
+        <div class="tunnel-step">
+          <div class="tunnel-step-num">3</div>
+          <span><strong>Rendez-vous</strong> — Un conseiller vous contactera sous 48h</span>
+        </div>
+        <div class="tunnel-step">
+          <div class="tunnel-step-num">4</div>
+          <span><strong>Acte notarié</strong> — Finalisation chez le notaire dans les 3 mois</span>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:24px">
+        <a href="dashboard.html" class="btn-primary">Mon tableau de bord</a>
+        <a href="index.html#catalogue" class="btn-secondary">Voir d'autres biens</a>
+      </div>
+
+      <p style="font-size:12px;color:var(--neutral-400);margin-top:24px;line-height:1.6">
+        Un email de confirmation a été envoyé à votre adresse. Conservez cette page comme justificatif.<br>
+        Pour toute question : <a href="mailto:contact@stratege-immo.fr" style="color:var(--primary-500)">contact@stratege-immo.fr</a>
+      </p>
+    </div>
+  </div>
+
+  <footer class="footer"></footer>
+
+  <script src="assets/shared.js"></script>
+  <script>
+    renderNavbar();
+    renderFooter();
+
+    var params = new URLSearchParams(window.location.search);
+    var bienId = params.get('bien') || '—';
+    var sessionId = params.get('session_id') || '';
+
+    document.getElementById('ref-id').textContent = 'STR-' + bienId.replace('bien_', '').toUpperCase() + '-' + Date.now().toString(36).toUpperCase().slice(-4);
+  </script>
+
+</body>
+</html>

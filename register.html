@@ -7,52 +7,167 @@
   <meta name="description" content="Créez votre compte Stratège pour simuler, sauvegarder et piloter vos investissements immobiliers." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="assets/style.css" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 </head>
 <body>
 
   <nav class="navbar"></nav>
 
   <main class="auth-page">
-    <div class="auth-box">
-      <h1>Créer un compte</h1>
+    <div class="auth-box" style="max-width:520px">
+      <h1 style="text-align:center;margin-bottom:8px">Créer un compte</h1>
       <p class="auth-subtitle">Rejoignez Stratège et pilotez vos investissements</p>
+
+      <!-- Step indicator -->
+      <div class="onboarding-steps" id="step-indicator">
+        <div class="onboarding-step active" data-step="1">
+          <div class="onboarding-step-dot">1</div>
+          <span class="onboarding-step-label">Compte</span>
+        </div>
+        <div class="onboarding-line" id="line-1-2"></div>
+        <div class="onboarding-step" data-step="2">
+          <div class="onboarding-step-dot">2</div>
+          <span class="onboarding-step-label">Vérification</span>
+        </div>
+        <div class="onboarding-line" id="line-2-3"></div>
+        <div class="onboarding-step" data-step="3">
+          <div class="onboarding-step-dot">3</div>
+          <span class="onboarding-step-label">Profil</span>
+        </div>
+      </div>
 
       <div class="auth-error" id="register-error" style="display:none"></div>
 
-      <form id="register-form" onsubmit="return handleRegister(event)">
-        <div class="form-row">
-          <div class="form-group">
-            <label for="prenom">Prénom</label>
-            <input type="text" id="prenom" required placeholder="Jean" autocomplete="given-name" />
+      <!-- STEP 1: Account creation -->
+      <div id="step-1" class="sim-etape active">
+        <form id="register-form" onsubmit="return handleRegister(event)">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="form-group">
+              <label for="prenom">Prénom</label>
+              <input type="text" id="prenom" required placeholder="Jean" autocomplete="given-name" />
+            </div>
+            <div class="form-group">
+              <label for="nom">Nom</label>
+              <input type="text" id="nom" required placeholder="Dupont" autocomplete="family-name" />
+            </div>
           </div>
           <div class="form-group">
-            <label for="nom">Nom</label>
-            <input type="text" id="nom" required placeholder="Dupont" autocomplete="family-name" />
+            <label for="email">Email</label>
+            <input type="email" id="email" required placeholder="vous@exemple.fr" autocomplete="email" />
+          </div>
+          <div class="form-group">
+            <label for="password">Mot de passe</label>
+            <input type="password" id="password" required minlength="8" placeholder="Min. 8 caractères" autocomplete="new-password" />
+          </div>
+          <div class="form-group">
+            <label for="password-confirm">Confirmer</label>
+            <input type="password" id="password-confirm" required minlength="8" placeholder="Confirmez" autocomplete="new-password" />
+          </div>
+          <div class="checkbox-group">
+            <input type="checkbox" id="rgpd" required />
+            <label for="rgpd">J'accepte les <a href="cgv-cgu.html" target="_blank">CGV/CGU</a> et la <a href="politique-confidentialite.html" target="_blank">politique de confidentialité</a></label>
+          </div>
+          <button type="submit" class="btn-primary" id="register-btn" style="width:100%;justify-content:center">Créer mon compte</button>
+          <div style="text-align:center;margin-top:16px;font-size:14px;color:var(--neutral-500)">
+            Déjà un compte ? <a href="login.html" style="color:var(--primary-500);font-weight:600">Se connecter</a>
+          </div>
+        </form>
+      </div>
+
+      <!-- STEP 2: Phone + Email verification -->
+      <div id="step-2" class="sim-etape">
+        <h3 style="text-align:center;font-size:22px;margin-bottom:8px">Vérification</h3>
+        <p style="text-align:center;color:var(--neutral-500);font-size:14px;margin-bottom:24px">Sécurisez votre compte avec la double vérification</p>
+
+        <!-- Email verification status -->
+        <div style="padding:16px;background:var(--surface-2);border-radius:var(--radius-md);margin-bottom:20px;display:flex;align-items:center;gap:12px">
+          <span id="email-check-icon" style="font-size:20px">⏳</span>
+          <div>
+            <div style="font-size:14px;font-weight:600;color:var(--neutral-800)">Email</div>
+            <div id="email-check-text" style="font-size:13px;color:var(--neutral-500)">Un lien de vérification a été envoyé</div>
           </div>
         </div>
+
+        <!-- Phone verification -->
         <div class="form-group">
-          <label for="email">Email</label>
-          <input type="email" id="email" required placeholder="vous@exemple.fr" autocomplete="email" />
+          <label for="phone">Numéro de téléphone</label>
+          <input type="tel" id="phone" placeholder="+33612345678" />
+        </div>
+        <button class="btn-secondary" id="send-sms-btn" onclick="sendSMS()" style="width:100%;justify-content:center;margin-bottom:16px">Envoyer le code SMS</button>
+
+        <div id="sms-code-section" style="display:none">
+          <div class="form-group">
+            <label for="sms-code">Code de vérification</label>
+            <input type="text" id="sms-code" placeholder="123456" maxlength="6" style="text-align:center;font-family:var(--font-mono);font-size:24px;letter-spacing:8px" />
+          </div>
+          <button class="btn-primary" id="verify-sms-btn" onclick="verifySMS()" style="width:100%;justify-content:center">Vérifier le code</button>
+        </div>
+
+        <div style="text-align:center;margin-top:20px">
+          <button class="btn-ghost btn-small" onclick="goToStep(3)">Passer cette étape</button>
+        </div>
+      </div>
+
+      <!-- STEP 3: KYC Investor profile -->
+      <div id="step-3" class="sim-etape">
+        <h3 style="text-align:center;font-size:22px;margin-bottom:8px">Profil investisseur</h3>
+        <p style="text-align:center;color:var(--neutral-500);font-size:14px;margin-bottom:24px">Personnalisez votre expérience Stratège</p>
+
+        <div class="form-group">
+          <label for="revenus">Revenus annuels nets</label>
+          <input type="number" id="revenus" placeholder="45000" />
+          <span class="input-suffix">&euro;/an</span>
         </div>
         <div class="form-group">
-          <label for="password">Mot de passe</label>
-          <input type="password" id="password" required minlength="8" placeholder="Min. 8 caractères" autocomplete="new-password" />
+          <label for="patrimoine">Patrimoine net estimé</label>
+          <input type="number" id="patrimoine" placeholder="100000" />
+          <span class="input-suffix">&euro;</span>
         </div>
         <div class="form-group">
-          <label for="password-confirm">Confirmer le mot de passe</label>
-          <input type="password" id="password-confirm" required minlength="8" placeholder="Confirmez votre mot de passe" autocomplete="new-password" />
+          <label for="objectif">Objectif principal</label>
+          <select id="objectif">
+            <option value="">Sélectionnez...</option>
+            <option value="rendement">Rendement locatif</option>
+            <option value="defiscalisation">Défiscalisation</option>
+            <option value="patrimoine">Constitution de patrimoine</option>
+            <option value="retraite">Préparation retraite</option>
+          </select>
         </div>
-        <div class="checkbox-group">
-          <input type="checkbox" id="rgpd" required />
-          <label for="rgpd">J'accepte les <a href="cgv-cgu.html" target="_blank">CGV/CGU</a> et la <a href="politique-confidentialite.html" target="_blank">politique de confidentialité</a></label>
+        <div class="form-group">
+          <label for="experience">Expérience en investissement</label>
+          <select id="experience">
+            <option value="">Sélectionnez...</option>
+            <option value="debutant">Débutant — Première acquisition</option>
+            <option value="intermediaire">Intermédiaire — 1 à 3 biens</option>
+            <option value="expert">Expert — Plus de 3 biens</option>
+          </select>
         </div>
-        <button type="submit" class="btn-primary btn-full" id="register-btn">Créer mon compte</button>
-        <div class="auth-links">
-          <span>Déjà un compte ? <a href="login.html">Se connecter</a></span>
+        <div class="form-group">
+          <label for="situation">Situation familiale</label>
+          <select id="situation">
+            <option value="">Sélectionnez...</option>
+            <option value="celibataire">Célibataire</option>
+            <option value="couple">En couple / Marié(e)</option>
+            <option value="famille">Famille avec enfants</option>
+          </select>
         </div>
-      </form>
+        <div class="form-group">
+          <label for="regime">Régime fiscal</label>
+          <select id="regime">
+            <option value="">Sélectionnez...</option>
+            <option value="ir">Impôt sur le revenu (IR)</option>
+            <option value="micro">Micro-entreprise</option>
+            <option value="is">Société (IS / SCI)</option>
+          </select>
+        </div>
+
+        <button class="btn-primary" id="profile-btn" onclick="saveProfile()" style="width:100%;justify-content:center">Finaliser mon inscription</button>
+        <div style="text-align:center;margin-top:12px">
+          <button class="btn-ghost btn-small" onclick="window.location.href='dashboard.html'">Compléter plus tard</button>
+        </div>
+      </div>
     </div>
   </main>
 
@@ -63,6 +178,9 @@
     renderNavbar();
     renderFooter();
 
+    var currentStep = 1;
+    var authToken = null;
+
     if (isLoggedIn()) window.location.href = 'dashboard.html';
 
     function showError(msg) {
@@ -70,9 +188,25 @@
       el.textContent = msg;
       el.style.display = 'block';
     }
-
     function hideError() {
       document.getElementById('register-error').style.display = 'none';
+    }
+
+    function goToStep(step) {
+      currentStep = step;
+      document.querySelectorAll('.sim-etape').forEach(function(el) { el.classList.remove('active'); });
+      document.getElementById('step-' + step).classList.add('active');
+      hideError();
+
+      // Update step indicator
+      document.querySelectorAll('.onboarding-step').forEach(function(el) {
+        var s = parseInt(el.dataset.step);
+        el.classList.remove('active', 'completed');
+        if (s < step) el.classList.add('completed');
+        if (s === step) el.classList.add('active');
+      });
+      if (step >= 2) document.getElementById('line-1-2').classList.add('done');
+      if (step >= 3) document.getElementById('line-2-3').classList.add('done');
     }
 
     async function handleRegister(e) {
@@ -82,8 +216,8 @@
       var pw = document.getElementById('password').value;
       var confirm = document.getElementById('password-confirm').value;
       if (pw !== confirm) { showError('Les mots de passe ne correspondent pas.'); return false; }
-      if (pw.length < 8) { showError('Le mot de passe doit contenir au moins 8 caractères.'); return false; }
-      if (!document.getElementById('rgpd').checked) { showError('Veuillez accepter les CGV/CGU et la politique de confidentialité.'); return false; }
+      if (pw.length < 8) { showError('Min. 8 caractères.'); return false; }
+      if (!document.getElementById('rgpd').checked) { showError('Acceptez les CGV/CGU.'); return false; }
 
       var btn = document.getElementById('register-btn');
       btn.disabled = true;
@@ -97,21 +231,129 @@
             prenom: document.getElementById('prenom').value,
             nom: document.getElementById('nom').value,
             email: document.getElementById('email').value,
-            password: pw
+            password: pw,
+            rgpd: true
           })
         });
         var data = await res.json();
         if (!data.success) { showError(data.error); btn.disabled = false; btn.textContent = 'Créer mon compte'; return false; }
 
+        authToken = data.token;
         localStorage.setItem('stratege_token', data.token);
         localStorage.setItem('stratege_user', JSON.stringify(data.user));
-        window.location.href = 'dashboard.html';
+
+        goToStep(2);
       } catch (err) {
         showError('Erreur réseau. Réessayez.');
         btn.disabled = false;
         btn.textContent = 'Créer mon compte';
       }
       return false;
+    }
+
+    async function sendSMS() {
+      hideError();
+      var phone = document.getElementById('phone').value.trim();
+      if (!phone || !/^\+\d{10,15}$/.test(phone)) {
+        showError('Format: +33612345678');
+        return;
+      }
+      var btn = document.getElementById('send-sms-btn');
+      btn.disabled = true;
+      btn.textContent = 'Envoi…';
+
+      try {
+        var token = authToken || localStorage.getItem('stratege_token');
+        var res = await fetch('/api/auth?action=send-sms', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ phone: phone })
+        });
+        var data = await res.json();
+        if (data.success) {
+          document.getElementById('sms-code-section').style.display = 'block';
+          btn.textContent = 'Code envoyé !';
+          btn.style.borderColor = 'var(--success-500)';
+          btn.style.color = 'var(--success-600)';
+        } else {
+          showError(data.error);
+          btn.disabled = false;
+          btn.textContent = 'Envoyer le code SMS';
+        }
+      } catch (err) {
+        showError('Erreur réseau.');
+        btn.disabled = false;
+        btn.textContent = 'Envoyer le code SMS';
+      }
+    }
+
+    async function verifySMS() {
+      hideError();
+      var code = document.getElementById('sms-code').value.trim();
+      var phone = document.getElementById('phone').value.trim();
+      if (!code || code.length < 4) { showError('Entrez le code reçu par SMS.'); return; }
+
+      var btn = document.getElementById('verify-sms-btn');
+      btn.disabled = true;
+      btn.textContent = 'Vérification…';
+
+      try {
+        var token = authToken || localStorage.getItem('stratege_token');
+        var res = await fetch('/api/auth?action=verify-sms', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ phone: phone, code: code })
+        });
+        var data = await res.json();
+        if (data.verified) {
+          btn.textContent = 'Vérifié !';
+          btn.style.background = 'var(--success-500)';
+          setTimeout(function() { goToStep(3); }, 800);
+        } else {
+          showError(data.error || 'Code incorrect.');
+          btn.disabled = false;
+          btn.textContent = 'Vérifier le code';
+        }
+      } catch (err) {
+        showError('Erreur réseau.');
+        btn.disabled = false;
+        btn.textContent = 'Vérifier le code';
+      }
+    }
+
+    async function saveProfile() {
+      hideError();
+      var btn = document.getElementById('profile-btn');
+      btn.disabled = true;
+      btn.textContent = 'Sauvegarde…';
+
+      try {
+        var token = authToken || localStorage.getItem('stratege_token');
+        var res = await fetch('/api/auth?action=update-profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({
+            revenus_annuels: document.getElementById('revenus').value,
+            patrimoine_net: document.getElementById('patrimoine').value,
+            objectif: document.getElementById('objectif').value,
+            experience: document.getElementById('experience').value,
+            situation_familiale: document.getElementById('situation').value,
+            regime_fiscal: document.getElementById('regime').value
+          })
+        });
+        var data = await res.json();
+        if (data.success) {
+          window.location.href = 'dashboard.html';
+        } else {
+          showError(data.error);
+          btn.disabled = false;
+          btn.textContent = 'Finaliser mon inscription';
+        }
+      } catch (err) {
+        showError('Erreur réseau.');
+        btn.disabled = false;
+        btn.textContent = 'Finaliser mon inscription';
+      }
     }
   </script>
 

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Détail du bien — Stratège</title>
+  <meta name="description" content="Détail du bien immobilier et réservation sur Stratège." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+</head>
+<body>
+
+  <nav class="navbar"></nav>
+
+  <main class="bien-detail-hero">
+    <div class="container">
+
+      <div class="bien-detail-grid">
+        <!-- Left: Gallery + Tabs -->
+        <div>
+          <!-- Gallery -->
+          <div class="gallery-main" id="gallery-main">
+            <div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:64px;background:linear-gradient(135deg,var(--surface-2),var(--primary-50))" id="gallery-placeholder">🏠</div>
+          </div>
+
+          <!-- Tags -->
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin:16px 0" id="bien-tags"></div>
+
+          <!-- Tabs -->
+          <div class="tab-nav">
+            <button class="tab-btn active" onclick="showTab('description', this)">Description</button>
+            <button class="tab-btn" onclick="showTab('fiscalite', this)">Fiscalité</button>
+            <button class="tab-btn" onclick="showTab('financement', this)">Financement</button>
+            <button class="tab-btn" onclick="showTab('documents', this)">Documents</button>
+          </div>
+
+          <!-- Tab: Description -->
+          <div class="tab-content active" id="tab-description">
+            <h2 id="bien-titre" style="margin-bottom:16px">—</h2>
+            <p id="bien-location" style="color:var(--neutral-500);margin-bottom:24px">—</p>
+
+            <div class="bien-detail-stats" id="bien-stats">
+              <div class="bien-detail-stat">
+                <div class="stat-value mono" id="stat-surface">—</div>
+                <div class="stat-label">Surface</div>
+              </div>
+              <div class="bien-detail-stat">
+                <div class="stat-value mono" id="stat-etage">—</div>
+                <div class="stat-label">Étage</div>
+              </div>
+              <div class="bien-detail-stat">
+                <div class="stat-value mono" id="stat-dpe">—</div>
+                <div class="stat-label">DPE</div>
+              </div>
+              <div class="bien-detail-stat">
+                <div class="stat-value mono" id="stat-rendement">—</div>
+                <div class="stat-label">Rendement</div>
+              </div>
+            </div>
+
+            <div style="margin-top:24px">
+              <h4 style="margin-bottom:12px">Caractéristiques</h4>
+              <div id="bien-details-list" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:14px;color:var(--neutral-600)"></div>
+            </div>
+          </div>
+
+          <!-- Tab: Fiscalité -->
+          <div class="tab-content" id="tab-fiscalite">
+            <h3 style="margin-bottom:16px">Simulation fiscale</h3>
+            <div id="fiscal-result" style="color:var(--neutral-500)">Chargement de la simulation...</div>
+          </div>
+
+          <!-- Tab: Financement -->
+          <div class="tab-content" id="tab-financement">
+            <h3 style="margin-bottom:16px">Simulateur de financement</h3>
+            <div class="form-group">
+              <label for="fin-apport">Apport personnel</label>
+              <input type="number" id="fin-apport" placeholder="20000" value="20000" />
+              <span class="input-suffix">&euro;</span>
+            </div>
+            <div class="form-group">
+              <label for="fin-duree">Durée</label>
+              <select id="fin-duree">
+                <option value="15">15 ans</option>
+                <option value="20" selected>20 ans</option>
+                <option value="25">25 ans</option>
+              </select>
+            </div>
+            <button class="btn-primary" onclick="simulerFinancement()" style="width:100%;justify-content:center">Calculer</button>
+            <div id="fin-result" style="margin-top:20px"></div>
+          </div>
+
+          <!-- Tab: Documents -->
+          <div class="tab-content" id="tab-documents">
+            <h3 style="margin-bottom:16px">Documents disponibles</h3>
+            <div class="doc-list">
+              <div class="doc-item">
+                <div class="doc-info">
+                  <div class="doc-icon">📋</div>
+                  <div><div class="doc-name">Plaquette commerciale</div><div class="doc-date">PDF — Bientôt disponible</div></div>
+                </div>
+              </div>
+              <div class="doc-item">
+                <div class="doc-info">
+                  <div class="doc-icon">📐</div>
+                  <div><div class="doc-name">Plan du lot</div><div class="doc-date">PDF — Bientôt disponible</div></div>
+                </div>
+              </div>
+              <div class="doc-item">
+                <div class="doc-info">
+                  <div class="doc-icon">⚡</div>
+                  <div><div class="doc-name">Diagnostic DPE</div><div class="doc-date">PDF — Bientôt disponible</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Sidebar card -->
+        <div>
+          <div class="bien-sidebar-card">
+            <div class="price mono" id="sidebar-prix">—</div>
+            <div class="price-sub" id="sidebar-mensualite">—</div>
+
+            <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:24px;padding:16px;background:var(--surface-2);border-radius:var(--radius-md)">
+              <div style="display:flex;justify-content:space-between;font-size:14px">
+                <span style="color:var(--neutral-500)">Loyer estimé</span>
+                <span class="mono" style="font-weight:600" id="sidebar-loyer">—</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:14px">
+                <span style="color:var(--neutral-500)">Effort réel</span>
+                <span class="mono" style="font-weight:700;color:var(--primary-600)" id="sidebar-effort">—</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:14px">
+                <span style="color:var(--neutral-500)">Rendement brut</span>
+                <span class="mono" style="font-weight:600" id="sidebar-rendement">—</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:14px">
+                <span style="color:var(--neutral-500)">Dispositif</span>
+                <span id="sidebar-dispositif">—</span>
+              </div>
+            </div>
+
+            <button class="btn-primary" onclick="reserverBien()" style="width:100%;justify-content:center;margin-bottom:12px" id="btn-reserver">Réserver ce bien</button>
+            <button class="btn-secondary" onclick="contacterConseiller()" style="width:100%;justify-content:center">Contacter un conseiller</button>
+
+            <p style="font-size:12px;color:var(--neutral-400);margin-top:16px;text-align:center;line-height:1.6">
+              Les résultats sont des estimations indicatives et ne constituent pas un conseil en investissement.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="footer"></footer>
+
+  <script src="assets/shared.js"></script>
+  <script>
+    renderNavbar();
+    renderFooter();
+
+    var bienData = null;
+    var bienId = new URLSearchParams(window.location.search).get('id');
+
+    function fmt(n) { return Number(n).toLocaleString('fr-FR', { maximumFractionDigits: 0 }); }
+
+    function showTab(name, btn) {
+      document.querySelectorAll('.tab-content').forEach(function(el) { el.classList.remove('active'); });
+      document.querySelectorAll('.tab-btn').forEach(function(el) { el.classList.remove('active'); });
+      document.getElementById('tab-' + name).classList.add('active');
+      btn.classList.add('active');
+    }
+
+    // Load bien
+    if (bienId) {
+      fetch('/api/biens').then(function(r) { return r.json(); }).then(function(data) {
+        if (!data.success) return;
+        bienData = data.biens.find(function(b) { return b.id === bienId; });
+        if (!bienData) { document.getElementById('bien-titre').textContent = 'Bien introuvable'; return; }
+
+        document.title = bienData.titre + ' — Stratège';
+        document.getElementById('bien-titre').textContent = bienData.titre;
+        document.getElementById('bien-location').textContent = bienData.ville;
+        document.getElementById('stat-surface').textContent = bienData.surface + ' m²';
+        document.getElementById('stat-etage').textContent = bienData.etage || '—';
+        document.getElementById('stat-dpe').textContent = bienData.dpe || '—';
+        document.getElementById('stat-rendement').textContent = bienData.rendement + '%';
+
+        document.getElementById('sidebar-prix').textContent = fmt(bienData.prix) + ' \u20ac';
+        document.getElementById('sidebar-mensualite').textContent = 'soit ' + fmt(bienData.mensualite) + ' \u20ac/mois sur 20 ans';
+        document.getElementById('sidebar-loyer').textContent = fmt(bienData.loyer_estime) + ' \u20ac/mois';
+        document.getElementById('sidebar-effort').textContent = fmt(bienData.effort_reel) + ' \u20ac/mois';
+        document.getElementById('sidebar-rendement').textContent = bienData.rendement + '%';
+        document.getElementById('sidebar-dispositif').textContent = bienData.dispositif;
+
+        // Tags
+        var tagsHtml = '';
+        (bienData.tags || []).forEach(function(t) { tagsHtml += '<span class="badge badge-primary">' + t + '</span>'; });
+        if (!bienData.disponible) tagsHtml += '<span class="badge badge-error">Indisponible</span>';
+        document.getElementById('bien-tags').innerHTML = tagsHtml;
+
+        // Details
+        document.getElementById('bien-details-list').innerHTML =
+          '<div>Surface : <strong>' + bienData.surface + ' m²</strong></div>' +
+          '<div>Étage : <strong>' + (bienData.etage || '—') + '</strong></div>' +
+          '<div>DPE : <strong>' + (bienData.dpe || '—') + '</strong></div>' +
+          '<div>Ville : <strong>' + bienData.ville + '</strong></div>' +
+          '<div>Dispositif : <strong>' + bienData.dispositif + '</strong></div>' +
+          '<div>Disponible : <strong>' + (bienData.disponible ? 'Oui' : 'Non') + '</strong></div>';
+
+        if (!bienData.disponible) {
+          document.getElementById('btn-reserver').disabled = true;
+          document.getElementById('btn-reserver').textContent = 'Bien indisponible';
+          document.getElementById('btn-reserver').style.opacity = '0.5';
+        }
+
+        // Fiscal simulation
+        loadFiscalSimulation();
+      });
+    }
+
+    function loadFiscalSimulation() {
+      if (!bienData) return;
+      fetch('/api/simulation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          profil: 'primo',
+          budget: bienData.prix,
+          apport: Math.round(bienData.prix * 0.1),
+          revenu_mensuel: 4000,
+          duree: 20
+        })
+      }).then(function(r) { return r.json(); }).then(function(data) {
+        if (!data.success) { document.getElementById('fiscal-result').textContent = 'Erreur simulation'; return; }
+        var r = data.resultats;
+        document.getElementById('fiscal-result').innerHTML =
+          '<div class="results-grid">' +
+          '<div class="result-card highlight"><div class="result-label">Budget total</div><div class="result-value mono">' + fmt(r.budget_total) + ' \u20ac</div></div>' +
+          '<div class="result-card"><div class="result-label">Mensualité</div><div class="result-value mono">' + fmt(r.mensualite) + ' \u20ac</div></div>' +
+          '<div class="result-card"><div class="result-label">Loyer estimé</div><div class="result-value mono">' + fmt(r.loyer_mensuel_estime) + ' \u20ac</div></div>' +
+          '<div class="result-card highlight"><div class="result-label">Effort réel</div><div class="result-value mono">' + fmt(r.effort_reel) + ' \u20ac</div></div>' +
+          '<div class="result-card"><div class="result-label">Économie fiscale/an</div><div class="result-value mono">' + fmt(r.economie_fiscale_annuelle) + ' \u20ac</div></div>' +
+          '<div class="result-card"><div class="result-label">Dispositif</div><div class="result-value">' + r.dispositif + '</div></div>' +
+          '</div>';
+      }).catch(function() { document.getElementById('fiscal-result').textContent = 'Erreur chargement'; });
+    }
+
+    function simulerFinancement() {
+      if (!bienData) return;
+      var apport = parseFloat(document.getElementById('fin-apport').value) || 0;
+      var duree = parseInt(document.getElementById('fin-duree').value) || 20;
+      var capital = bienData.prix - apport;
+      if (capital <= 0) { alert("L'apport doit être inférieur au prix."); return; }
+
+      var TAUX = { 15: 3.13, 20: 3.26, 25: 3.41 };
+      var taux = (TAUX[duree] || 3.26) / 100 / 12;
+      var nMois = duree * 12;
+      var mensualite = capital * taux / (1 - Math.pow(1 + taux, -nMois));
+      var coutTotal = (mensualite * nMois) - capital;
+
+      document.getElementById('fin-result').innerHTML =
+        '<div class="sim-results-inline">' +
+        '<div class="sim-result-item highlight"><div class="label">Mensualité</div><div class="value mono">' + fmt(Math.round(mensualite)) + ' \u20ac</div></div>' +
+        '<div class="sim-result-item"><div class="label">Capital emprunté</div><div class="value mono">' + fmt(capital) + ' \u20ac</div></div>' +
+        '<div class="sim-result-item"><div class="label">Coût du crédit</div><div class="value mono">' + fmt(Math.round(coutTotal)) + ' \u20ac</div></div>' +
+        '</div>';
+    }
+
+    async function reserverBien() {
+      if (!bienData || !bienData.disponible) return;
+      if (!isLoggedIn()) { window.location.href = 'login.html'; return; }
+
+      var user = getUser();
+      var btn = document.getElementById('btn-reserver');
+      btn.disabled = true;
+      btn.textContent = 'Redirection…';
+
+      try {
+        var res = await fetch('/api/stripe?action=create-checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getToken() },
+          body: JSON.stringify({
+            bienId: bienData.id,
+            bienNom: bienData.titre,
+            montant: 5000,
+            userId: user.id,
+            userEmail: user.email
+          })
+        });
+        var data = await res.json();
+        if (data.success && data.url) {
+          window.location.href = data.url;
+        } else {
+          showToast(data.error || 'Erreur paiement', 'error');
+          btn.disabled = false;
+          btn.textContent = 'Réserver ce bien';
+        }
+      } catch (err) {
+        showToast('Erreur réseau', 'error');
+        btn.disabled = false;
+        btn.textContent = 'Réserver ce bien';
+      }
+    }
+
+    function contacterConseiller() {
+      window.location.href = 'index.html#contact';
+    }
+  </script>
+
+</body>
+</html>
