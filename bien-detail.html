@@ -18,13 +18,31 @@
   <main class="bien-detail-hero">
     <div class="container">
 
+      <!-- Cancelled banner -->
+      <div class="alert alert-warning" id="cancelled-banner" style="display:none;margin-bottom:24px">
+        <div>
+          <strong>Réservation annulée</strong><br>
+          Vous avez annulé le processus de paiement. Vous pouvez réessayer à tout moment.
+        </div>
+      </div>
+
       <div class="bien-detail-grid">
         <!-- Left: Gallery + Tabs -->
         <div>
+          <!-- Breadcrumb -->
+          <div style="font-size:13px;color:var(--neutral-400);margin-bottom:16px">
+            <a href="index.html" style="color:var(--primary-500);text-decoration:none">Accueil</a>
+            <span style="margin:0 6px">/</span>
+            <a href="index.html#catalogue" style="color:var(--primary-500);text-decoration:none">Catalogue</a>
+            <span style="margin:0 6px">/</span>
+            <span id="breadcrumb-titre">Détail</span>
+          </div>
+
           <!-- Gallery -->
           <div class="gallery-main" id="gallery-main">
             <div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:64px;background:linear-gradient(135deg,var(--surface-2),var(--primary-50))" id="gallery-placeholder">🏠</div>
           </div>
+          <div class="gallery-thumbs" id="gallery-thumbs" style="display:none"></div>
 
           <!-- Tags -->
           <div style="display:flex;gap:6px;flex-wrap:wrap;margin:16px 0" id="bien-tags"></div>
@@ -64,6 +82,11 @@
             <div style="margin-top:24px">
               <h4 style="margin-bottom:12px">Caractéristiques</h4>
               <div id="bien-details-list" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:14px;color:var(--neutral-600)"></div>
+            </div>
+
+            <div style="margin-top:32px">
+              <h4 style="margin-bottom:12px">Pourquoi investir ?</h4>
+              <div id="bien-avantages" style="font-size:14px;color:var(--neutral-600);line-height:1.8"></div>
             </div>
           </div>
 
@@ -144,11 +167,12 @@
               </div>
             </div>
 
-            <button class="btn-primary" onclick="reserverBien()" style="width:100%;justify-content:center;margin-bottom:12px" id="btn-reserver">Réserver ce bien</button>
-            <button class="btn-secondary" onclick="contacterConseiller()" style="width:100%;justify-content:center">Contacter un conseiller</button>
+            <button class="btn-primary" onclick="ouvrirTunnel()" style="width:100%;justify-content:center;margin-bottom:12px" id="btn-reserver">Réserver ce bien</button>
+            <button class="btn-secondary" onclick="ouvrirContact()" style="width:100%;justify-content:center">Contacter un conseiller</button>
 
             <p style="font-size:12px;color:var(--neutral-400);margin-top:16px;text-align:center;line-height:1.6">
-              Les résultats sont des estimations indicatives et ne constituent pas un conseil en investissement.
+              Frais de réservation : <strong class="mono">5 000 &euro;</strong><br>
+              Déduits du prix d'acquisition. Remboursables sous 10 jours.
             </p>
           </div>
         </div>
@@ -156,6 +180,117 @@
 
     </div>
   </main>
+
+  <!-- ═══ TUNNEL RÉSERVATION (3 étapes) ═══ -->
+  <div class="modale-overlay" id="tunnel-overlay">
+    <div class="modale-box" style="max-width:560px">
+      <button class="modale-close" onclick="fermerTunnel()">&times;</button>
+
+      <!-- Étape 1: Récapitulatif -->
+      <div id="tunnel-step-1" class="tunnel-step-content">
+        <h3>Réserver ce bien</h3>
+        <p class="modale-desc">Vérifiez les informations avant de procéder au paiement.</p>
+
+        <div style="background:var(--surface-2);border-radius:var(--radius-md);padding:20px;margin-bottom:24px">
+          <div style="font-weight:600;font-size:16px;margin-bottom:12px" id="tunnel-bien-titre">—</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:14px">
+            <div style="color:var(--neutral-500)">Prix du bien</div>
+            <div class="mono" style="font-weight:600;text-align:right" id="tunnel-prix">—</div>
+            <div style="color:var(--neutral-500)">Frais de réservation</div>
+            <div class="mono" style="font-weight:700;color:var(--primary-600);text-align:right">5 000 &euro;</div>
+            <div style="color:var(--neutral-500)">Surface</div>
+            <div style="text-align:right" id="tunnel-surface">—</div>
+            <div style="color:var(--neutral-500)">Dispositif</div>
+            <div style="text-align:right" id="tunnel-dispositif">—</div>
+          </div>
+        </div>
+
+        <div class="alert alert-success" style="margin-bottom:24px;text-align:left">
+          <div style="font-size:13px;line-height:1.6">
+            Les frais de réservation de <strong>5 000 &euro;</strong> sont déduits du prix d'acquisition final. Vous bénéficiez d'un délai de rétractation de <strong>10 jours</strong> conformément à la loi SRU.
+          </div>
+        </div>
+
+        <button class="btn-primary" onclick="allerEtape2()" style="width:100%;justify-content:center">Continuer</button>
+      </div>
+
+      <!-- Étape 2: Coordonnées -->
+      <div id="tunnel-step-2" class="tunnel-step-content" style="display:none">
+        <h3>Vos coordonnées</h3>
+        <p class="modale-desc">Ces informations figureront sur votre contrat de réservation.</p>
+
+        <div class="form-group">
+          <label for="tunnel-prenom">Prénom</label>
+          <input type="text" id="tunnel-prenom" placeholder="Votre prénom" required />
+        </div>
+        <div class="form-group">
+          <label for="tunnel-nom">Nom</label>
+          <input type="text" id="tunnel-nom" placeholder="Votre nom" required />
+        </div>
+        <div class="form-group">
+          <label for="tunnel-email">Email</label>
+          <input type="email" id="tunnel-email" placeholder="votre@email.fr" required />
+        </div>
+        <div class="form-group">
+          <label for="tunnel-phone">Téléphone</label>
+          <input type="tel" id="tunnel-phone" placeholder="06 12 34 56 78" required />
+        </div>
+
+        <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:24px">
+          <input type="checkbox" id="tunnel-cgv" style="margin-top:3px;accent-color:var(--primary-500)" />
+          <label for="tunnel-cgv" style="font-size:13px;color:var(--neutral-500);line-height:1.5;cursor:pointer">
+            J'accepte les <a href="cgv-cgu.html" target="_blank" style="color:var(--primary-500)">CGV/CGU</a> et la
+            <a href="politique-confidentialite.html" target="_blank" style="color:var(--primary-500)">politique de confidentialité</a>.
+          </label>
+        </div>
+
+        <div style="display:flex;gap:12px">
+          <button class="btn-ghost" onclick="allerEtape1()" style="flex:1;justify-content:center">Retour</button>
+          <button class="btn-primary" onclick="allerEtape3()" style="flex:2;justify-content:center" id="btn-etape3">Confirmer &amp; payer</button>
+        </div>
+      </div>
+
+      <!-- Étape 3: Paiement en cours -->
+      <div id="tunnel-step-3" class="tunnel-step-content" style="display:none;text-align:center;padding:40px 0">
+        <div class="loader" style="margin:0 auto 24px"></div>
+        <h3 style="margin-bottom:8px">Redirection vers le paiement sécurisé</h3>
+        <p style="color:var(--neutral-500);font-size:14px">Vous allez être redirigé vers Stripe pour effectuer le paiement de <strong class="mono">5 000 &euro;</strong>.</p>
+        <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:16px;font-size:13px;color:var(--neutral-400)">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1a5 5 0 00-5 5v2a2 2 0 00-1 1.73V13a2 2 0 002 2h8a2 2 0 002-2V9.73A2 2 0 0013 8V6a5 5 0 00-5-5zm-3 5a3 3 0 016 0v2H5V6z" fill="currentColor"/></svg>
+          Paiement 100% sécurisé par Stripe
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ MODAL CONTACT CONSEILLER ═══ -->
+  <div class="modale-overlay" id="contact-overlay">
+    <div class="modale-box">
+      <button class="modale-close" onclick="fermerContact()">&times;</button>
+      <h3>Contacter un conseiller</h3>
+      <p class="modale-desc">Un expert Stratège vous rappelle sous 24h pour répondre à vos questions sur ce bien.</p>
+
+      <form onsubmit="envoyerContact(event)">
+        <div class="form-group">
+          <label for="contact-nom">Nom complet</label>
+          <input type="text" id="contact-nom" placeholder="Prénom Nom" required />
+        </div>
+        <div class="form-group">
+          <label for="contact-email">Email</label>
+          <input type="email" id="contact-email" placeholder="votre@email.fr" required />
+        </div>
+        <div class="form-group">
+          <label for="contact-phone">Téléphone</label>
+          <input type="tel" id="contact-phone" placeholder="06 12 34 56 78" required />
+        </div>
+        <div class="form-group">
+          <label for="contact-message">Message (optionnel)</label>
+          <textarea id="contact-message" rows="3" placeholder="Votre question sur ce bien..." style="resize:vertical"></textarea>
+        </div>
+        <button type="submit" class="btn-primary" style="width:100%;justify-content:center" id="btn-contact-submit">Demander un rappel</button>
+      </form>
+    </div>
+  </div>
 
   <footer class="footer"></footer>
 
@@ -169,6 +304,11 @@
 
     function fmt(n) { return Number(n).toLocaleString('fr-FR', { maximumFractionDigits: 0 }); }
 
+    // Show cancelled banner
+    if (new URLSearchParams(window.location.search).get('cancelled') === '1') {
+      document.getElementById('cancelled-banner').style.display = 'flex';
+    }
+
     function showTab(name, btn) {
       document.querySelectorAll('.tab-content').forEach(function(el) { el.classList.remove('active'); });
       document.querySelectorAll('.tab-btn').forEach(function(el) { el.classList.remove('active'); });
@@ -176,16 +316,49 @@
       btn.classList.add('active');
     }
 
-    // Load bien
+    // ═══ AVANTAGES PAR DISPOSITIF ═══
+    var AVANTAGES = {
+      'Jeanbrun Social': [
+        'Réduction d\'impôt de 12% à 21% du prix du bien (dispositif Jeanbrun 2026)',
+        'Demande locative forte en zone tendue',
+        'Loyers plafonnés garantissant un taux d\'occupation élevé',
+        'Constitution d\'un patrimoine immobilier à effort réduit'
+      ],
+      'LMNP': [
+        'Amortissement du bien réduisant l\'imposition des revenus locatifs',
+        'Revenus BIC avec régime réel simplifié',
+        'Récupération de la TVA sur le neuf (20%)',
+        'Flexibilité de revente sans contrainte de durée'
+      ],
+      'Déficit foncier': [
+        'Déduction des travaux sur le revenu global (jusqu\'à 10 700 €/an)',
+        'Revalorisation du bien après rénovation',
+        'Emplacement premium en centre-ville',
+        'Forte demande locative dans les quartiers historiques'
+      ],
+      'Résidence principale': [
+        'Exonération de plus-value à la revente',
+        'Prêt à taux zéro potentiel (PTZ)',
+        'Stabilité résidentielle et épargne forcée',
+        'Quartier prisé avec fort potentiel de valorisation'
+      ]
+    };
+
+    // ═══ CHARGEMENT DU BIEN ═══
     if (bienId) {
       fetch('/api/biens').then(function(r) { return r.json(); }).then(function(data) {
         if (!data.success) return;
         bienData = data.biens.find(function(b) { return b.id === bienId; });
-        if (!bienData) { document.getElementById('bien-titre').textContent = 'Bien introuvable'; return; }
+        if (!bienData) {
+          document.getElementById('bien-titre').textContent = 'Bien introuvable';
+          document.getElementById('btn-reserver').style.display = 'none';
+          return;
+        }
 
         document.title = bienData.titre + ' — Stratège';
+        document.getElementById('breadcrumb-titre').textContent = bienData.titre;
         document.getElementById('bien-titre').textContent = bienData.titre;
-        document.getElementById('bien-location').textContent = bienData.ville;
+        document.getElementById('bien-location').innerHTML = '📍 ' + bienData.ville + ' — ' + bienData.dispositif;
         document.getElementById('stat-surface').textContent = bienData.surface + ' m²';
         document.getElementById('stat-etage').textContent = bienData.etage || '—';
         document.getElementById('stat-dpe').textContent = bienData.dpe || '—';
@@ -211,7 +384,15 @@
           '<div>DPE : <strong>' + (bienData.dpe || '—') + '</strong></div>' +
           '<div>Ville : <strong>' + bienData.ville + '</strong></div>' +
           '<div>Dispositif : <strong>' + bienData.dispositif + '</strong></div>' +
-          '<div>Disponible : <strong>' + (bienData.disponible ? 'Oui' : 'Non') + '</strong></div>';
+          '<div>Disponible : <strong>' + (bienData.disponible ? 'Oui' : 'Non') + '</strong></div>' +
+          '<div>Rendement : <strong>' + bienData.rendement + '% brut</strong></div>' +
+          '<div>Mensualité : <strong>' + fmt(bienData.mensualite) + ' \u20ac</strong></div>';
+
+        // Avantages
+        var avantages = AVANTAGES[bienData.dispositif] || AVANTAGES['Jeanbrun Social'];
+        document.getElementById('bien-avantages').innerHTML = avantages.map(function(a) {
+          return '<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px"><span style="color:var(--primary-500);font-weight:700">✓</span> ' + a + '</div>';
+        }).join('');
 
         if (!bienData.disponible) {
           document.getElementById('btn-reserver').disabled = true;
@@ -219,11 +400,29 @@
           document.getElementById('btn-reserver').style.opacity = '0.5';
         }
 
-        // Fiscal simulation
+        // Pre-fill tunnel
+        document.getElementById('tunnel-bien-titre').textContent = bienData.titre;
+        document.getElementById('tunnel-prix').textContent = fmt(bienData.prix) + ' \u20ac';
+        document.getElementById('tunnel-surface').textContent = bienData.surface + ' m²';
+        document.getElementById('tunnel-dispositif').textContent = bienData.dispositif;
+
+        // Pre-fill user info if logged in
+        if (isLoggedIn()) {
+          var user = getUser();
+          if (user.prenom) document.getElementById('tunnel-prenom').value = user.prenom;
+          if (user.nom) document.getElementById('tunnel-nom').value = user.nom;
+          if (user.email) document.getElementById('tunnel-email').value = user.email;
+          if (user.phone) document.getElementById('tunnel-phone').value = user.phone;
+        }
+
         loadFiscalSimulation();
       });
+    } else {
+      document.getElementById('bien-titre').textContent = 'Aucun bien sélectionné';
+      document.getElementById('btn-reserver').style.display = 'none';
     }
 
+    // ═══ SIMULATION FISCALE ═══
     function loadFiscalSimulation() {
       if (!bienData) return;
       fetch('/api/simulation', {
@@ -251,36 +450,85 @@
       }).catch(function() { document.getElementById('fiscal-result').textContent = 'Erreur chargement'; });
     }
 
+    // ═══ SIMULATEUR FINANCEMENT ═══
     function simulerFinancement() {
       if (!bienData) return;
       var apport = parseFloat(document.getElementById('fin-apport').value) || 0;
       var duree = parseInt(document.getElementById('fin-duree').value) || 20;
       var capital = bienData.prix - apport;
-      if (capital <= 0) { alert("L'apport doit être inférieur au prix."); return; }
+      if (capital <= 0) { showToast("L'apport doit être inférieur au prix.", 'warning'); return; }
 
       var TAUX = { 15: 3.13, 20: 3.26, 25: 3.41 };
       var taux = (TAUX[duree] || 3.26) / 100 / 12;
       var nMois = duree * 12;
       var mensualite = capital * taux / (1 - Math.pow(1 + taux, -nMois));
       var coutTotal = (mensualite * nMois) - capital;
+      var loyerNet = bienData.loyer_estime || 0;
+      var effortMensuel = Math.round(mensualite) - loyerNet;
 
       document.getElementById('fin-result').innerHTML =
         '<div class="sim-results-inline">' +
         '<div class="sim-result-item highlight"><div class="label">Mensualité</div><div class="value mono">' + fmt(Math.round(mensualite)) + ' \u20ac</div></div>' +
         '<div class="sim-result-item"><div class="label">Capital emprunté</div><div class="value mono">' + fmt(capital) + ' \u20ac</div></div>' +
         '<div class="sim-result-item"><div class="label">Coût du crédit</div><div class="value mono">' + fmt(Math.round(coutTotal)) + ' \u20ac</div></div>' +
-        '</div>';
+        '<div class="sim-result-item highlight"><div class="label">Effort réel</div><div class="value mono" style="color:var(--primary-600)">' + fmt(effortMensuel) + ' \u20ac/mois</div></div>' +
+        '</div>' +
+        '<p style="font-size:12px;color:var(--neutral-400);margin-top:12px">Taux : ' + (TAUX[duree] || 3.26).toFixed(2) + '% — CAFPI mars 2026. Effort réel = mensualité − loyer estimé.</p>';
     }
 
-    async function reserverBien() {
+    // ═══ TUNNEL DE RÉSERVATION ═══
+    function ouvrirTunnel() {
       if (!bienData || !bienData.disponible) return;
-      if (!isLoggedIn()) { window.location.href = 'login.html'; return; }
+      if (!isLoggedIn()) {
+        showToast('Connectez-vous pour réserver', 'warning');
+        window.location.href = 'login.html?redirect=bien-detail.html?id=' + bienId;
+        return;
+      }
+      allerEtape1();
+      document.getElementById('tunnel-overlay').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
 
-      var user = getUser();
-      var btn = document.getElementById('btn-reserver');
-      btn.disabled = true;
-      btn.textContent = 'Redirection…';
+    function fermerTunnel() {
+      document.getElementById('tunnel-overlay').classList.remove('active');
+      document.body.style.overflow = '';
+    }
 
+    function allerEtape1() {
+      document.getElementById('tunnel-step-1').style.display = 'block';
+      document.getElementById('tunnel-step-2').style.display = 'none';
+      document.getElementById('tunnel-step-3').style.display = 'none';
+    }
+
+    function allerEtape2() {
+      document.getElementById('tunnel-step-1').style.display = 'none';
+      document.getElementById('tunnel-step-2').style.display = 'block';
+      document.getElementById('tunnel-step-3').style.display = 'none';
+    }
+
+    function allerEtape3() {
+      var prenom = document.getElementById('tunnel-prenom').value.trim();
+      var nom = document.getElementById('tunnel-nom').value.trim();
+      var email = document.getElementById('tunnel-email').value.trim();
+      var phone = document.getElementById('tunnel-phone').value.trim();
+      var cgv = document.getElementById('tunnel-cgv').checked;
+
+      if (!prenom || !nom || !email || !phone) {
+        showToast('Veuillez remplir tous les champs', 'warning');
+        return;
+      }
+      if (!cgv) {
+        showToast('Veuillez accepter les CGV/CGU', 'warning');
+        return;
+      }
+
+      document.getElementById('tunnel-step-2').style.display = 'none';
+      document.getElementById('tunnel-step-3').style.display = 'block';
+
+      lancerPaiement(prenom, nom, email, phone);
+    }
+
+    async function lancerPaiement(prenom, nom, email, phone) {
       try {
         var res = await fetch('/api/stripe?action=create-checkout', {
           method: 'POST',
@@ -289,28 +537,82 @@
             bienId: bienData.id,
             bienNom: bienData.titre,
             montant: 5000,
-            userId: user.id,
-            userEmail: user.email
+            userId: getUser().id,
+            userEmail: email
           })
         });
         var data = await res.json();
         if (data.success && data.url) {
           window.location.href = data.url;
         } else {
-          showToast(data.error || 'Erreur paiement', 'error');
-          btn.disabled = false;
-          btn.textContent = 'Réserver ce bien';
+          showToast(data.error || 'Erreur lors de la création du paiement', 'error');
+          allerEtape2();
         }
       } catch (err) {
-        showToast('Erreur réseau', 'error');
-        btn.disabled = false;
-        btn.textContent = 'Réserver ce bien';
+        showToast('Erreur réseau — veuillez réessayer', 'error');
+        allerEtape2();
       }
     }
 
-    function contacterConseiller() {
-      window.location.href = 'index.html#contact';
+    // ═══ MODAL CONTACT ═══
+    function ouvrirContact() {
+      document.getElementById('contact-overlay').classList.add('active');
+      document.body.style.overflow = 'hidden';
+      if (isLoggedIn()) {
+        var user = getUser();
+        document.getElementById('contact-nom').value = (user.prenom || '') + ' ' + (user.nom || '');
+        document.getElementById('contact-email').value = user.email || '';
+        document.getElementById('contact-phone').value = user.phone || '';
+      }
     }
+
+    function fermerContact() {
+      document.getElementById('contact-overlay').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    async function envoyerContact(e) {
+      e.preventDefault();
+      var btn = document.getElementById('btn-contact-submit');
+      btn.disabled = true;
+      btn.textContent = 'Envoi en cours...';
+
+      try {
+        var res = await fetch('/api/email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'contact',
+            nom: document.getElementById('contact-nom').value,
+            email: document.getElementById('contact-email').value,
+            phone: document.getElementById('contact-phone').value,
+            message: document.getElementById('contact-message').value,
+            bien: bienData ? bienData.titre : 'N/A',
+            bien_id: bienId
+          })
+        });
+        var data = await res.json();
+        if (data.success) {
+          showToast('Demande envoyée ! Un conseiller vous contactera sous 24h.', 'success');
+          fermerContact();
+        } else {
+          showToast(data.error || 'Erreur envoi', 'error');
+        }
+      } catch (err) {
+        showToast('Erreur réseau', 'error');
+      }
+
+      btn.disabled = false;
+      btn.textContent = 'Demander un rappel';
+    }
+
+    // Close modals on overlay click
+    document.getElementById('tunnel-overlay').addEventListener('click', function(e) {
+      if (e.target === this) fermerTunnel();
+    });
+    document.getElementById('contact-overlay').addEventListener('click', function(e) {
+      if (e.target === this) fermerContact();
+    });
   </script>
 
 </body>
