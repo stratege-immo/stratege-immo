@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulateur Prêt Immobilier Mars 2026 | Stratège</title>
+  <meta name="description" content="Simulateur de prêt immobilier avec taux mars 2026, tableau d'amortissement téléchargeable, scoring bancaire." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+
+  <!-- ══════════ NAVBAR ══════════ -->
+  <nav class="navbar">
+    <div class="container">
+      <a href="index.html" class="nav-logo">
+        <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M13 2C13 2 15.5 10.5 7 13C7 13 15.5 15.5 13 24C13 24 15.5 15.5 24 13C24 13 15.5 10.5 13 2Z" fill="#3D566A"/>
+          <path d="M20 10C20 10 22 16.5 15.5 18.5C15.5 18.5 22 20.5 20 27C20 27 22 20.5 28.5 18.5C28.5 18.5 22 16.5 20 10Z" fill="#3DD9BE"/>
+          <path d="M26 2.5C26 2.5 27 5.5 24 6.5C24 6.5 27 7.5 26 10.5C26 10.5 27 7.5 30 6.5C30 6.5 27 5.5 26 2.5Z" fill="#6EE6D0"/>
+        </svg>
+        Stratège
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html#simulation">Simulation</a></li>
+        <li><a href="index.html#catalogue">Catalogue</a></li>
+        <li><a href="scpi.html">SCPI</a></li>
+        <li><a href="pret.html" style="color:var(--primary-500)">Prêt immobilier</a></li>
+        <li><a href="index.html#profils">Profils</a></li>
+      </ul>
+      <div class="nav-actions">
+        <a href="index.html#simulation" class="btn-primary btn-small">Simuler mon projet</a>
+      </div>
+      <button class="nav-hamburger" onclick="document.querySelector('.navbar').classList.toggle('open')" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ══════════ PAGE HERO ══════════ -->
+  <section class="page-hero">
+    <div class="container">
+      <div class="section-label">Prêt immobilier</div>
+      <h1>Taux &amp; simulateur <span class="highlight">mars 2026</span></h1>
+      <p>Taux actuels CAFPI, simulateur de mensualités, tableau d'amortissement et scoring bancaire.</p>
+    </div>
+  </section>
+
+  <!-- ══════════ TAUX ACTUELS ══════════ -->
+  <section style="padding:0 0 60px">
+    <div class="container">
+      <div class="section-header">
+        <h2>Taux de crédit immobilier — Mars 2026</h2>
+        <p>Source CAFPI. Taux fixes hors assurance, mis à jour mars 2026.</p>
+      </div>
+      <div class="taux-grid">
+        <div class="taux-card">
+          <div class="duree">10 ans</div>
+          <div class="taux-moyen">3,02%</div>
+          <div class="taux-meilleur">Meilleur : 2,75%</div>
+        </div>
+        <div class="taux-card">
+          <div class="duree">15 ans</div>
+          <div class="taux-moyen">3,13%</div>
+          <div class="taux-meilleur">Meilleur : 2,80%</div>
+        </div>
+        <div class="taux-card">
+          <div class="duree">20 ans</div>
+          <div class="taux-moyen">3,26%</div>
+          <div class="taux-meilleur">Meilleur : 3,00%</div>
+        </div>
+        <div class="taux-card">
+          <div class="duree">25 ans</div>
+          <div class="taux-moyen">3,41%</div>
+          <div class="taux-meilleur">Meilleur : 3,15%</div>
+        </div>
+      </div>
+
+      <!-- Taux d'usure -->
+      <div class="alert alert-warning" style="max-width:800px;margin:0 auto">
+        <div>
+          <strong>Taux d'usure T1 2026 (Banque de France)</strong><br>
+          Fixe &lt;10 ans : 4,12% &nbsp;|&nbsp; Fixe 10-20 ans : 4,59% &nbsp;|&nbsp; Fixe &ge;20 ans : 5,13% &nbsp;|&nbsp; Variable : 4,99% &nbsp;|&nbsp; Prêt relais : 6,15%
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ SIMULATEUR PRÊT ══════════ -->
+  <section style="padding:60px 0;background:var(--surface-2)">
+    <div class="container">
+      <div class="simulator-box">
+        <h3>Simulateur de prêt immobilier</h3>
+        <p class="sim-desc">Calculez vos mensualités, le coût total et votre taux d'endettement.</p>
+
+        <div class="form-group">
+          <label for="pret-montant">Montant du bien</label>
+          <input type="number" id="pret-montant" placeholder="250000" value="250000" />
+          <span class="input-suffix">&euro;</span>
+        </div>
+        <div class="form-group">
+          <label for="pret-apport">Apport personnel</label>
+          <input type="number" id="pret-apport" placeholder="25000" value="25000" />
+          <span class="input-suffix">&euro;</span>
+        </div>
+        <div class="form-group">
+          <label for="pret-duree">Durée du prêt</label>
+          <select id="pret-duree" onchange="updateTaux()">
+            <option value="10">10 ans</option>
+            <option value="15">15 ans</option>
+            <option value="20" selected>20 ans</option>
+            <option value="25">25 ans</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="pret-taux">Taux d'intérêt (pré-rempli CAFPI)</label>
+          <input type="number" id="pret-taux" step="0.01" value="3.26" />
+          <span class="input-suffix">%</span>
+        </div>
+        <div class="form-group">
+          <label for="pret-revenu">Revenu mensuel net du foyer</label>
+          <input type="number" id="pret-revenu" placeholder="4000" value="4000" />
+          <span class="input-suffix">&euro;/mois</span>
+        </div>
+        <div class="form-group">
+          <label for="pret-assurance">Assurance emprunteur</label>
+          <input type="number" id="pret-assurance" step="0.01" value="0.25" />
+          <span class="input-suffix">%</span>
+        </div>
+
+        <button class="btn-primary" onclick="simulerPret()" style="width:100%;justify-content:center">Calculer mon prêt</button>
+
+        <!-- Résultats -->
+        <div id="pret-results" style="display:none">
+          <div class="sim-results-inline" style="margin-top:24px">
+            <div class="sim-result-item highlight">
+              <div class="label">Mensualité</div>
+              <div class="value" id="pret-mensualite">—</div>
+            </div>
+            <div class="sim-result-item">
+              <div class="label">Coût total du crédit</div>
+              <div class="value" id="pret-cout">—</div>
+            </div>
+            <div class="sim-result-item">
+              <div class="label">Dont assurance</div>
+              <div class="value" id="pret-assurance-cout">—</div>
+            </div>
+          </div>
+
+          <!-- Scoring endettement -->
+          <div style="margin-top:24px;padding:20px;background:var(--surface-2);border-radius:var(--radius-md);border:1px solid var(--neutral-50)">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+              <strong style="font-size:14px">Taux d'endettement</strong>
+              <span id="pret-endettement-value" style="font-family:var(--font-display);font-size:22px;font-weight:700">—</span>
+            </div>
+            <div class="scoring-bar">
+              <div class="scoring-fill ok" id="pret-scoring-fill" style="width:0%"></div>
+              <div class="scoring-limit" title="Seuil HCSF 35%"></div>
+            </div>
+            <div id="pret-endettement-msg" style="font-size:13px;margin-top:8px;color:var(--neutral-500)"></div>
+          </div>
+
+          <!-- Tableau amortissement -->
+          <div style="margin-top:24px;display:flex;justify-content:space-between;align-items:center">
+            <h4 style="font-size:20px">Tableau d'amortissement</h4>
+            <button class="btn-ghost btn-small" onclick="telechargerCSV()">Télécharger CSV</button>
+          </div>
+          <div class="amort-wrapper" id="amort-wrapper"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ RÈGLES HCSF ══════════ -->
+  <section style="padding:60px 0">
+    <div class="container">
+      <div class="section-header">
+        <h2>Règles du HCSF</h2>
+        <p>Les normes d'octroi en vigueur pour les crédits immobiliers.</p>
+      </div>
+      <div class="comparatif-grid">
+        <div class="comparatif-card">
+          <h4>Normes obligatoires</h4>
+          <ul>
+            <li>Taux d'endettement maximum : <strong>35%</strong> (assurance incluse)</li>
+            <li>Durée maximale : <strong>25 ans</strong> (27 ans pour VEFA avec différé)</li>
+            <li>Marge de flexibilité : 20% des dossiers peuvent déroger</li>
+            <li>Priorité aux primo-accédants et résidences principales</li>
+          </ul>
+        </div>
+        <div class="comparatif-card">
+          <h4>Optimiser votre dossier</h4>
+          <ul>
+            <li>Apport minimum recommandé : 10% du prix (frais inclus)</li>
+            <li>Stabilité professionnelle (CDI, ancienneté)</li>
+            <li>Gestion bancaire saine (pas de découvert sur 3 mois)</li>
+            <li>Comparer via courtier (CAFPI, Meilleurtaux, Pretto)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ FOOTER ══════════ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="nav-logo">
+            <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M13 2C13 2 15.5 10.5 7 13C7 13 15.5 15.5 13 24C13 24 15.5 15.5 24 13C24 13 15.5 10.5 13 2Z" fill="#3D566A"/>
+              <path d="M20 10C20 10 22 16.5 15.5 18.5C15.5 18.5 22 20.5 20 27C20 27 22 20.5 28.5 18.5C28.5 18.5 22 16.5 20 10Z" fill="#3DD9BE"/>
+              <path d="M26 2.5C26 2.5 27 5.5 24 6.5C24 6.5 27 7.5 26 10.5C26 10.5 27 7.5 30 6.5C30 6.5 27 5.5 26 2.5Z" fill="#6EE6D0"/>
+            </svg>
+            Stratège
+          </div>
+          <p>L'immobilier malin et durable. Votre partenaire pour construire un patrimoine performant et responsable.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Plateforme</h4>
+          <ul>
+            <li><a href="index.html#simulation">Simulation</a></li>
+            <li><a href="index.html#catalogue">Catalogue</a></li>
+            <li><a href="scpi.html">SCPI</a></li>
+            <li><a href="pret.html">Prêt immobilier</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Ressources</h4>
+          <ul>
+            <li><a href="#">Guide investisseur</a></li>
+            <li><a href="#">Dispositifs fiscaux</a></li>
+            <li><a href="pret.html">Simulateur prêt</a></li>
+            <li><a href="scpi.html">Comparatif SCPI</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Légal</h4>
+          <ul>
+            <li><a href="#">Mentions légales</a></li>
+            <li><a href="#">Politique de confidentialité</a></li>
+            <li><a href="#">CGU</a></li>
+            <li><a href="#">Cookies</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        &copy; 2026 Stratège — L'immobilier malin et durable. Tous droits réservés.
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    function fmt(n) { return Number(n).toLocaleString('fr-FR'); }
+
+    var TAUX_CAFPI = { 10: 3.02, 15: 3.13, 20: 3.26, 25: 3.41 };
+    var tableauAmort = [];
+
+    function updateTaux() {
+      var duree = parseInt(document.getElementById('pret-duree').value);
+      document.getElementById('pret-taux').value = TAUX_CAFPI[duree] || 3.26;
+    }
+
+    function simulerPret() {
+      var montantBien = parseFloat(document.getElementById('pret-montant').value) || 0;
+      var apport = parseFloat(document.getElementById('pret-apport').value) || 0;
+      var duree = parseInt(document.getElementById('pret-duree').value) || 20;
+      var taux = parseFloat(document.getElementById('pret-taux').value) || 3.26;
+      var revenu = parseFloat(document.getElementById('pret-revenu').value) || 0;
+      var tauxAssurance = parseFloat(document.getElementById('pret-assurance').value) || 0.25;
+
+      var capital = montantBien - apport;
+      if (capital <= 0) { alert('L\'apport doit être inférieur au montant du bien.'); return; }
+
+      var tauxMensuel = taux / 100 / 12;
+      var nMois = duree * 12;
+
+      // Mensualité hors assurance
+      var mensualiteHorsAss = capital * tauxMensuel / (1 - Math.pow(1 + tauxMensuel, -nMois));
+      // Assurance mensuelle
+      var assuranceMensuelle = capital * (tauxAssurance / 100) / 12;
+      var mensualiteTotale = mensualiteHorsAss + assuranceMensuelle;
+
+      var coutTotal = (mensualiteHorsAss * nMois) - capital;
+      var coutAssurance = assuranceMensuelle * nMois;
+
+      // Taux endettement
+      var tauxEndettement = revenu > 0 ? (mensualiteTotale / revenu) * 100 : 0;
+
+      // Affichage résultats
+      document.getElementById('pret-mensualite').textContent = fmt(Math.round(mensualiteTotale)) + ' \u20ac/mois';
+      document.getElementById('pret-cout').textContent = fmt(Math.round(coutTotal)) + ' \u20ac';
+      document.getElementById('pret-assurance-cout').textContent = fmt(Math.round(coutAssurance)) + ' \u20ac';
+
+      // Scoring endettement
+      var pctDisplay = Math.min(tauxEndettement, 60);
+      var fill = document.getElementById('pret-scoring-fill');
+      fill.style.width = (pctDisplay / 60 * 100) + '%';
+      fill.textContent = tauxEndettement.toFixed(1) + '%';
+      fill.className = 'scoring-fill ' + (tauxEndettement <= 33 ? 'ok' : tauxEndettement <= 35 ? 'warning' : 'danger');
+
+      document.getElementById('pret-endettement-value').textContent = tauxEndettement.toFixed(1) + '%';
+      var msg = document.getElementById('pret-endettement-msg');
+      if (tauxEndettement <= 33) {
+        msg.textContent = 'Excellent ! Votre taux d\'endettement est confortable.';
+        msg.style.color = 'var(--success-600)';
+      } else if (tauxEndettement <= 35) {
+        msg.textContent = 'Attention : vous approchez du seuil HCSF de 35%.';
+        msg.style.color = 'var(--warning-600)';
+      } else {
+        msg.textContent = 'Taux d\'endettement supérieur à 35% : le dossier sera probablement refusé (norme HCSF).';
+        msg.style.color = 'var(--error-600)';
+      }
+
+      // Tableau d'amortissement
+      tableauAmort = [];
+      var solde = capital;
+      for (var i = 1; i <= nMois; i++) {
+        var interets = solde * tauxMensuel;
+        var capitalRembourse = mensualiteHorsAss - interets;
+        solde -= capitalRembourse;
+        if (solde < 0) solde = 0;
+        tableauAmort.push({
+          mois: i,
+          mensualite: mensualiteHorsAss,
+          capital: capitalRembourse,
+          interets: interets,
+          assurance: assuranceMensuelle,
+          solde: solde
+        });
+      }
+
+      // Afficher tableau (12 premières lignes + dernières)
+      var html = '<table class="amort-table"><thead><tr>' +
+        '<th>Mois</th><th>Mensualité</th><th>Capital</th><th>Intérêts</th><th>Assurance</th><th>Solde restant</th>' +
+        '</tr></thead><tbody>';
+      tableauAmort.forEach(function(row) {
+        html += '<tr>' +
+          '<td>' + row.mois + '</td>' +
+          '<td>' + fmt(Math.round(row.mensualite)) + ' \u20ac</td>' +
+          '<td>' + fmt(Math.round(row.capital)) + ' \u20ac</td>' +
+          '<td>' + fmt(Math.round(row.interets)) + ' \u20ac</td>' +
+          '<td>' + fmt(Math.round(row.assurance)) + ' \u20ac</td>' +
+          '<td>' + fmt(Math.round(row.solde)) + ' \u20ac</td>' +
+          '</tr>';
+      });
+      html += '</tbody></table>';
+      document.getElementById('amort-wrapper').innerHTML = html;
+
+      document.getElementById('pret-results').style.display = 'block';
+    }
+
+    function telechargerCSV() {
+      if (tableauAmort.length === 0) return;
+      var csv = 'Mois;Mensualité;Capital;Intérêts;Assurance;Solde restant\n';
+      tableauAmort.forEach(function(row) {
+        csv += row.mois + ';' +
+          row.mensualite.toFixed(2) + ';' +
+          row.capital.toFixed(2) + ';' +
+          row.interets.toFixed(2) + ';' +
+          row.assurance.toFixed(2) + ';' +
+          row.solde.toFixed(2) + '\n';
+      });
+      var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'amortissement_stratege.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>

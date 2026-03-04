@@ -7,13 +7,13 @@ const BIENS_CATALOGUE = [
     prix: 189000,
     loyer_estime: 750,
     rendement: 5.8,
-    dispositif: 'Pinel Nu',
+    dispositif: 'Jeanbrun Social',
     mensualite: 820,
     effort_reel: 248,
     etage: '3ème sur 5',
     dpe: 'B',
     disponible: true,
-    tags: ['Investissement', 'Pinel', 'Centre-ville']
+    tags: ['Investissement', 'Jeanbrun', 'Centre-ville']
   },
   {
     id: 'bien_002',
@@ -55,13 +55,13 @@ const BIENS_CATALOGUE = [
     prix: 198000,
     loyer_estime: 780,
     rendement: 5.6,
-    dispositif: 'Pinel Nu',
+    dispositif: 'Jeanbrun Social',
     mensualite: 860,
     effort_reel: 290,
     etage: '4ème sur 6',
     dpe: 'A',
     disponible: true,
-    tags: ['Neuf', 'Pinel', 'Université']
+    tags: ['Neuf', 'Jeanbrun', 'Université']
   },
   {
     id: 'bien_005',

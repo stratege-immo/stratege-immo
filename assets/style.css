@@ -1217,3 +1217,320 @@ h6 { font-size: 20px; line-height: 28px; }
   .modale-box { padding: 24px; margin: 16px; }
   .sim-container { padding: 24px 16px; }
 }
+
+/* ─── FISCAL NOTICE ────────────────────────────────────── */
+.fiscal-notice { padding: 32px 0 0; }
+
+/* ─── PAGE HERO (for scpi.html, pret.html) ─────────────── */
+.page-hero {
+  padding: 120px 0 60px;
+  text-align: center;
+}
+.page-hero h1 { margin-bottom: 12px; }
+.page-hero p {
+  font-size: 18px;
+  color: var(--neutral-500);
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 28px;
+}
+
+/* ─── TAUX GRID (pret.html) ────────────────────────────── */
+.taux-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 40px;
+}
+.taux-card {
+  background: var(--surface-0);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  text-align: center;
+  border: 1px solid var(--neutral-50);
+  box-shadow: var(--shadow-sm);
+}
+.taux-card .duree {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--neutral-800);
+  margin-bottom: 12px;
+}
+.taux-card .taux-moyen {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--primary-500);
+  margin-bottom: 4px;
+}
+.taux-card .taux-meilleur {
+  font-size: 13px;
+  color: var(--success-600);
+  font-weight: 600;
+}
+
+/* ─── SCPI TABLE ───────────────────────────────────────── */
+.scpi-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: var(--surface-0);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--neutral-50);
+}
+.scpi-table th {
+  background: var(--bg-dark);
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 14px 16px;
+  text-align: left;
+}
+.scpi-table td {
+  padding: 14px 16px;
+  font-size: 14px;
+  color: var(--neutral-700);
+  border-bottom: 1px solid var(--neutral-50);
+}
+.scpi-table tr:last-child td { border-bottom: none; }
+.scpi-table tr:hover td { background: var(--primary-50); }
+.scpi-table .td-value {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--primary-600);
+}
+.scpi-table .scpi-name {
+  font-weight: 600;
+  color: var(--neutral-800);
+}
+.scpi-warning {
+  display: inline-block;
+  font-size: 12px;
+  color: var(--warning-700);
+  background: var(--warning-50);
+  border: 1px solid var(--warning-100);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  margin-left: 6px;
+  font-weight: 500;
+}
+.scpi-mention {
+  font-size: 12px;
+  color: var(--neutral-400);
+  font-style: italic;
+  text-align: center;
+  padding: 16px;
+  border-top: 1px solid var(--neutral-50);
+}
+
+/* ─── SIMULATOR SHARED ─────────────────────────────────── */
+.simulator-box {
+  max-width: 700px;
+  margin: 0 auto 40px;
+  background: var(--surface-0);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  padding: 40px;
+  border: 1px solid var(--neutral-50);
+}
+.simulator-box h3 {
+  text-align: center;
+  margin-bottom: 8px;
+  font-size: 28px;
+}
+.simulator-box .sim-desc {
+  text-align: center;
+  color: var(--neutral-500);
+  font-size: 15px;
+  margin-bottom: 28px;
+}
+.sim-results-inline {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 24px;
+}
+.sim-result-item {
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  text-align: center;
+  border: 1px solid var(--neutral-50);
+}
+.sim-result-item.highlight {
+  background: var(--primary-50);
+  border-color: var(--primary-100);
+}
+.sim-result-item .label {
+  font-size: 12px;
+  color: var(--neutral-500);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+.sim-result-item .value {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--neutral-800);
+}
+.sim-result-item.highlight .value { color: var(--primary-600); }
+
+/* ─── AMORT TABLE ──────────────────────────────────────── */
+.amort-wrapper {
+  max-height: 400px;
+  overflow-y: auto;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--neutral-50);
+  margin-top: 24px;
+}
+.amort-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.amort-table th {
+  background: var(--neutral-50);
+  padding: 10px 12px;
+  font-weight: 600;
+  text-align: right;
+  position: sticky;
+  top: 0;
+  color: var(--neutral-700);
+}
+.amort-table th:first-child { text-align: center; }
+.amort-table td {
+  padding: 8px 12px;
+  text-align: right;
+  border-bottom: 1px solid var(--neutral-50);
+  color: var(--neutral-600);
+}
+.amort-table td:first-child { text-align: center; font-weight: 600; }
+
+/* ─── SCORING BAR ──────────────────────────────────────── */
+.scoring-bar {
+  background: var(--neutral-50);
+  border-radius: var(--radius-full);
+  height: 24px;
+  position: relative;
+  overflow: hidden;
+  margin-top: 12px;
+}
+.scoring-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width 0.5s ease, background 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+}
+.scoring-fill.ok { background: var(--success-500); }
+.scoring-fill.warning { background: var(--warning-500); }
+.scoring-fill.danger { background: var(--error-500); }
+.scoring-limit {
+  position: absolute;
+  left: 35%;
+  top: -4px;
+  bottom: -4px;
+  width: 2px;
+  background: var(--error-500);
+}
+
+/* ─── COMPARATIF GRID ──────────────────────────────────── */
+.comparatif-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-top: 24px;
+}
+.comparatif-card {
+  background: var(--surface-0);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  border: 1px solid var(--neutral-50);
+  box-shadow: var(--shadow-sm);
+}
+.comparatif-card h4 {
+  font-size: 22px;
+  margin-bottom: 16px;
+  color: var(--neutral-800);
+}
+.comparatif-card ul {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.comparatif-card li {
+  font-size: 14px;
+  color: var(--neutral-600);
+  padding-left: 20px;
+  position: relative;
+  line-height: 1.5;
+}
+.comparatif-card li::before {
+  content: '\2713';
+  position: absolute;
+  left: 0;
+  color: var(--success-500);
+  font-weight: 700;
+}
+.comparatif-card.cons li::before {
+  content: '\2717';
+  color: var(--error-500);
+}
+
+/* ─── FISCALITE SECTION ────────────────────────────────── */
+.fiscalite-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+.fiscalite-card {
+  background: var(--surface-0);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  border: 1px solid var(--neutral-50);
+  box-shadow: var(--shadow-sm);
+}
+.fiscalite-card h4 { margin-bottom: 12px; }
+.fiscalite-card p {
+  font-size: 14px;
+  color: var(--neutral-600);
+  line-height: 1.6;
+}
+.fiscalite-card .highlight-rate {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--primary-500);
+  margin: 12px 0;
+}
+
+/* ─── RESPONSIVE NEW PAGES ─────────────────────────────── */
+@media (max-width: 1024px) {
+  .taux-grid { grid-template-columns: repeat(2, 1fr); }
+  .comparatif-grid { grid-template-columns: 1fr; }
+  .fiscalite-grid { grid-template-columns: 1fr; }
+  .scpi-table { font-size: 13px; }
+  .scpi-table th, .scpi-table td { padding: 10px 8px; }
+}
+@media (max-width: 768px) {
+  .taux-grid { grid-template-columns: 1fr 1fr; }
+  .sim-results-inline { grid-template-columns: 1fr; }
+  .simulator-box { padding: 24px 16px; }
+  .scpi-table-wrapper { overflow-x: auto; }
+}
+@media (max-width: 480px) {
+  .taux-grid { grid-template-columns: 1fr; }
+}

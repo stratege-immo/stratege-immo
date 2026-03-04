@@ -144,7 +144,7 @@ function afficherResultatDemo() {
   setText('res-effort', '248 \u20ac/mois');
   setText('res-rendement', '5.8%');
   setText('res-fiscal', '2 268 \u20ac/an');
-  setText('res-dispositif', 'Pinel Nu');
+  setText('res-dispositif', 'Jeanbrun Social');
 }
 
 function fmt(n) {
@@ -153,10 +153,10 @@ function fmt(n) {
 
 // ── CATALOGUE DE BIENS ───────────────────────────────────
 var BIENS_DEMO = [
-  { id:'bien_001', titre:'Appartement T2 \u2014 Toulouse Capitole', ville:'Toulouse', surface:42, prix:189000, loyer_estime:750, rendement:5.8, dispositif:'Pinel Nu', mensualite:820, effort_reel:248, etage:'3\u00e8me sur 5', dpe:'B', disponible:true, tags:['Investissement','Pinel','Centre-ville'] },
+  { id:'bien_001', titre:'Appartement T2 \u2014 Toulouse Capitole', ville:'Toulouse', surface:42, prix:189000, loyer_estime:750, rendement:5.8, dispositif:'Jeanbrun Social', mensualite:820, effort_reel:248, etage:'3\u00e8me sur 5', dpe:'B', disponible:true, tags:['Investissement','Jeanbrun','Centre-ville'] },
   { id:'bien_002', titre:'Studio meubl\u00e9 \u2014 Lyon Part-Dieu', ville:'Lyon', surface:28, prix:145000, loyer_estime:620, rendement:6.1, dispositif:'LMNP', mensualite:630, effort_reel:180, etage:'5\u00e8me sur 8', dpe:'C', disponible:true, tags:['LMNP','Meubl\u00e9','Rentabilit\u00e9'] },
   { id:'bien_003', titre:'T3 familial \u2014 Bordeaux Chartrons', ville:'Bordeaux', surface:68, prix:312000, loyer_estime:1100, rendement:4.9, dispositif:'R\u00e9sidence principale', mensualite:1380, effort_reel:1380, etage:'2\u00e8me sur 4', dpe:'A', disponible:true, tags:['R\u00e9sidence principale','Famille','Quartier pris\u00e9'] },
-  { id:'bien_004', titre:'T2 neuf \u2014 Montpellier Antigone', ville:'Montpellier', surface:45, prix:198000, loyer_estime:780, rendement:5.6, dispositif:'Pinel Nu', mensualite:860, effort_reel:290, etage:'4\u00e8me sur 6', dpe:'A', disponible:true, tags:['Neuf','Pinel','Universit\u00e9'] },
+  { id:'bien_004', titre:'T2 neuf \u2014 Montpellier Antigone', ville:'Montpellier', surface:45, prix:198000, loyer_estime:780, rendement:5.6, dispositif:'Jeanbrun Social', mensualite:860, effort_reel:290, etage:'4\u00e8me sur 6', dpe:'A', disponible:true, tags:['Neuf','Jeanbrun','Universit\u00e9'] },
   { id:'bien_005', titre:'Studio \u2014 Nantes Centre', ville:'Nantes', surface:25, prix:125000, loyer_estime:550, rendement:6.4, dispositif:'LMNP', mensualite:540, effort_reel:155, etage:'1er sur 3', dpe:'C', disponible:false, tags:['LMNP','\u00c9tudiant','Centre-ville'] },
   { id:'bien_006', titre:'T4 standing \u2014 Paris 11\u00e8me', ville:'Paris', surface:85, prix:890000, loyer_estime:2800, rendement:3.8, dispositif:'D\u00e9ficit foncier', mensualite:3900, effort_reel:1500, etage:'6\u00e8me sur 7', dpe:'D', disponible:true, tags:['Paris','D\u00e9ficit foncier','Standing'] }
 ];

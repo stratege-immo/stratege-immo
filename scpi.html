@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SCPI 2026 — Top rendements &amp; simulateur | Stratège</title>
+  <meta name="description" content="Classement des meilleures SCPI 2026, simulateur de revenus, comparatif SCPI vs investissement direct, fiscalité." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+
+  <!-- ══════════ NAVBAR ══════════ -->
+  <nav class="navbar">
+    <div class="container">
+      <a href="index.html" class="nav-logo">
+        <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M13 2C13 2 15.5 10.5 7 13C7 13 15.5 15.5 13 24C13 24 15.5 15.5 24 13C24 13 15.5 10.5 13 2Z" fill="#3D566A"/>
+          <path d="M20 10C20 10 22 16.5 15.5 18.5C15.5 18.5 22 20.5 20 27C20 27 22 20.5 28.5 18.5C28.5 18.5 22 16.5 20 10Z" fill="#3DD9BE"/>
+          <path d="M26 2.5C26 2.5 27 5.5 24 6.5C24 6.5 27 7.5 26 10.5C26 10.5 27 7.5 30 6.5C30 6.5 27 5.5 26 2.5Z" fill="#6EE6D0"/>
+        </svg>
+        Stratège
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html#simulation">Simulation</a></li>
+        <li><a href="index.html#catalogue">Catalogue</a></li>
+        <li><a href="scpi.html" style="color:var(--primary-500)">SCPI</a></li>
+        <li><a href="pret.html">Prêt immobilier</a></li>
+        <li><a href="index.html#profils">Profils</a></li>
+      </ul>
+      <div class="nav-actions">
+        <a href="index.html#simulation" class="btn-primary btn-small">Simuler mon projet</a>
+      </div>
+      <button class="nav-hamburger" onclick="document.querySelector('.navbar').classList.toggle('open')" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ══════════ PAGE HERO ══════════ -->
+  <section class="page-hero">
+    <div class="container">
+      <div class="section-label">SCPI 2026</div>
+      <h1>Investir en <span class="highlight">SCPI</span></h1>
+      <p>Classement des meilleures SCPI de rendement 2026, simulateur de revenus et comparatif fiscal.</p>
+    </div>
+  </section>
+
+  <!-- ══════════ TOP SCPI ══════════ -->
+  <section style="padding:0 0 60px">
+    <div class="container">
+      <div class="section-header">
+        <h2>Top SCPI — Rendements 2025</h2>
+        <p>Taux de distribution (TD) et performance globale annualisée (PGA). Moyenne du marché : 4,91%.</p>
+      </div>
+
+      <div class="scpi-table-wrapper" style="overflow-x:auto">
+        <table class="scpi-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>SCPI</th>
+              <th>Gestionnaire</th>
+              <th>TD 2025</th>
+              <th>PGA</th>
+              <th>Prix part</th>
+              <th>TOF</th>
+              <th>Depuis</th>
+              <th>Frais</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>
+                <span class="scpi-name">Wemo One</span>
+                <span class="scpi-warning">Effet relutif</span>
+              </td>
+              <td>Wemo REIM</td>
+              <td class="td-value">15,27%</td>
+              <td>15,27%</td>
+              <td>200 &euro;</td>
+              <td>100%</td>
+              <td>2024</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>
+                <span class="scpi-name">Sofidynamic</span>
+                <span class="scpi-warning">Jeune SCPI</span>
+              </td>
+              <td>Sofidy</td>
+              <td class="td-value">9,04%</td>
+              <td>14,04%</td>
+              <td>200 &euro;</td>
+              <td>98%</td>
+              <td>2024</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>
+                <span class="scpi-name">Reason</span>
+                <span class="scpi-warning">Risque élevé</span>
+              </td>
+              <td>MNK Partners</td>
+              <td class="td-value">12,90%</td>
+              <td>13,90%</td>
+              <td>200 &euro;</td>
+              <td>100%</td>
+              <td>2024</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td><span class="scpi-name">Iroko Atlas</span></td>
+              <td>Iroko</td>
+              <td class="td-value">9,41%</td>
+              <td>9,41%</td>
+              <td>-</td>
+              <td>-</td>
+              <td>2025</td>
+              <td>0%</td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td><span class="scpi-name">MomenTime</span></td>
+              <td>-</td>
+              <td class="td-value">9,25%</td>
+              <td>9,25%</td>
+              <td>-</td>
+              <td>-</td>
+              <td>-</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td>6</td>
+              <td><span class="scpi-name">Transitions Europe</span></td>
+              <td>Arkea REIM</td>
+              <td class="td-value">7,60%</td>
+              <td>8,60%</td>
+              <td>200 &euro;</td>
+              <td>95%</td>
+              <td>2022</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td>7</td>
+              <td><span class="scpi-name">Corum USA</span>
+                <span class="scpi-warning">Risque USD/EUR</span>
+              </td>
+              <td>Corum AM</td>
+              <td class="td-value">7,70%</td>
+              <td>7,70%</td>
+              <td>200 &euro;</td>
+              <td>100%</td>
+              <td>2024</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td>8</td>
+              <td><span class="scpi-name">Iroko Zen</span></td>
+              <td>Iroko</td>
+              <td class="td-value">7,14%</td>
+              <td>7,14%</td>
+              <td>204 &euro;</td>
+              <td>97%</td>
+              <td>2020</td>
+              <td>0%</td>
+            </tr>
+            <tr>
+              <td>9</td>
+              <td><span class="scpi-name">Corum Origin</span></td>
+              <td>Corum AM</td>
+              <td class="td-value">6,50%</td>
+              <td>TRI 6,94%</td>
+              <td>1 135 &euro;</td>
+              <td>98%</td>
+              <td>2012</td>
+              <td>11,96%</td>
+            </tr>
+            <tr>
+              <td>10</td>
+              <td><span class="scpi-name">Corum XL</span></td>
+              <td>Corum AM</td>
+              <td class="td-value">6,26%</td>
+              <td>-</td>
+              <td>1 050 &euro;</td>
+              <td>96%</td>
+              <td>2017</td>
+              <td>12%</td>
+            </tr>
+            <tr>
+              <td>11</td>
+              <td><span class="scpi-name">Corum Eurion</span></td>
+              <td>Corum AM</td>
+              <td class="td-value">5,97%</td>
+              <td>-</td>
+              <td>215 &euro;</td>
+              <td>97%</td>
+              <td>2020</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td>12</td>
+              <td><span class="scpi-name">PFO2</span></td>
+              <td>Perial</td>
+              <td class="td-value">4,50%</td>
+              <td>-</td>
+              <td>204 &euro;</td>
+              <td>91%</td>
+              <td>2009</td>
+              <td>-</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="scpi-mention">
+          Les performances passées ne préjugent pas des performances futures. Risque de perte en capital. Source : ASPIM, rapports annuels 2025.
+        </div>
+      </div>
+
+      <!-- Warning Wemo One -->
+      <div class="alert alert-warning" style="margin-top:20px;max-width:800px;margin-left:auto;margin-right:auto;">
+        <div>
+          <strong>Wemo One — 15,27%</strong> : rendement 2025 exceptionnel lié à l'effet relutif d'une jeune SCPI (collecte massive, investissements récents à haut rendement). Cible stable 2026 : ~10%. Ce niveau de performance n'est pas représentatif d'un rendement récurrent.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ SIMULATEUR SCPI ══════════ -->
+  <section style="padding:60px 0;background:var(--surface-2)">
+    <div class="container">
+      <div class="simulator-box">
+        <h3>Simulateur de revenus SCPI</h3>
+        <p class="sim-desc">Estimez vos revenus mensuels selon le montant investi et le taux de distribution.</p>
+        <div class="form-group">
+          <label for="scpi-montant">Montant investi</label>
+          <input type="number" id="scpi-montant" placeholder="50000" value="50000" />
+          <span class="input-suffix">&euro;</span>
+        </div>
+        <div class="form-group">
+          <label for="scpi-td">Taux de distribution</label>
+          <select id="scpi-td">
+            <option value="4.91">Moyenne marché — 4,91%</option>
+            <option value="7.14" selected>Iroko Zen — 7,14%</option>
+            <option value="6.50">Corum Origin — 6,50%</option>
+            <option value="7.60">Transitions Europe — 7,60%</option>
+            <option value="9.04">Sofidynamic — 9,04%</option>
+            <option value="12.90">Reason — 12,90%</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="scpi-tmi">Votre TMI (tranche marginale)</label>
+          <select id="scpi-tmi">
+            <option value="0">0%</option>
+            <option value="11">11%</option>
+            <option value="30" selected>30%</option>
+            <option value="41">41%</option>
+            <option value="45">45%</option>
+          </select>
+        </div>
+        <button class="btn-primary" onclick="simulerSCPI()" style="width:100%;justify-content:center">Calculer mes revenus</button>
+
+        <div class="sim-results-inline" id="scpi-results" style="display:none">
+          <div class="sim-result-item highlight">
+            <div class="label">Revenus bruts / mois</div>
+            <div class="value" id="scpi-brut">—</div>
+          </div>
+          <div class="sim-result-item">
+            <div class="label">Fiscalité / mois</div>
+            <div class="value" id="scpi-fiscalite">—</div>
+          </div>
+          <div class="sim-result-item highlight">
+            <div class="label">Revenus nets / mois</div>
+            <div class="value" id="scpi-net">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ COMPARATIF SCPI vs DIRECT ══════════ -->
+  <section style="padding:60px 0">
+    <div class="container">
+      <div class="section-header">
+        <h2>SCPI vs Investissement direct</h2>
+        <p>Deux approches complémentaires pour investir dans l'immobilier.</p>
+      </div>
+      <div class="comparatif-grid">
+        <div class="comparatif-card">
+          <h4>SCPI</h4>
+          <ul>
+            <li>Accessible dès 200 &euro; (1 part)</li>
+            <li>Aucune gestion locative</li>
+            <li>Mutualisation des risques (dizaines d'immeubles)</li>
+            <li>Liquidité relative (revente de parts)</li>
+            <li>Rendement moyen 4,91% en 2025</li>
+            <li>Diversification géographique européenne</li>
+          </ul>
+        </div>
+        <div class="comparatif-card cons">
+          <h4>Investissement direct</h4>
+          <ul>
+            <li>Effet de levier bancaire (crédit immobilier)</li>
+            <li>Maîtrise totale du bien et de la gestion</li>
+            <li>Dispositifs fiscaux puissants (Jeanbrun, LMNP)</li>
+            <li>Plus-value à la revente potentiellement élevée</li>
+            <li>Gestion locative à assurer (ou déléguer)</li>
+            <li>Ticket d'entrée élevé (apport + frais notaire)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ FISCALITÉ SCPI ══════════ -->
+  <section style="padding:60px 0;background:var(--surface-2)">
+    <div class="container">
+      <div class="section-header">
+        <h2>Fiscalité des SCPI</h2>
+        <p>Deux enveloppes principales : compte-titres (direct) ou assurance-vie.</p>
+      </div>
+      <div class="fiscalite-grid">
+        <div class="fiscalite-card">
+          <h4>En direct (compte-titres)</h4>
+          <div class="highlight-rate">TMI + 17,2%</div>
+          <p>
+            Les revenus SCPI sont imposés comme des revenus fonciers : à votre tranche marginale d'imposition (TMI)
+            + prélèvements sociaux de 17,2%.<br><br>
+            Exemple TMI 30% : imposition totale = <strong>47,2%</strong> des revenus.<br><br>
+            Les plus-values sur revente de parts suivent le régime des plus-values immobilières des particuliers
+            (abattements pour durée de détention, exonération IR après 22 ans, PS après 30 ans).
+          </p>
+        </div>
+        <div class="fiscalite-card">
+          <h4>En assurance-vie</h4>
+          <div class="highlight-rate">24,7%</div>
+          <p>
+            Après 8 ans de détention, les gains sont soumis au prélèvement forfaitaire de 7,5% + PS 17,2% = <strong>24,7%</strong>,
+            après un abattement annuel de 4 600 &euro; (9 200 &euro; pour un couple).<br><br>
+            Avant 8 ans : flat tax de 30% (PFU).<br><br>
+            <strong>Avantage :</strong> les parts SCPI en unités de compte ne rentrent pas dans l'assiette IFI.<br>
+            <strong>Inconvénient :</strong> choix de SCPI limité, frais de gestion AV en plus (~0,5%/an).
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ FOOTER ══════════ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="nav-logo">
+            <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M13 2C13 2 15.5 10.5 7 13C7 13 15.5 15.5 13 24C13 24 15.5 15.5 24 13C24 13 15.5 10.5 13 2Z" fill="#3D566A"/>
+              <path d="M20 10C20 10 22 16.5 15.5 18.5C15.5 18.5 22 20.5 20 27C20 27 22 20.5 28.5 18.5C28.5 18.5 22 16.5 20 10Z" fill="#3DD9BE"/>
+              <path d="M26 2.5C26 2.5 27 5.5 24 6.5C24 6.5 27 7.5 26 10.5C26 10.5 27 7.5 30 6.5C30 6.5 27 5.5 26 2.5Z" fill="#6EE6D0"/>
+            </svg>
+            Stratège
+          </div>
+          <p>L'immobilier malin et durable. Votre partenaire pour construire un patrimoine performant et responsable.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Plateforme</h4>
+          <ul>
+            <li><a href="index.html#simulation">Simulation</a></li>
+            <li><a href="index.html#catalogue">Catalogue</a></li>
+            <li><a href="scpi.html">SCPI</a></li>
+            <li><a href="pret.html">Prêt immobilier</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Ressources</h4>
+          <ul>
+            <li><a href="#">Guide investisseur</a></li>
+            <li><a href="#">Dispositifs fiscaux</a></li>
+            <li><a href="pret.html">Simulateur prêt</a></li>
+            <li><a href="scpi.html">Comparatif SCPI</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Légal</h4>
+          <ul>
+            <li><a href="#">Mentions légales</a></li>
+            <li><a href="#">Politique de confidentialité</a></li>
+            <li><a href="#">CGU</a></li>
+            <li><a href="#">Cookies</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        &copy; 2026 Stratège — L'immobilier malin et durable. Tous droits réservés.
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    function fmt(n) { return Number(n).toLocaleString('fr-FR'); }
+
+    function simulerSCPI() {
+      var montant = parseFloat(document.getElementById('scpi-montant').value) || 0;
+      var td = parseFloat(document.getElementById('scpi-td').value) || 4.91;
+      var tmi = parseFloat(document.getElementById('scpi-tmi').value) || 30;
+
+      var revenusBrutsAnnuel = montant * (td / 100);
+      var revenusBrutsMois = revenusBrutsAnnuel / 12;
+      var tauxImposition = (tmi + 17.2) / 100;
+      var fiscaliteMois = revenusBrutsMois * tauxImposition;
+      var revenusNetsMois = revenusBrutsMois - fiscaliteMois;
+
+      document.getElementById('scpi-brut').textContent = fmt(Math.round(revenusBrutsMois)) + ' \u20ac';
+      document.getElementById('scpi-fiscalite').textContent = '-' + fmt(Math.round(fiscaliteMois)) + ' \u20ac';
+      document.getElementById('scpi-net').textContent = fmt(Math.round(revenusNetsMois)) + ' \u20ac';
+      document.getElementById('scpi-results').style.display = 'grid';
+    }
+  </script>
+</body>
+</html>

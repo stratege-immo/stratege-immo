@@ -26,8 +26,9 @@
       <ul class="nav-links">
         <li><a href="#simulation" onclick="navTo('simulation')">Simulation</a></li>
         <li><a href="#catalogue" onclick="navTo('catalogue')">Catalogue</a></li>
+        <li><a href="scpi.html">SCPI</a></li>
+        <li><a href="pret.html">Prêt immobilier</a></li>
         <li><a href="#profils" onclick="navTo('profils')">Profils</a></li>
-        <li><a href="#trust" onclick="navTo('trust')">À propos</a></li>
       </ul>
       <div class="nav-actions">
         <button class="btn-secondary btn-small" onclick="navTo('simulation')">Se connecter</button>
@@ -348,6 +349,20 @@
     </div>
   </section>
 
+  <!-- ══════════ AVERTISSEMENT FISCAL ══════════ -->
+  <section class="fiscal-notice">
+    <div class="container">
+      <div class="alert alert-warning" style="max-width:800px;margin:0 auto;text-align:center;">
+        <div>
+          <strong>Transition fiscale Pinel &rarr; Jeanbrun</strong><br>
+          Le dispositif Pinel a pris fin le 31/12/2024. Le dispositif Jeanbrun (Statut Bailleur Privé)
+          le remplace depuis le 21/02/2026, avec un mécanisme d'amortissement fiscal de 3,5% à 5,5%
+          selon le niveau de loyer. <a href="scpi.html" style="color:var(--warning-700);text-decoration:underline;">En savoir plus</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ══════════ CATALOGUE ══════════ -->
   <section class="catalogue" id="catalogue">
     <div class="container">
@@ -362,7 +377,7 @@
         <button class="filter-btn" onclick="filtrerBiens('Lyon')">Lyon</button>
         <button class="filter-btn" onclick="filtrerBiens('Bordeaux')">Bordeaux</button>
         <button class="filter-btn" onclick="filtrerBiens('Paris')">Paris</button>
-        <button class="filter-btn" onclick="filtrerBiens('Pinel')">Pinel</button>
+        <button class="filter-btn" onclick="filtrerBiens('Jeanbrun')">Jeanbrun</button>
         <button class="filter-btn" onclick="filtrerBiens('LMNP')">LMNP</button>
       </div>
       <div class="biens-grid" id="catalogue-biens"></div>
@@ -411,7 +426,8 @@
           <ul>
             <li><a href="#simulation">Simulation</a></li>
             <li><a href="#catalogue">Catalogue</a></li>
-            <li><a href="#profils">Profils</a></li>
+            <li><a href="scpi.html">SCPI</a></li>
+            <li><a href="pret.html">Prêt immobilier</a></li>
             <li><a href="#" onclick="ouvrirContact()">Contact</a></li>
           </ul>
         </div>
@@ -420,8 +436,8 @@
           <ul>
             <li><a href="#">Guide investisseur</a></li>
             <li><a href="#">Dispositifs fiscaux</a></li>
-            <li><a href="#">FAQ</a></li>
-            <li><a href="#">Blog</a></li>
+            <li><a href="pret.html">Simulateur prêt</a></li>
+            <li><a href="scpi.html">Comparatif SCPI</a></li>
           </ul>
         </div>
         <div class="footer-col">
