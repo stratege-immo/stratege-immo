@@ -3,3 +3,7 @@ node_modules/
 .wrangler/
 nano.*.save
 *.pdf
+
+# DKIM keys
+dkim_private.pem
+dkim_public.pem

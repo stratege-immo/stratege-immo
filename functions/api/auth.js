@@ -5,6 +5,34 @@
 
 const JWT_EXPIRY = 7 * 24 * 60 * 60; // 7 days in seconds
 const RESET_EXPIRY = 3600; // 1 hour
+const RATE_LIMIT_MAX = 10; // max attempts per window
+const RATE_LIMIT_TTL = 60; // window in seconds
+
+// ── XSS sanitization ────────────────────────────────────
+function sanitize(str) {
+  if (typeof str !== 'string') return '';
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+    .trim()
+    .slice(0, 100);
+}
+
+// ── Rate limiting (IP-based via KV) ─────────────────────
+async function checkRateLimit(request, env, action) {
+  const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+  const key = `ratelimit:${action}:${ip}`;
+  const attempts = await env.STRATEGE_DB.get(key);
+  const count = attempts ? parseInt(attempts) : 0;
+  if (count >= RATE_LIMIT_MAX) {
+    return jsonResponse({ success: false, error: 'Trop de tentatives. Réessayez dans 60 secondes.' }, 429);
+  }
+  await env.STRATEGE_DB.put(key, String(count + 1), { expirationTtl: RATE_LIMIT_TTL });
+  return null;
+}
 
 // ── Web Crypto password hashing (PBKDF2) ───────────────
 async function hashPassword(password, salt) {
@@ -110,7 +138,23 @@ export async function onRequestOptions() {
 
 // ── Register ────────────────────────────────────────────
 async function handleRegister(request, env, secret) {
-  const { prenom, nom, email, password } = await request.json();
+  // Rate limiting
+  const rateLimited = await checkRateLimit(request, env, 'register');
+  if (rateLimited) return rateLimited;
+
+  const body = await request.json();
+  const { password } = body;
+
+  // RGPD consent required
+  if (!body.rgpd || body.rgpd !== true) {
+    return jsonResponse({ success: false, error: 'Consentement RGPD requis' }, 400);
+  }
+
+  // Sanitize text inputs
+  const prenom = sanitize(body.prenom);
+  const nom = sanitize(body.nom);
+  const email = sanitize(body.email).toLowerCase();
+
   if (!email || !password || !prenom || !nom) {
     return jsonResponse({ success: false, error: 'Champs obligatoires manquants' }, 400);
   }
@@ -118,7 +162,7 @@ async function handleRegister(request, env, secret) {
     return jsonResponse({ success: false, error: 'Le mot de passe doit contenir au moins 8 caractères' }, 400);
   }
 
-  const userKey = `user:${email.toLowerCase()}`;
+  const userKey = `user:${email}`;
   const existing = await env.STRATEGE_DB.get(userKey);
   if (existing) {
     return jsonResponse({ success: false, error: 'Un compte existe déjà avec cet email' }, 409);
@@ -130,7 +174,7 @@ async function handleRegister(request, env, secret) {
 
   const user = {
     id: userId,
-    email: email.toLowerCase(),
+    email,
     prenom,
     nom,
     salt,
@@ -164,6 +208,10 @@ async function handleRegister(request, env, secret) {
 
 // ── Login ───────────────────────────────────────────────
 async function handleLogin(request, env, secret) {
+  // Rate limiting
+  const rateLimited = await checkRateLimit(request, env, 'login');
+  if (rateLimited) return rateLimited;
+
   const { email, password } = await request.json();
   if (!email || !password) {
     return jsonResponse({ success: false, error: 'Email et mot de passe requis' }, 400);
@@ -267,7 +315,14 @@ async function handleReset(request, env, secret) {
 // ── Email via Mailchannels ──────────────────────────────
 async function sendEmail(env, { to, subject, html }) {
   const payload = {
-    personalizations: [{ to: [{ email: to }] }],
+    personalizations: [{
+      to: [{ email: to }],
+      ...(env.DKIM_PRIVATE_KEY ? {
+        dkim_domain: 'stratege-immo.fr',
+        dkim_selector: 'mailchannels',
+        dkim_private_key: env.DKIM_PRIVATE_KEY
+      } : {})
+    }],
     from: { email: 'contact@stratege-immo.fr', name: 'Stratège' },
     subject,
     content: [{ type: 'text/html', value: html }]

@@ -33,7 +33,7 @@ export async function onRequestPost({ request, env }) {
         return jsonRes({ success: false, error: 'Type email inconnu' }, 400);
     }
 
-    await sendMail(data.to, subject, html);
+    await sendMail(env, data.to, subject, html);
     return jsonRes({ success: true, message: 'Email envoyé' });
   } catch (err) {
     return jsonRes({ success: false, error: err.message }, 500);
@@ -50,16 +50,24 @@ export async function onRequestOptions() {
   });
 }
 
-async function sendMail(to, subject, html) {
+async function sendMail(env, to, subject, html) {
+  const payload = {
+    personalizations: [{
+      to: [{ email: to }],
+      ...(env.DKIM_PRIVATE_KEY ? {
+        dkim_domain: 'stratege-immo.fr',
+        dkim_selector: 'mailchannels',
+        dkim_private_key: env.DKIM_PRIVATE_KEY
+      } : {})
+    }],
+    from: { email: 'contact@stratege-immo.fr', name: 'Stratège' },
+    subject,
+    content: [{ type: 'text/html', value: html }]
+  };
   await fetch('https://api.mailchannels.net/tx/v1/send', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      personalizations: [{ to: [{ email: to }] }],
-      from: { email: 'contact@stratege-immo.fr', name: 'Stratège' },
-      subject,
-      content: [{ type: 'text/html', value: html }]
-    })
+    body: JSON.stringify(payload)
   });
 }
 
