@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Connexion — Stratège</title>
+  <meta name="description" content="Connectez-vous à votre espace Stratège pour retrouver vos simulations et projets immobiliers." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+
+  <nav class="navbar"></nav>
+
+  <main class="auth-page">
+    <div class="auth-box">
+      <h1>Connexion</h1>
+      <p class="auth-subtitle">Accédez à votre espace investisseur</p>
+
+      <div class="auth-error" id="login-error" style="display:none"></div>
+
+      <!-- Login form -->
+      <form id="login-form" onsubmit="return handleLogin(event)" style="display:block">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" required placeholder="vous@exemple.fr" autocomplete="email" />
+        </div>
+        <div class="form-group">
+          <label for="password">Mot de passe</label>
+          <input type="password" id="password" required placeholder="Votre mot de passe" autocomplete="current-password" />
+        </div>
+        <button type="submit" class="btn-primary btn-full" id="login-btn">Se connecter</button>
+        <div class="auth-links">
+          <a href="#" onclick="showReset(event)">Mot de passe oublié ?</a>
+          <span>Pas encore de compte ? <a href="register.html">Créer un compte</a></span>
+        </div>
+      </form>
+
+      <!-- Reset request form -->
+      <form id="reset-form" onsubmit="return handleResetRequest(event)" style="display:none">
+        <p class="auth-subtitle">Entrez votre email pour recevoir un lien de réinitialisation.</p>
+        <div class="form-group">
+          <label for="reset-email">Email</label>
+          <input type="email" id="reset-email" required placeholder="vous@exemple.fr" autocomplete="email" />
+        </div>
+        <button type="submit" class="btn-primary btn-full" id="reset-btn">Envoyer le lien</button>
+        <div class="auth-links">
+          <a href="#" onclick="showLogin(event)">Retour à la connexion</a>
+        </div>
+      </form>
+
+      <!-- Reset password form (shown via ?reset=TOKEN) -->
+      <form id="new-password-form" onsubmit="return handleReset(event)" style="display:none">
+        <p class="auth-subtitle">Choisissez votre nouveau mot de passe.</p>
+        <div class="form-group">
+          <label for="new-password">Nouveau mot de passe</label>
+          <input type="password" id="new-password" required minlength="8" placeholder="Min. 8 caractères" autocomplete="new-password" />
+        </div>
+        <div class="form-group">
+          <label for="confirm-password">Confirmer</label>
+          <input type="password" id="confirm-password" required minlength="8" placeholder="Confirmez le mot de passe" autocomplete="new-password" />
+        </div>
+        <button type="submit" class="btn-primary btn-full" id="new-pw-btn">Réinitialiser</button>
+      </form>
+    </div>
+  </main>
+
+  <footer class="footer"></footer>
+
+  <script src="assets/shared.js"></script>
+  <script>
+    renderNavbar();
+    renderFooter();
+
+    // If already logged in, redirect
+    if (isLoggedIn()) window.location.href = 'dashboard.html';
+
+    // Check for reset token in URL
+    var params = new URLSearchParams(window.location.search);
+    var resetToken = params.get('reset');
+    if (resetToken) {
+      document.getElementById('login-form').style.display = 'none';
+      document.getElementById('new-password-form').style.display = 'block';
+    }
+
+    function showError(msg) {
+      var el = document.getElementById('login-error');
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+
+    function hideError() {
+      document.getElementById('login-error').style.display = 'none';
+    }
+
+    function showReset(e) {
+      e.preventDefault();
+      hideError();
+      document.getElementById('login-form').style.display = 'none';
+      document.getElementById('reset-form').style.display = 'block';
+    }
+
+    function showLogin(e) {
+      e.preventDefault();
+      hideError();
+      document.getElementById('reset-form').style.display = 'none';
+      document.getElementById('login-form').style.display = 'block';
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      hideError();
+      var btn = document.getElementById('login-btn');
+      btn.disabled = true;
+      btn.textContent = 'Connexion…';
+      try {
+        var res = await fetch('/api/auth?action=login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: document.getElementById('email').value,
+            password: document.getElementById('password').value
+          })
+        });
+        var data = await res.json();
+        if (!data.success) { showError(data.error); btn.disabled = false; btn.textContent = 'Se connecter'; return false; }
+        localStorage.setItem('stratege_token', data.token);
+        localStorage.setItem('stratege_user', JSON.stringify(data.user));
+        window.location.href = 'dashboard.html';
+      } catch (err) {
+        showError('Erreur de connexion. Réessayez.');
+        btn.disabled = false;
+        btn.textContent = 'Se connecter';
+      }
+      return false;
+    }
+
+    async function handleResetRequest(e) {
+      e.preventDefault();
+      hideError();
+      var btn = document.getElementById('reset-btn');
+      btn.disabled = true;
+      btn.textContent = 'Envoi…';
+      try {
+        var res = await fetch('/api/auth?action=reset-request', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: document.getElementById('reset-email').value })
+        });
+        var data = await res.json();
+        showToast('Si un compte existe, un email a été envoyé.', 'success');
+        btn.textContent = 'Email envoyé';
+      } catch (err) {
+        showError('Erreur réseau. Réessayez.');
+        btn.disabled = false;
+        btn.textContent = 'Envoyer le lien';
+      }
+      return false;
+    }
+
+    async function handleReset(e) {
+      e.preventDefault();
+      hideError();
+      var pw = document.getElementById('new-password').value;
+      var confirm = document.getElementById('confirm-password').value;
+      if (pw !== confirm) { showError('Les mots de passe ne correspondent pas.'); return false; }
+      if (pw.length < 8) { showError('Minimum 8 caractères.'); return false; }
+      var btn = document.getElementById('new-pw-btn');
+      btn.disabled = true;
+      btn.textContent = 'Réinitialisation…';
+      try {
+        var res = await fetch('/api/auth?action=reset', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: resetToken, password: pw })
+        });
+        var data = await res.json();
+        if (!data.success) { showError(data.error); btn.disabled = false; btn.textContent = 'Réinitialiser'; return false; }
+        showToast('Mot de passe modifié ! Connectez-vous.', 'success');
+        setTimeout(function() { showLogin({ preventDefault: function(){} }); }, 1500);
+      } catch (err) {
+        showError('Erreur réseau. Réessayez.');
+        btn.disabled = false;
+        btn.textContent = 'Réinitialiser';
+      }
+      return false;
+    }
+  </script>
+
+</body>
+</html>

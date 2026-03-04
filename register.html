@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Créer un compte — Stratège</title>
+  <meta name="description" content="Créez votre compte Stratège pour simuler, sauvegarder et piloter vos investissements immobiliers." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+
+  <nav class="navbar"></nav>
+
+  <main class="auth-page">
+    <div class="auth-box">
+      <h1>Créer un compte</h1>
+      <p class="auth-subtitle">Rejoignez Stratège et pilotez vos investissements</p>
+
+      <div class="auth-error" id="register-error" style="display:none"></div>
+
+      <form id="register-form" onsubmit="return handleRegister(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="prenom">Prénom</label>
+            <input type="text" id="prenom" required placeholder="Jean" autocomplete="given-name" />
+          </div>
+          <div class="form-group">
+            <label for="nom">Nom</label>
+            <input type="text" id="nom" required placeholder="Dupont" autocomplete="family-name" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" required placeholder="vous@exemple.fr" autocomplete="email" />
+        </div>
+        <div class="form-group">
+          <label for="password">Mot de passe</label>
+          <input type="password" id="password" required minlength="8" placeholder="Min. 8 caractères" autocomplete="new-password" />
+        </div>
+        <div class="form-group">
+          <label for="password-confirm">Confirmer le mot de passe</label>
+          <input type="password" id="password-confirm" required minlength="8" placeholder="Confirmez votre mot de passe" autocomplete="new-password" />
+        </div>
+        <div class="checkbox-group">
+          <input type="checkbox" id="rgpd" required />
+          <label for="rgpd">J'accepte les <a href="cgv-cgu.html" target="_blank">CGV/CGU</a> et la <a href="politique-confidentialite.html" target="_blank">politique de confidentialité</a></label>
+        </div>
+        <button type="submit" class="btn-primary btn-full" id="register-btn">Créer mon compte</button>
+        <div class="auth-links">
+          <span>Déjà un compte ? <a href="login.html">Se connecter</a></span>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <footer class="footer"></footer>
+
+  <script src="assets/shared.js"></script>
+  <script>
+    renderNavbar();
+    renderFooter();
+
+    if (isLoggedIn()) window.location.href = 'dashboard.html';
+
+    function showError(msg) {
+      var el = document.getElementById('register-error');
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+
+    function hideError() {
+      document.getElementById('register-error').style.display = 'none';
+    }
+
+    async function handleRegister(e) {
+      e.preventDefault();
+      hideError();
+
+      var pw = document.getElementById('password').value;
+      var confirm = document.getElementById('password-confirm').value;
+      if (pw !== confirm) { showError('Les mots de passe ne correspondent pas.'); return false; }
+      if (pw.length < 8) { showError('Le mot de passe doit contenir au moins 8 caractères.'); return false; }
+      if (!document.getElementById('rgpd').checked) { showError('Veuillez accepter les CGV/CGU et la politique de confidentialité.'); return false; }
+
+      var btn = document.getElementById('register-btn');
+      btn.disabled = true;
+      btn.textContent = 'Création…';
+
+      try {
+        var res = await fetch('/api/auth?action=register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prenom: document.getElementById('prenom').value,
+            nom: document.getElementById('nom').value,
+            email: document.getElementById('email').value,
+            password: pw
+          })
+        });
+        var data = await res.json();
+        if (!data.success) { showError(data.error); btn.disabled = false; btn.textContent = 'Créer mon compte'; return false; }
+
+        localStorage.setItem('stratege_token', data.token);
+        localStorage.setItem('stratege_user', JSON.stringify(data.user));
+        window.location.href = 'dashboard.html';
+      } catch (err) {
+        showError('Erreur réseau. Réessayez.');
+        btn.disabled = false;
+        btn.textContent = 'Créer mon compte';
+      }
+      return false;
+    }
+  </script>
+
+</body>
+</html>

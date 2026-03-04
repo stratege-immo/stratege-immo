@@ -123,6 +123,7 @@ async function lancerSimulation() {
 }
 
 function afficherResultats(data) {
+  _lastSimData = data.resultats || data;
   var r = data.resultats;
   setText('res-budget', fmt(r.budget_total) + ' \u20ac');
   setText('res-financement', fmt(r.financement_bancaire) + ' \u20ac');
@@ -145,6 +146,40 @@ function afficherResultatDemo() {
   setText('res-rendement', '5.8%');
   setText('res-fiscal', '2 268 \u20ac/an');
   setText('res-dispositif', 'Jeanbrun Social');
+}
+
+// ── SAVE SIMULATION ──────────────────────────────────────
+var _lastSimData = null;
+
+async function sauvegarderSimulation() {
+  if (typeof isLoggedIn === 'function' && !isLoggedIn()) {
+    if (typeof showToast === 'function') showToast('Connectez-vous pour sauvegarder', 'error');
+    window.location.href = 'login.html';
+    return;
+  }
+  if (!_lastSimData) {
+    if (typeof showToast === 'function') showToast('Aucune simulation à sauvegarder', 'error');
+    return;
+  }
+  var btn = document.getElementById('btn-sauvegarder');
+  if (btn) { btn.disabled = true; btn.textContent = 'Sauvegarde…'; }
+  try {
+    var token = typeof getToken === 'function' ? getToken() : localStorage.getItem('stratege_token');
+    var res = await fetch('/api/simulations', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify(_lastSimData)
+    });
+    var data = await res.json();
+    if (data.success) {
+      if (typeof showToast === 'function') showToast('Simulation sauvegardée !', 'success');
+    } else {
+      if (typeof showToast === 'function') showToast(data.error || 'Erreur', 'error');
+    }
+  } catch (err) {
+    if (typeof showToast === 'function') showToast('Erreur réseau', 'error');
+  }
+  if (btn) { btn.disabled = false; btn.textContent = 'Sauvegarder'; }
 }
 
 function fmt(n) {

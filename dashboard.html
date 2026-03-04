@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tableau de bord — Stratège</title>
+  <meta name="description" content="Votre espace client Stratège : simulations sauvegardées, projets et profil." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+
+  <nav class="navbar"></nav>
+
+  <main class="section" style="padding-top:120px;min-height:70vh">
+    <div class="container">
+
+      <div class="dash-header">
+        <div>
+          <h1 id="dash-welcome">Bonjour</h1>
+          <p class="text-muted" id="dash-email"></p>
+        </div>
+        <div class="dash-actions">
+          <span class="plan-badge" id="dash-plan">Express</span>
+          <button class="btn-secondary btn-small" onclick="logout()">Déconnexion</button>
+        </div>
+      </div>
+
+      <!-- Simulations -->
+      <div class="dash-section">
+        <div class="dash-section-header">
+          <h2>Mes simulations</h2>
+          <a href="index.html#simulation" class="btn-primary btn-small">Nouvelle simulation</a>
+        </div>
+
+        <div id="sim-loading" class="text-muted" style="padding:24px;text-align:center">Chargement…</div>
+
+        <div id="sim-empty" class="dash-empty" style="display:none">
+          <p>Aucune simulation sauvegardée.</p>
+          <a href="index.html#simulation" class="btn-primary btn-small">Lancer ma première simulation</a>
+        </div>
+
+        <div class="table-responsive" id="sim-table-wrap" style="display:none">
+          <table class="dash-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Budget</th>
+                <th>Mensualité</th>
+                <th>Effort réel</th>
+                <th>Dispositif</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="sim-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Profile -->
+      <div class="dash-section">
+        <h2>Mon profil</h2>
+        <div class="dash-profile-grid" id="dash-profile">
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="footer"></footer>
+
+  <script src="assets/shared.js"></script>
+  <script>
+    renderNavbar();
+    renderFooter();
+
+    // Auth guard
+    if (!isLoggedIn()) {
+      window.location.href = 'login.html';
+    }
+
+    var user = getUser();
+    if (user) {
+      document.getElementById('dash-welcome').textContent = 'Bonjour ' + user.prenom;
+      document.getElementById('dash-email').textContent = user.email;
+      document.getElementById('dash-plan').textContent = (user.plan || 'express').charAt(0).toUpperCase() + (user.plan || 'express').slice(1);
+      document.getElementById('dash-profile').innerHTML =
+        '<div class="dash-profile-item"><span class="label">Nom</span><span>' + user.prenom + ' ' + user.nom + '</span></div>' +
+        '<div class="dash-profile-item"><span class="label">Email</span><span>' + user.email + '</span></div>' +
+        '<div class="dash-profile-item"><span class="label">Forfait</span><span class="plan-badge">' + (user.plan || 'express') + '</span></div>';
+    }
+
+    // Load simulations
+    loadSimulations();
+
+    async function loadSimulations() {
+      try {
+        var res = await fetch('/api/simulations', {
+          headers: { 'Authorization': 'Bearer ' + getToken() }
+        });
+        var data = await res.json();
+        document.getElementById('sim-loading').style.display = 'none';
+
+        if (!data.success || !data.simulations || data.simulations.length === 0) {
+          document.getElementById('sim-empty').style.display = 'block';
+          return;
+        }
+
+        document.getElementById('sim-table-wrap').style.display = 'block';
+        var tbody = document.getElementById('sim-tbody');
+        tbody.innerHTML = '';
+
+        data.simulations.forEach(function(sim) {
+          var tr = document.createElement('tr');
+          var date = new Date(sim.created_at).toLocaleDateString('fr-FR');
+          tr.innerHTML =
+            '<td>' + date + '</td>' +
+            '<td>' + fmt(sim.budget_total || sim.budgetTotal || 0) + ' €</td>' +
+            '<td>' + fmt(sim.mensualite || 0) + ' €/mois</td>' +
+            '<td class="text-accent">' + fmt(sim.effort_reel || sim.effortReel || 0) + ' €/mois</td>' +
+            '<td>' + (sim.dispositif || '-') + '</td>' +
+            '<td><button class="btn-ghost btn-small" onclick="deleteSim(\'' + sim.id + '\', this)">Supprimer</button></td>';
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        document.getElementById('sim-loading').textContent = 'Erreur de chargement.';
+      }
+    }
+
+    async function deleteSim(id, btn) {
+      if (!confirm('Supprimer cette simulation ?')) return;
+      btn.disabled = true;
+      btn.textContent = '…';
+      try {
+        var res = await fetch('/api/simulations?id=' + encodeURIComponent(id), {
+          method: 'DELETE',
+          headers: { 'Authorization': 'Bearer ' + getToken() }
+        });
+        var data = await res.json();
+        if (data.success) {
+          showToast('Simulation supprimée', 'success');
+          loadSimulations();
+        } else {
+          showToast(data.error || 'Erreur', 'error');
+          btn.disabled = false;
+          btn.textContent = 'Supprimer';
+        }
+      } catch (err) {
+        showToast('Erreur réseau', 'error');
+        btn.disabled = false;
+        btn.textContent = 'Supprimer';
+      }
+    }
+
+    function fmt(n) {
+      return Number(n).toLocaleString('fr-FR', { maximumFractionDigits: 0 });
+    }
+  </script>
+
+</body>
+</html>
