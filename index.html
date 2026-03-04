@@ -16,20 +16,22 @@
   <nav class="navbar">
     <div class="container">
       <a href="#" class="nav-logo">
-        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M16 2L20.5 11.5L30 13L23 20L24.5 30L16 25.5L7.5 30L9 20L2 13L11.5 11.5L16 2Z" fill="#3DD9BE" stroke="#2CC4AA" stroke-width="1.5"/>
+        <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M13 2C13 2 15.5 10.5 7 13C7 13 15.5 15.5 13 24C13 24 15.5 15.5 24 13C24 13 15.5 10.5 13 2Z" fill="#3D566A"/>
+          <path d="M20 10C20 10 22 16.5 15.5 18.5C15.5 18.5 22 20.5 20 27C20 27 22 20.5 28.5 18.5C28.5 18.5 22 16.5 20 10Z" fill="#3DD9BE"/>
+          <path d="M26 2.5C26 2.5 27 5.5 24 6.5C24 6.5 27 7.5 26 10.5C26 10.5 27 7.5 30 6.5C30 6.5 27 5.5 26 2.5Z" fill="#6EE6D0"/>
         </svg>
         Stratège
       </a>
       <ul class="nav-links">
-        <li><a href="#simulation" onclick="scrollTo('simulation')">Simulation</a></li>
-        <li><a href="#catalogue" onclick="scrollTo('catalogue')">Catalogue</a></li>
-        <li><a href="#profils" onclick="scrollTo('profils')">Profils</a></li>
-        <li><a href="#trust" onclick="scrollTo('trust')">À propos</a></li>
+        <li><a href="#simulation" onclick="navTo('simulation')">Simulation</a></li>
+        <li><a href="#catalogue" onclick="navTo('catalogue')">Catalogue</a></li>
+        <li><a href="#profils" onclick="navTo('profils')">Profils</a></li>
+        <li><a href="#trust" onclick="navTo('trust')">À propos</a></li>
       </ul>
       <div class="nav-actions">
-        <button class="btn-secondary btn-small" onclick="scrollTo('simulation')">Se connecter</button>
-        <button class="btn-primary btn-small" onclick="scrollTo('simulation')">Créer un compte</button>
+        <button class="btn-secondary btn-small" onclick="navTo('simulation')">Se connecter</button>
+        <button class="btn-primary btn-small" onclick="navTo('simulation')">Créer un compte</button>
       </div>
       <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Menu">
         <span></span><span></span><span></span>
@@ -51,8 +53,8 @@
           et bénéficiez d'un accompagnement personnalisé pour construire votre patrimoine.
         </p>
         <div class="hero-ctas">
-          <button class="btn-primary" onclick="scrollTo('simulation')">Situation complète</button>
-          <button class="btn-secondary" onclick="scrollTo('simulation')">Démarrez, c'est rapide &rarr;</button>
+          <button class="btn-primary" onclick="navTo('simulation')">Situation complète</button>
+          <button class="btn-secondary" onclick="navTo('simulation')">Démarrez, c'est rapide &rarr;</button>
         </div>
         <div class="hero-stats">
           <div class="hero-stat">
@@ -158,7 +160,7 @@
           <div class="profile-body">
             <h3>Jeunes actifs</h3>
             <p>Commencez à investir tôt pour maximiser l'effet de levier et construire votre patrimoine dès maintenant.</p>
-            <button class="btn-primary btn-small" onclick="scrollTo('simulation');selectProfil('jeune_actif')">Simuler mon projet</button>
+            <button class="btn-primary btn-small" onclick="navTo('simulation');selectProfil('jeune_actif')">Simuler mon projet</button>
           </div>
         </div>
         <div class="profile-card">
@@ -166,7 +168,7 @@
           <div class="profile-body">
             <h3>Couples</h3>
             <p>Combinez vos revenus pour accéder à des biens de qualité et préparer l'avenir de votre famille.</p>
-            <button class="btn-primary btn-small" onclick="scrollTo('simulation');selectProfil('couple')">Simuler mon projet</button>
+            <button class="btn-primary btn-small" onclick="navTo('simulation');selectProfil('couple')">Simuler mon projet</button>
           </div>
         </div>
         <div class="profile-card">
@@ -174,7 +176,7 @@
           <div class="profile-body">
             <h3>Jeunes retraités</h3>
             <p>Générez des revenus complémentaires stables pour profiter pleinement de votre retraite.</p>
-            <button class="btn-primary btn-small" onclick="scrollTo('simulation');selectProfil('retraite')">Simuler mon projet</button>
+            <button class="btn-primary btn-small" onclick="navTo('simulation');selectProfil('retraite')">Simuler mon projet</button>
           </div>
         </div>
         <div class="profile-card">
@@ -182,7 +184,7 @@
           <div class="profile-body">
             <h3>Résidence principale</h3>
             <p>Trouvez le bien idéal pour votre famille avec un financement optimisé et sans stress.</p>
-            <button class="btn-primary btn-small" onclick="scrollTo('simulation');selectProfil('residence')">Simuler mon projet</button>
+            <button class="btn-primary btn-small" onclick="navTo('simulation');selectProfil('residence')">Simuler mon projet</button>
           </div>
         </div>
       </div>
@@ -389,8 +391,10 @@
       <div class="footer-grid">
         <div class="footer-brand">
           <div class="nav-logo">
-            <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M16 2L20.5 11.5L30 13L23 20L24.5 30L16 25.5L7.5 30L9 20L2 13L11.5 11.5L16 2Z" fill="#3DD9BE" stroke="#2CC4AA" stroke-width="1.5"/>
+            <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M13 2C13 2 15.5 10.5 7 13C7 13 15.5 15.5 13 24C13 24 15.5 15.5 24 13C24 13 15.5 10.5 13 2Z" fill="#3D566A"/>
+              <path d="M20 10C20 10 22 16.5 15.5 18.5C15.5 18.5 22 20.5 20 27C20 27 22 20.5 28.5 18.5C28.5 18.5 22 16.5 20 10Z" fill="#3DD9BE"/>
+              <path d="M26 2.5C26 2.5 27 5.5 24 6.5C24 6.5 27 7.5 26 10.5C26 10.5 27 7.5 30 6.5C30 6.5 27 5.5 26 2.5Z" fill="#6EE6D0"/>
             </svg>
             Stratège
           </div>
