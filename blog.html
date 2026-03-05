@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blog — Stratège</title>
+  <meta name="description" content="Actualités et conseils en investissement immobilier : tendances, stratégies, fiscalité, SCPI et patrimoine." />
+  <link rel="canonical" href="https://stratege-immo.fr/blog" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Blog — Stratège" />
+  <meta property="og:description" content="Actualités et conseils en investissement immobilier." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+</head>
+<body>
+
+  <nav class="navbar"></nav>
+
+  <main class="legal-page" style="padding-top:120px">
+    <div class="container">
+      <div style="text-align:center;margin-bottom:48px">
+        <span class="badge badge-teal" style="margin-bottom:12px;display:inline-block">Blog</span>
+        <h1>Actualités & Conseils</h1>
+        <p style="color:var(--neutral-500);max-width:600px;margin:12px auto 0">
+          Retrouvez nos analyses, conseils et décryptages pour réussir votre investissement immobilier.
+        </p>
+      </div>
+
+      <div class="blog-grid" id="blog-articles">
+        <!-- Articles loaded by JS -->
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer"></footer>
+
+  <script src="assets/shared.js"></script>
+  <script>
+    renderNavbar('blog');
+    renderFooter();
+
+    var ARTICLES = [
+      {
+        id: 'tendances-immobilier-2025',
+        titre: "Les Tendances de l'Immobilier en 2025 : Ce Qu'il Faut Savoir Avant d'Investir",
+        date: '2025-02-28',
+        categorie: 'Marché',
+        resume: "Le marché immobilier français connaît des évolutions majeures en 2025. Entre baisse des taux, nouvelles réglementations et opportunités dans les villes moyennes, voici les clés pour investir sereinement.",
+        contenu: [
+          { type: 'h2', text: 'Un marché en pleine mutation' },
+          { type: 'p', text: "Après deux années de hausse des taux, 2025 marque un tournant. Les taux d'emprunt se stabilisent autour de 3 à 3,4 %, redonnant du pouvoir d'achat aux investisseurs. Les prix, après une correction de 5 à 8 % dans les grandes métropoles, offrent des points d'entrée attractifs." },
+          { type: 'h2', text: 'Les villes moyennes en vedette' },
+          { type: 'p', text: "Toulouse, Montpellier, Rennes, Nantes... Les villes moyennes dynamiques continuent d'attirer les investisseurs. Avec des rendements locatifs de 5 à 7 % et une demande locative soutenue (étudiants, jeunes actifs), ces marchés présentent un excellent ratio rendement/risque." },
+          { type: 'h2', text: 'Les dispositifs fiscaux à connaître' },
+          { type: 'p', text: "Le dispositif Jeanbrun (successeur du Pinel) offre toujours des réductions d'impôts significatives pour les investisseurs dans le neuf. Le Denormandie cible l'ancien avec travaux dans les centres-villes dégradés. Le LMNP reste un incontournable pour optimiser sa fiscalité." },
+          { type: 'h2', text: 'Notre conseil' },
+          { type: 'p', text: "Ne tardez pas à vous positionner. Les conditions actuelles — taux stabilisés, prix corrigés, dispositifs fiscaux actifs — créent une fenêtre d'opportunité. Commencez par une simulation pour évaluer votre capacité d'investissement." }
+        ]
+      },
+      {
+        id: 'cles-reussir-investissement',
+        titre: "Les Clés pour Réussir son Investissement Immobilier en 2025",
+        date: '2025-02-28',
+        categorie: 'Stratégie',
+        resume: "Investir dans l'immobilier demande méthode et rigueur. Découvrez les 5 piliers d'un investissement réussi et les erreurs à éviter absolument.",
+        contenu: [
+          { type: 'h2', text: '1. Définir ses objectifs' },
+          { type: 'p', text: "Avant tout investissement, clarifiez votre objectif : réduction d'impôts, constitution de patrimoine, revenus complémentaires, préparation de la retraite ? Chaque objectif oriente vers des stratégies et des dispositifs différents." },
+          { type: 'h2', text: '2. Maîtriser son budget' },
+          { type: 'p', text: "L'effort mensuel réel (mensualité - loyer + charges) doit rester confortable. Chez Stratège, nous recommandons un effort maximum de 300 à 500 €/mois pour un premier investissement. Pensez à conserver une épargne de précaution." },
+          { type: 'h2', text: '3. Choisir le bon emplacement' },
+          { type: 'p', text: "La localisation reste le critère n°1. Privilégiez les zones avec : une forte demande locative, des transports en commun, des universités ou bassins d'emploi, et un potentiel de valorisation. Les villes éligibles aux dispositifs fiscaux sont souvent les plus pertinentes." },
+          { type: 'h2', text: '4. Optimiser sa fiscalité' },
+          { type: 'p', text: "Un bon montage fiscal peut représenter plusieurs milliers d'euros d'économies par an. Comparez les dispositifs (Jeanbrun, Denormandie, LMNP, Déficit foncier) en fonction de votre TMI et de votre situation familiale." },
+          { type: 'h2', text: '5. Se faire accompagner' },
+          { type: 'p', text: "Un conseiller en gestion de patrimoine vous aide à structurer votre projet, sécuriser le financement et optimiser la fiscalité. Chez Stratège, notre accompagnement est personnalisé et transparent." }
+        ]
+      },
+      {
+        id: 'scpi-guide-complet',
+        titre: "SCPI : Le Guide Complet pour Investir dans la Pierre-Papier",
+        date: '2026-01-15',
+        categorie: 'SCPI',
+        resume: "Les SCPI permettent d'investir dans l'immobilier dès 200 € sans gestion locative. Rendement, risques, fiscalité : tout comprendre avant de se lancer.",
+        contenu: [
+          { type: 'h2', text: "Qu'est-ce qu'une SCPI ?" },
+          { type: 'p', text: "Une Société Civile de Placement Immobilier (SCPI) est un véhicule d'investissement collectif qui acquiert et gère un patrimoine immobilier locatif. En achetant des parts, vous devenez indirectement propriétaire d'un parc diversifié (bureaux, commerces, santé, logistique)." },
+          { type: 'h2', text: 'Rendement et performance' },
+          { type: 'p', text: "En 2025, les SCPI affichent un taux de distribution moyen de 4,5 à 5,5 %. Certaines SCPI spécialisées (santé, logistique européenne) dépassent les 6 %. Ce rendement est net de frais de gestion mais brut de fiscalité." },
+          { type: 'h2', text: 'Comment investir ?' },
+          { type: 'p', text: "Trois modes d'acquisition : en direct (cash ou à crédit), via une assurance-vie, ou en démembrement temporaire. Chaque méthode a ses avantages fiscaux propres. Le ticket d'entrée varie de 200 € à 5 000 € selon les SCPI." },
+          { type: 'h2', text: 'Les risques à connaître' },
+          { type: 'p', text: "Le capital n'est pas garanti. La liquidité est limitée (délai de revente de quelques semaines à plusieurs mois). Les revenus peuvent varier selon le taux d'occupation et les conditions de marché. Diversifiez sur plusieurs SCPI pour limiter le risque." }
+        ]
+      },
+      {
+        id: 'pret-immobilier-2026',
+        titre: "Prêt Immobilier en 2026 : Taux, Conditions et Stratégies",
+        date: '2026-03-01',
+        categorie: 'Financement',
+        resume: "Les taux immobiliers se stabilisent début 2026 autour de 3 %. Analyse détaillée des conditions de marché et conseils pour obtenir le meilleur taux.",
+        contenu: [
+          { type: 'h2', text: 'État du marché en mars 2026' },
+          { type: 'p', text: "Les taux moyens constatés en mars 2026 : 3,02 % sur 10 ans, 3,15 % sur 15 ans, 3,26 % sur 20 ans, 3,41 % sur 25 ans. Ces taux reflètent une stabilisation après la hausse de 2023-2024, offrant une visibilité appréciable pour les emprunteurs." },
+          { type: 'h2', text: 'Comment décrocher le meilleur taux ?' },
+          { type: 'p', text: "Trois leviers principaux : un apport personnel d'au moins 10 % (idéalement 20 %), un taux d'endettement inférieur à 33 %, et une situation professionnelle stable (CDI, fonctionnaire, profession libérale établie). Un bon dossier peut obtenir -0,2 % par rapport au taux moyen." },
+          { type: 'h2', text: "L'assurance emprunteur" },
+          { type: 'p', text: "Depuis la loi Lemoine (2022), vous pouvez changer d'assurance emprunteur à tout moment. Cette seule optimisation peut vous faire économiser 5 000 à 15 000 € sur la durée totale du prêt. Comparez les offres via délégation d'assurance." },
+          { type: 'h2', text: 'Investissement locatif : spécificités' },
+          { type: 'p', text: "Pour un investissement locatif, les banques prennent en compte 70 % des loyers prévisionnels dans le calcul du taux d'endettement. Avec un effort mensuel raisonnable, il est possible d'investir même avec un crédit de résidence principale en cours." }
+        ]
+      }
+    ];
+
+    function formatDate(d) {
+      var parts = d.split('-');
+      var mois = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+      return parseInt(parts[2]) + ' ' + mois[parseInt(parts[1])-1] + ' ' + parts[0];
+    }
+
+    function renderArticles() {
+      var grid = document.getElementById('blog-articles');
+      var hash = window.location.hash.replace('#','');
+
+      if (hash) {
+        var article = ARTICLES.find(function(a) { return a.id === hash; });
+        if (article) {
+          renderArticleDetail(article);
+          return;
+        }
+      }
+
+      grid.innerHTML = ARTICLES.map(function(a) {
+        return '<article class="blog-card fade-up">' +
+          '<div class="blog-card-body">' +
+            '<div style="display:flex;gap:8px;margin-bottom:12px">' +
+              '<span class="badge badge-teal">' + a.categorie + '</span>' +
+              '<span style="color:var(--neutral-400);font-size:14px">' + formatDate(a.date) + '</span>' +
+            '</div>' +
+            '<h2 style="font-family:var(--font-display);font-size:1.25rem;margin-bottom:12px">' +
+              '<a href="blog.html#' + a.id + '" style="color:var(--neutral-800)">' + a.titre + '</a>' +
+            '</h2>' +
+            '<p style="color:var(--neutral-500);font-size:15px;line-height:1.6">' + a.resume + '</p>' +
+            '<a href="blog.html#' + a.id + '" class="btn-secondary btn-small" style="margin-top:16px;display:inline-block">Lire l\'article &rarr;</a>' +
+          '</div>' +
+        '</article>';
+      }).join('');
+    }
+
+    function renderArticleDetail(article) {
+      var grid = document.getElementById('blog-articles');
+      var html = '<div class="blog-detail">' +
+        '<a href="blog.html" style="color:var(--primary-500);display:inline-block;margin-bottom:24px">&larr; Retour au blog</a>' +
+        '<div style="display:flex;gap:8px;margin-bottom:16px">' +
+          '<span class="badge badge-teal">' + article.categorie + '</span>' +
+          '<span style="color:var(--neutral-400);font-size:14px">' + formatDate(article.date) + '</span>' +
+        '</div>' +
+        '<h1 style="font-family:var(--font-display);font-size:2rem;margin-bottom:24px;line-height:1.3">' + article.titre + '</h1>' +
+        '<p style="font-size:18px;color:var(--neutral-600);margin-bottom:32px;line-height:1.7">' + article.resume + '</p>' +
+        '<div class="legal-content">';
+
+      article.contenu.forEach(function(block) {
+        if (block.type === 'h2') html += '<h2>' + block.text + '</h2>';
+        else html += '<p>' + block.text + '</p>';
+      });
+
+      html += '</div>' +
+        '<div style="margin-top:48px;padding:32px;background:var(--primary-50);border-radius:var(--radius-lg);text-align:center">' +
+          '<h3 style="font-family:var(--font-display);margin-bottom:8px">Prêt à investir ?</h3>' +
+          '<p style="color:var(--neutral-500);margin-bottom:16px">Commencez par une simulation gratuite pour évaluer votre projet.</p>' +
+          '<a href="index.html#simulation" class="btn-primary">Lancer ma simulation</a>' +
+        '</div>' +
+      '</div>';
+
+      grid.innerHTML = html;
+    }
+
+    renderArticles();
+
+    window.addEventListener('hashchange', renderArticles);
+  </script>
+
+</body>
+</html>

@@ -2737,3 +2737,34 @@ h6 { font-size: 20px; line-height: 28px; }
 @media (min-width: 769px) {
   .sidebar-toggle { display: none; }
 }
+
+/* ─── BLOG ─────────────────────────────────────────────── */
+.blog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 24px;
+}
+.blog-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.blog-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+.blog-card-body { padding: 24px; }
+.blog-detail { max-width: 720px; }
+.blog-detail h2 { margin-top: 32px; }
+.blog-detail p { margin: 12px 0; line-height: 1.8; color: var(--neutral-600); }
+
+/* ─── CATALOGUE SEARCH ─────────────────────────────────── */
+.catalogue-results { max-height: 600px; overflow-y: auto; }
+.catalogue-card:hover { box-shadow: var(--shadow-md); }
+.map-price-marker { background: none !important; border: none !important; }
+
+@media (max-width: 768px) {
+  .blog-grid { grid-template-columns: 1fr; }
+}

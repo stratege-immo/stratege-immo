@@ -55,9 +55,10 @@ function renderNavbar(activePage) {
       '<a href="index.html" class="nav-logo">' + LOGO_SVG + 'Stratège</a>' +
       '<ul class="nav-links">' +
         '<li><a href="index.html#simulation"' + isActive('simulation') + '>Simulation</a></li>' +
-        '<li><a href="index.html#catalogue"' + isActive('catalogue') + '>Catalogue</a></li>' +
+        '<li><a href="catalogue.html"' + isActive('catalogue') + '>Catalogue</a></li>' +
         '<li><a href="scpi.html"' + isActive('scpi') + '>SCPI</a></li>' +
         '<li><a href="pret.html"' + isActive('pret') + '>Prêt immobilier</a></li>' +
+        '<li><a href="blog.html"' + isActive('blog') + '>Blog</a></li>' +
         (loggedIn ? '<li><a href="dashboard.html"' + isActive('dashboard') + '>Dashboard</a></li>' : '') +
       '</ul>' +
       authHTML +
@@ -101,18 +102,19 @@ function renderFooter() {
           '<h4>Plateforme</h4>' +
           '<ul>' +
             '<li><a href="index.html#simulation">Simulation</a></li>' +
-            '<li><a href="index.html#catalogue">Catalogue</a></li>' +
+            '<li><a href="catalogue.html">Catalogue</a></li>' +
             '<li><a href="scpi.html">SCPI</a></li>' +
             '<li><a href="pret.html">Prêt immobilier</a></li>' +
             '<li><a href="dashboard.html">Espace client</a></li>' +
           '</ul>' +
         '</div>' +
         '<div class="footer-col">' +
-          '<h4>Investir</h4>' +
+          '<h4>Découvrir</h4>' +
           '<ul>' +
-            '<li><a href="pret.html">Simulateur prêt</a></li>' +
+            '<li><a href="blog.html">Blog</a></li>' +
+            '<li><a href="a-propos.html">Qui sommes-nous</a></li>' +
+            '<li><a href="contact.html">Contact</a></li>' +
             '<li><a href="scpi.html">Comparatif SCPI</a></li>' +
-            '<li><a href="bien-detail.html?id=bien_001">Bien exemple</a></li>' +
           '</ul>' +
         '</div>' +
         '<div class="footer-col">' +
@@ -123,6 +125,16 @@ function renderFooter() {
             '<li><a href="cgv-cgu.html">CGV / CGU</a></li>' +
           '</ul>' +
         '</div>' +
+      '</div>' +
+      '<div class="footer-newsletter" style="padding:24px 0;border-top:1px solid var(--neutral-200);border-bottom:1px solid var(--neutral-200);margin:24px 0;text-align:center">' +
+        '<h4 style="margin-bottom:8px">Inscrivez-vous à notre newsletter</h4>' +
+        '<p style="color:var(--neutral-500);font-size:14px;margin-bottom:12px">Recevez nos analyses et opportunités immobilières.</p>' +
+        '<form onsubmit="subscribeNewsletter(event)" style="display:flex;gap:8px;max-width:440px;margin:0 auto">' +
+          '<input type="email" id="newsletter-email" placeholder="votre@email.fr" required ' +
+            'style="flex:1;padding:10px 16px;border:1px solid var(--neutral-200);border-radius:var(--radius-pill);font-size:14px" />' +
+          '<button type="submit" class="btn-primary btn-small">S\'inscrire</button>' +
+        '</form>' +
+        '<div id="newsletter-msg" style="margin-top:8px;font-size:13px"></div>' +
       '</div>' +
       '<div class="footer-disclaimer">' +
         'Carte professionnelle CPI 7501 2025 000 000 012 — Transaction, délivrée par CCI Paris Île-de-France.<br>' +
@@ -159,6 +171,30 @@ function showToast(message, type) {
     toast.classList.remove('visible');
     setTimeout(function() { toast.remove(); }, 300);
   }, 3500);
+}
+
+// ── Newsletter subscription ──────────────────────────────
+async function subscribeNewsletter(e) {
+  e.preventDefault();
+  var email = document.getElementById('newsletter-email').value;
+  var msg = document.getElementById('newsletter-msg');
+  try {
+    var res = await fetch('/api/newsletter', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, source: 'footer' })
+    });
+    var data = await res.json();
+    if (data.success) {
+      msg.innerHTML = '<span style="color:var(--success-500)">' + data.message + '</span>';
+      document.getElementById('newsletter-email').value = '';
+      showToast('Inscription confirmée !', 'success');
+    } else {
+      msg.innerHTML = '<span style="color:var(--error-500)">' + (data.error || 'Erreur') + '</span>';
+    }
+  } catch (err) {
+    msg.innerHTML = '<span style="color:var(--error-500)">Erreur de connexion</span>';
+  }
 }
 
 // ── Page loader ─────────────────────────────────────────

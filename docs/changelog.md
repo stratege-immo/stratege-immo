@@ -1,5 +1,37 @@
 # Changelog Stratege
 
+## [1.2.0] — 5 mars 2026
+
+### Analyse staging Galadrim + parite fonctionnelle
+- Crawl complet du staging (staging.stratege.immo) — React SPA Vite
+- Analyse du backend staging (staging.api.stratege.immo)
+- Documentation comparative staging vs prod (docs/staging-analysis.md)
+
+### Nouvelles pages
+- blog.html : 4 articles (tendances, cles investissement, SCPI guide, pret 2026)
+- catalogue.html : recherche avec carte Leaflet + filtres (ville, dispositif, budget)
+- a-propos.html : page equipe + valeurs + chiffres cles
+- contact.html : formulaire contact avec endpoint /api/contact
+
+### Nouveaux endpoints API
+- POST /api/newsletter : inscription newsletter (KV storage)
+
+### Enrichissements
+- Catalogue biens : 6 → 12 biens (+ Rennes, Marseille, Lille, Strasbourg, Nice, Villeurbanne)
+- Biens enrichis : coordonnees GPS, promoteur, livraison, nombre de pieces
+- Navbar : ajout lien Blog + lien Catalogue dedie
+- Footer : ajout colonnes Decouvrir (blog, a-propos, contact) + newsletter
+- Sitemap : 4 nouvelles pages indexees
+
+### Deja present en prod (confirme)
+- Auth complete (register/login/JWT/SMS OTP/email verify/password reset)
+- Simulation 4 etapes (Jeanbrun/Denormandie/LMNP)
+- Dashboard 6 sections
+- SCPI 12 fonds
+- Pret simulateur + amortissement
+- Stripe/YouSign/Powens (code pret, cles manquantes)
+- Favoris, contact, email MailChannels
+
 ## [1.1.0] — 5 mars 2026
 
 ### Ajoute

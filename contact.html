@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact — Stratège</title>
+  <meta name="description" content="Contactez l'équipe Stratège pour toute question sur votre projet d'investissement immobilier." />
+  <link rel="canonical" href="https://stratege-immo.fr/contact" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+</head>
+<body>
+
+  <nav class="navbar"></nav>
+
+  <main class="legal-page" style="padding-top:120px">
+    <div class="container" style="max-width:900px">
+
+      <div style="text-align:center;margin-bottom:48px">
+        <span class="badge badge-teal" style="margin-bottom:12px;display:inline-block">Contact</span>
+        <h1>Parlons de votre projet</h1>
+        <p style="color:var(--neutral-500);max-width:600px;margin:12px auto 0">
+          Une question, un projet d'investissement ? Notre équipe vous répond sous 24h.
+        </p>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px">
+
+        <!-- FORMULAIRE -->
+        <div>
+          <form id="contact-form" class="card" style="padding:32px">
+            <div class="form-group" style="margin-bottom:20px">
+              <label for="contact-nom" style="display:block;font-weight:500;margin-bottom:6px;font-size:14px">Nom complet</label>
+              <input type="text" id="contact-nom" name="nom" required placeholder="Jean Dupont"
+                style="width:100%;padding:12px 16px;border:1px solid var(--neutral-200);border-radius:var(--radius-sm);font-size:15px" />
+            </div>
+
+            <div class="form-group" style="margin-bottom:20px">
+              <label for="contact-email" style="display:block;font-weight:500;margin-bottom:6px;font-size:14px">Email</label>
+              <input type="email" id="contact-email" name="email" required placeholder="jean@exemple.fr"
+                style="width:100%;padding:12px 16px;border:1px solid var(--neutral-200);border-radius:var(--radius-sm);font-size:15px" />
+            </div>
+
+            <div class="form-group" style="margin-bottom:20px">
+              <label for="contact-phone" style="display:block;font-weight:500;margin-bottom:6px;font-size:14px">Téléphone</label>
+              <input type="tel" id="contact-phone" name="telephone" placeholder="06 12 34 56 78"
+                style="width:100%;padding:12px 16px;border:1px solid var(--neutral-200);border-radius:var(--radius-sm);font-size:15px" />
+            </div>
+
+            <div class="form-group" style="margin-bottom:20px">
+              <label for="contact-sujet" style="display:block;font-weight:500;margin-bottom:6px;font-size:14px">Sujet</label>
+              <select id="contact-sujet" name="sujet"
+                style="width:100%;padding:12px 16px;border:1px solid var(--neutral-200);border-radius:var(--radius-sm);font-size:15px;background:white">
+                <option value="">Choisir un sujet</option>
+                <option value="investissement">Projet d'investissement</option>
+                <option value="simulation">Question sur une simulation</option>
+                <option value="scpi">Investissement SCPI</option>
+                <option value="financement">Financement / Prêt</option>
+                <option value="partenariat">Partenariat</option>
+                <option value="autre">Autre</option>
+              </select>
+            </div>
+
+            <div class="form-group" style="margin-bottom:24px">
+              <label for="contact-message" style="display:block;font-weight:500;margin-bottom:6px;font-size:14px">Message</label>
+              <textarea id="contact-message" name="message" rows="5" required placeholder="Décrivez votre projet ou posez votre question..."
+                style="width:100%;padding:12px 16px;border:1px solid var(--neutral-200);border-radius:var(--radius-sm);font-size:15px;resize:vertical"></textarea>
+            </div>
+
+            <button type="submit" class="btn-primary" style="width:100%">Envoyer le message</button>
+
+            <div id="contact-result" style="margin-top:16px;display:none"></div>
+          </form>
+        </div>
+
+        <!-- INFOS -->
+        <div>
+          <div class="card" style="padding:32px;margin-bottom:24px">
+            <h3 style="font-family:var(--font-display);margin-bottom:16px">Nos coordonnées</h3>
+
+            <div style="margin-bottom:16px">
+              <div style="font-weight:500;margin-bottom:4px">Adresse</div>
+              <div style="color:var(--neutral-500);font-size:15px">51 bis rue de Miromesnil<br>75008 Paris</div>
+            </div>
+
+            <div style="margin-bottom:16px">
+              <div style="font-weight:500;margin-bottom:4px">Email</div>
+              <a href="mailto:contact@stratege-immo.fr" style="color:var(--primary-500);font-size:15px">contact@stratege-immo.fr</a>
+            </div>
+
+            <div>
+              <div style="font-weight:500;margin-bottom:4px">Horaires</div>
+              <div style="color:var(--neutral-500);font-size:15px">Lundi - Vendredi : 9h - 18h</div>
+            </div>
+          </div>
+
+          <div class="card" style="padding:32px;background:var(--primary-50);border:1px solid var(--primary-100)">
+            <h3 style="font-family:var(--font-display);margin-bottom:8px;color:var(--primary-700)">Besoin d'un conseil rapide ?</h3>
+            <p style="color:var(--neutral-600);font-size:15px;margin-bottom:16px">
+              Lancez une simulation gratuite et obtenez une première estimation de votre projet en quelques minutes.
+            </p>
+            <a href="index.html#simulation" class="btn-primary btn-small">Simulation gratuite</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer"></footer>
+
+  <script src="assets/shared.js"></script>
+  <script>
+    renderNavbar('contact');
+    renderFooter();
+
+    document.getElementById('contact-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var btn = this.querySelector('button[type="submit"]');
+      var result = document.getElementById('contact-result');
+      btn.disabled = true;
+      btn.textContent = 'Envoi en cours...';
+
+      try {
+        var res = await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            nom: document.getElementById('contact-nom').value,
+            email: document.getElementById('contact-email').value,
+            telephone: document.getElementById('contact-phone').value,
+            message: (document.getElementById('contact-sujet').value ? '[' + document.getElementById('contact-sujet').value + '] ' : '') +
+                     document.getElementById('contact-message').value
+          })
+        });
+        var data = await res.json();
+        if (data.success) {
+          result.style.display = 'block';
+          result.innerHTML = '<div class="alert alert-success">Message envoyé avec succès ! Nous vous répondrons sous 24h. Référence : ' + data.reference + '</div>';
+          e.target.reset();
+          showToast('Message envoyé !', 'success');
+        } else {
+          throw new Error(data.error || 'Erreur');
+        }
+      } catch (err) {
+        result.style.display = 'block';
+        result.innerHTML = '<div class="alert alert-error">Erreur : ' + err.message + '</div>';
+        showToast('Erreur lors de l\'envoi', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Envoyer le message';
+      }
+    });
+  </script>
+
+  <style>
+    @media (max-width: 768px) {
+      main .container > div[style*="grid-template-columns"] {
+        grid-template-columns: 1fr !important;
+      }
+    }
+  </style>
+
+</body>
+</html>

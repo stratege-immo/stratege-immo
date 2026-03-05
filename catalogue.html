@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Catalogue immobilier — Stratège</title>
+  <meta name="description" content="Explorez notre catalogue de biens immobiliers : appartements, studios, programmes neufs. Filtres par ville, budget, dispositif fiscal." />
+  <link rel="canonical" href="https://stratege-immo.fr/catalogue" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+
+  <nav class="navbar"></nav>
+
+  <main style="padding-top:100px;padding-bottom:60px">
+    <div class="container">
+
+      <!-- HEADER -->
+      <div style="text-align:center;margin-bottom:32px">
+        <span class="badge badge-teal" style="margin-bottom:12px;display:inline-block">Catalogue</span>
+        <h1 style="font-family:var(--font-display)">Nos biens immobiliers</h1>
+        <p style="color:var(--neutral-500);max-width:600px;margin:8px auto 0">
+          Explorez notre sélection de biens, filtrez par ville, budget ou dispositif fiscal, et visualisez-les sur la carte.
+        </p>
+      </div>
+
+      <!-- FILTERS -->
+      <div class="card" style="padding:20px 24px;margin-bottom:24px">
+        <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end">
+          <div style="flex:1;min-width:150px">
+            <label style="display:block;font-size:13px;font-weight:500;margin-bottom:4px;color:var(--neutral-600)">Ville</label>
+            <select id="filter-ville" style="width:100%;padding:10px 12px;border:1px solid var(--neutral-200);border-radius:var(--radius-sm);font-size:14px;background:white">
+              <option value="">Toutes les villes</option>
+            </select>
+          </div>
+          <div style="flex:1;min-width:150px">
+            <label style="display:block;font-size:13px;font-weight:500;margin-bottom:4px;color:var(--neutral-600)">Dispositif</label>
+            <select id="filter-dispositif" style="width:100%;padding:10px 12px;border:1px solid var(--neutral-200);border-radius:var(--radius-sm);font-size:14px;background:white">
+              <option value="">Tous les dispositifs</option>
+            </select>
+          </div>
+          <div style="flex:1;min-width:150px">
+            <label style="display:block;font-size:13px;font-weight:500;margin-bottom:4px;color:var(--neutral-600)">Budget max</label>
+            <select id="filter-budget" style="width:100%;padding:10px 12px;border:1px solid var(--neutral-200);border-radius:var(--radius-sm);font-size:14px;background:white">
+              <option value="">Sans limite</option>
+              <option value="150000">150 000 &euro;</option>
+              <option value="200000">200 000 &euro;</option>
+              <option value="300000">300 000 &euro;</option>
+              <option value="500000">500 000 &euro;</option>
+              <option value="1000000">1 000 000 &euro;</option>
+            </select>
+          </div>
+          <div style="flex:1;min-width:120px">
+            <label style="display:block;font-size:13px;font-weight:500;margin-bottom:4px;color:var(--neutral-600)">Disponibilité</label>
+            <select id="filter-dispo" style="width:100%;padding:10px 12px;border:1px solid var(--neutral-200);border-radius:var(--radius-sm);font-size:14px;background:white">
+              <option value="">Tous</option>
+              <option value="true" selected>Disponibles uniquement</option>
+            </select>
+          </div>
+          <button onclick="applyFilters()" class="btn-primary btn-small" style="height:42px">Rechercher</button>
+        </div>
+      </div>
+
+      <!-- MAP + RESULTS LAYOUT -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px" id="layout">
+
+        <!-- MAP -->
+        <div class="card" style="overflow:hidden;min-height:500px">
+          <div id="map" style="width:100%;height:100%;min-height:500px"></div>
+        </div>
+
+        <!-- RESULTS -->
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+            <span id="results-count" style="font-weight:500;color:var(--neutral-600)">Chargement...</span>
+            <div style="display:flex;gap:8px">
+              <button onclick="setView('grid')" class="btn-secondary btn-small" id="btn-grid" style="padding:6px 12px">Grille</button>
+              <button onclick="setView('list')" class="btn-secondary btn-small" id="btn-list" style="padding:6px 12px">Liste</button>
+            </div>
+          </div>
+          <div id="results-grid" class="catalogue-results">
+            <!-- Results loaded by JS -->
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="footer"></footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="assets/shared.js"></script>
+  <script>
+    renderNavbar('catalogue');
+    renderFooter();
+
+    var CITY_COORDS = {
+      'Toulouse': [43.6047, 1.4442],
+      'Lyon': [45.764, 4.8357],
+      'Bordeaux': [44.8378, -0.5792],
+      'Montpellier': [43.6108, 3.8767],
+      'Nantes': [47.2184, -1.5536],
+      'Paris': [48.8566, 2.3522],
+      'Rennes': [48.1173, -1.6778],
+      'Marseille': [43.2965, 5.3698],
+      'Lille': [50.6292, 3.0573],
+      'Strasbourg': [48.5734, 7.7521],
+      'Nice': [43.7102, 7.2620],
+      'Villeurbanne': [45.7676, 4.8798],
+      'Ajaccio': [41.9192, 8.7386]
+    };
+
+    var map = L.map('map').setView([46.5, 2.5], 6);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap'
+    }).addTo(map);
+
+    var markers = [];
+    var allBiens = [];
+    var viewMode = 'grid';
+
+    function setView(mode) {
+      viewMode = mode;
+      document.getElementById('btn-grid').style.background = mode === 'grid' ? 'var(--primary-50)' : '';
+      document.getElementById('btn-list').style.background = mode === 'list' ? 'var(--primary-50)' : '';
+      renderResults(allBiens);
+    }
+
+    async function loadBiens() {
+      try {
+        var params = new URLSearchParams();
+        var ville = document.getElementById('filter-ville').value;
+        var dispositif = document.getElementById('filter-dispositif').value;
+        var budget = document.getElementById('filter-budget').value;
+
+        if (ville) params.set('ville', ville);
+        if (dispositif) params.set('dispositif', dispositif);
+        if (budget) params.set('prix_max', budget);
+
+        var res = await fetch('/api/biens?' + params.toString());
+        var data = await res.json();
+        allBiens = data.biens || [];
+
+        var dispo = document.getElementById('filter-dispo').value;
+        if (dispo === 'true') allBiens = allBiens.filter(function(b) { return b.disponible; });
+
+        populateFilters(data.biens || []);
+        renderResults(allBiens);
+        renderMap(allBiens);
+      } catch (e) {
+        document.getElementById('results-grid').innerHTML = '<p style="color:var(--error-500)">Erreur de chargement</p>';
+      }
+    }
+
+    function populateFilters(biens) {
+      var villeSelect = document.getElementById('filter-ville');
+      var dispoSelect = document.getElementById('filter-dispositif');
+      if (villeSelect.options.length <= 1) {
+        var villes = [];
+        var dispositifs = [];
+        biens.forEach(function(b) {
+          if (villes.indexOf(b.ville) === -1) villes.push(b.ville);
+          if (dispositifs.indexOf(b.dispositif) === -1) dispositifs.push(b.dispositif);
+        });
+        villes.sort().forEach(function(v) {
+          villeSelect.add(new Option(v, v));
+        });
+        dispositifs.sort().forEach(function(d) {
+          dispoSelect.add(new Option(d, d));
+        });
+      }
+    }
+
+    function applyFilters() { loadBiens(); }
+
+    function renderResults(biens) {
+      var grid = document.getElementById('results-grid');
+      document.getElementById('results-count').textContent = biens.length + ' bien' + (biens.length > 1 ? 's' : '') + ' trouvé' + (biens.length > 1 ? 's' : '');
+
+      if (!biens.length) {
+        grid.innerHTML = '<div class="card" style="padding:40px;text-align:center;color:var(--neutral-500)">Aucun bien ne correspond à vos critères.</div>';
+        return;
+      }
+
+      grid.innerHTML = biens.map(function(b) {
+        return '<a href="bien-detail.html?id=' + b.id + '" class="card catalogue-card" style="display:block;padding:20px;margin-bottom:12px;transition:box-shadow 0.2s">' +
+          '<div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px">' +
+            '<h3 style="font-family:var(--font-display);font-size:16px;margin:0;flex:1">' + b.titre + '</h3>' +
+            '<span class="badge ' + (b.disponible ? 'badge-teal' : 'badge-neutral') + '" style="margin-left:8px;white-space:nowrap">' + (b.disponible ? 'Disponible' : 'Réservé') + '</span>' +
+          '</div>' +
+          '<div style="display:flex;flex-wrap:wrap;gap:16px;font-size:14px;color:var(--neutral-500);margin-bottom:8px">' +
+            '<span>' + b.surface + ' m&sup2;</span>' +
+            '<span>' + b.ville + '</span>' +
+            '<span>DPE ' + b.dpe + '</span>' +
+            '<span>' + b.etage + '</span>' +
+          '</div>' +
+          '<div style="display:flex;flex-wrap:wrap;gap:16px;align-items:baseline">' +
+            '<span style="font-size:20px;font-weight:700;color:var(--neutral-800)">' + b.prix.toLocaleString('fr-FR') + ' &euro;</span>' +
+            '<span style="color:var(--primary-500);font-weight:500">' + b.rendement + '% rendement</span>' +
+            '<span style="color:var(--neutral-400);font-size:13px">Effort : ' + b.effort_reel + ' &euro;/mois</span>' +
+          '</div>' +
+          '<div style="margin-top:8px">' +
+            b.tags.map(function(t) { return '<span class="badge badge-outline" style="margin-right:4px;font-size:12px">' + t + '</span>'; }).join('') +
+          '</div>' +
+        '</a>';
+      }).join('');
+    }
+
+    function renderMap(biens) {
+      markers.forEach(function(m) { map.removeLayer(m); });
+      markers = [];
+
+      var bounds = [];
+      biens.forEach(function(b) {
+        var coords = CITY_COORDS[b.ville];
+        if (!coords) return;
+        var jitter = [(Math.random() - 0.5) * 0.01, (Math.random() - 0.5) * 0.01];
+        var latlng = [coords[0] + jitter[0], coords[1] + jitter[1]];
+
+        var icon = L.divIcon({
+          className: 'map-price-marker',
+          html: '<div style="background:' + (b.disponible ? 'var(--primary-300)' : 'var(--neutral-400)') + ';color:white;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,0.2)">' + (b.prix/1000).toFixed(0) + 'k&euro;</div>',
+          iconSize: null
+        });
+
+        var marker = L.marker(latlng, { icon: icon }).addTo(map);
+        marker.bindPopup(
+          '<div style="font-family:Inter,sans-serif">' +
+            '<strong>' + b.titre + '</strong><br>' +
+            b.surface + ' m&sup2; — ' + b.rendement + '% rendement<br>' +
+            '<strong>' + b.prix.toLocaleString('fr-FR') + ' &euro;</strong><br>' +
+            '<a href="bien-detail.html?id=' + b.id + '" style="color:#4ECDC4">Voir le bien &rarr;</a>' +
+          '</div>'
+        );
+        markers.push(marker);
+        bounds.push(latlng);
+      });
+
+      if (bounds.length > 1) map.fitBounds(bounds, { padding: [30, 30] });
+      else if (bounds.length === 1) map.setView(bounds[0], 12);
+    }
+
+    // Responsive: stack on mobile
+    function handleResize() {
+      var layout = document.getElementById('layout');
+      if (window.innerWidth < 900) {
+        layout.style.gridTemplateColumns = '1fr';
+      } else {
+        layout.style.gridTemplateColumns = '1fr 1fr';
+      }
+      map.invalidateSize();
+    }
+    window.addEventListener('resize', handleResize);
+    handleResize();
+
+    // Init
+    loadBiens();
+  </script>
+
+</body>
+</html>
