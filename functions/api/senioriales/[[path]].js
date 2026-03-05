@@ -1,519 +1,365 @@
 // ============================================================
-// SENIORIALES SCRAPER — Cloudflare Workers
-// Site: www.senioriales.com (Drupal, derriere Cloudflare)
-// Anti-ban : delais humains, headers realistes, cache KV 6h
-// Route: /api/senioriales/*
+// SENIORIALES SCRAPER INCREMENTAL — Cloudflare Workers
+// Chaque requete fait UNE SEULE chose (<5s CPU)
+// L'orchestration se fait cote client (curl/bash)
 // ============================================================
 
-const SENIORIALES_BASE = "https://www.senioriales.com";
-const CACHE_TTL = 21600; // 6h
-const DELAY_MIN = 2000;
-const DELAY_MAX = 4000;
-
-const BROWSER_HEADERS = {
+const BASE = "https://www.senioriales.com";
+const CACHE_TTL = 21600;
+const HEADERS = {
   "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
-  "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
-  "Accept-Language": "fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7",
-  "Accept-Encoding": "gzip, deflate, br",
-  "Cache-Control": "no-cache",
-  "Pragma": "no-cache",
-  "Sec-Ch-Ua": '"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"',
-  "Sec-Ch-Ua-Mobile": "?0",
-  "Sec-Ch-Ua-Platform": '"macOS"',
+  "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+  "Accept-Language": "fr-FR,fr;q=0.9",
   "Sec-Fetch-Dest": "document",
   "Sec-Fetch-Mode": "navigate",
   "Sec-Fetch-Site": "none",
-  "Sec-Fetch-User": "?1",
-  "Upgrade-Insecure-Requests": "1",
-  "Connection": "keep-alive",
 };
 
-const sleep = (ms) => new Promise(r => setTimeout(r, ms));
-const humanDelay = () => sleep(DELAY_MIN + Math.random() * (DELAY_MAX - DELAY_MIN));
-
-async function fetchPage(url, referer = null) {
-  const headers = { ...BROWSER_HEADERS };
-  if (referer) {
-    headers["Referer"] = referer;
-    headers["Sec-Fetch-Site"] = "same-origin";
-  }
-
+async function fetchHtml(url) {
   try {
-    const response = await fetch(url, {
-      method: "GET",
-      headers,
-      redirect: "follow",
-    });
-
-    if (response.status === 429) {
-      await sleep(10000);
-      return { ok: false, status: 429, error: "Rate limited" };
-    }
-
-    if (response.status === 403) {
-      return { ok: false, status: 403, error: "Acces refuse" };
-    }
-
-    if (!response.ok) {
-      return { ok: false, status: response.status, error: `HTTP ${response.status}` };
-    }
-
-    const html = await response.text();
-    return { ok: true, status: 200, html, url };
-
-  } catch (err) {
-    return { ok: false, error: err.message };
+    const r = await fetch(url, { headers: HEADERS, redirect: "follow" });
+    if (!r.ok) return { ok: false, status: r.status };
+    return { ok: true, html: await r.text() };
+  } catch (e) {
+    return { ok: false, error: e.message };
   }
 }
 
-function extractJsonLd(html) {
-  const results = [];
-  const regex = /<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
-  let match;
-  while ((match = regex.exec(html)) !== null) {
-    try {
-      results.push(JSON.parse(match[1].trim()));
-    } catch (e) {}
+function stripHtml(s) {
+  return (s || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+}
+
+// Parse les search-card depuis les pages liste acheter/investir
+function extractProgrammeUrls(html) {
+  const urls = new Set();
+  // Liens vers des residences individuelles: /acheter/{region}/senioriales-xxx ou /investir/{region}/senioriales-xxx
+  const re = /href="(\/(acheter|investir)\/[^/]+\/senioriales[^"]+)"/gi;
+  let m;
+  while ((m = re.exec(html)) !== null) {
+    if (!m[1].includes("#") && !m[1].includes("?")) {
+      urls.add(BASE + m[1]);
+    }
   }
-  return results;
+  return [...urls];
 }
 
-function extractMeta(html) {
-  const meta = {};
-  const regex = /<meta[^>]+(?:property|name)=["']([^"']+)["'][^>]+content=["']([^"']+)["'][^>]*>/gi;
-  let match;
-  while ((match = regex.exec(html)) !== null) {
-    meta[match[1]] = match[2];
-  }
-  return meta;
-}
-
-function stripHtml(str) {
-  return (str || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
-}
-
-// Parser adapte a la structure reelle de senioriales.com
-// Structure: <div class="search-card"> contenant h3, list-picto, img, description
+// Parse UNE search-card depuis la page liste
 function parseSearchCards(html) {
   const programmes = [];
-  const cardRegex = /<div class="search-card">([\s\S]*?)<\/div>\s*<\/div>/gi;
+  // Regex pour chaque search-card
+  const cardRegex = /<div class="search-card">([\s\S]*?)<a[^>]*class="cta"[^>]*>[^<]*<\/a>\s*<\/div>/gi;
   let cardMatch;
-
   while ((cardMatch = cardRegex.exec(html)) !== null) {
     const bloc = cardMatch[1];
     const prog = parseOneCard(bloc);
     if (prog) programmes.push(prog);
   }
-
-  // Dedupliquer
-  const seen = new Set();
-  return programmes.filter(p => {
-    if (seen.has(p.titre)) return false;
-    seen.add(p.titre);
-    return true;
-  });
+  return programmes;
 }
 
 function parseOneCard(bloc) {
-  // Titre + lien depuis <h3><a href="...">Nom</a></h3>
   const titleMatch = bloc.match(/<h3><a href="([^"]+)">([^<]+)<\/a><\/h3>/);
   if (!titleMatch) return null;
 
   const url_path = titleMatch[1];
   const titre = titleMatch[2].trim();
 
-  // Sous-titre (localisation) depuis <p><strong>...</strong></p>
   const subtitleMatch = bloc.match(/<p><strong>\s*([\s\S]*?)\s*<\/strong><\/p>/);
   const localisation = subtitleMatch ? stripHtml(subtitleMatch[1]) : "";
 
-  // Departement depuis <div class="region" title="...">
   const deptMatch = bloc.match(/<div class="region" title="([^"]+)">/);
   const departement = deptMatch ? deptMatch[1] : "";
 
-  // Code postal depuis <span class="postal-code">
   const cpMatch = bloc.match(/<span class="postal-code">([^<]+)<\/span>/);
   const code_postal = cpMatch ? cpMatch[1].trim() : "";
 
-  // Type depuis <li class="types">
   const typesMatch = bloc.match(/<li class="types">([^<]+)<\/li>/);
   const types = typesMatch ? typesMatch[1].trim() : "";
 
-  // Livraison depuis <li class="delivery">
   const deliveryMatch = bloc.match(/<li class="delivery">[\s\S]*?<strong>([^<]+)<\/strong>/);
   const livraison = deliveryMatch ? deliveryMatch[1].trim() : "";
 
-  // Prix depuis <li class="price">
   const prixMatch = bloc.match(/<li class="price">[^<]*?(\d[\d\s]*)\s*\u20ac/);
   const prix = prixMatch ? parseInt(prixMatch[1].replace(/\s/g, "")) : null;
 
-  // Image
   const imgMatch = bloc.match(/<img src="([^"]+)"/);
   const image = imgMatch ? imgMatch[1] : "";
 
-  // Description
   const descMatch = bloc.match(/<\/figure>\s*<p>\s*([\s\S]*?)\s*<\/p>/);
   const description = descMatch ? stripHtml(descMatch[1]) : "";
 
-  // Determiner si c'est achat ou investissement depuis l'URL
   const isInvest = url_path.startsWith("/investir");
-
-  // Extraire la ville du titre ("Senioriales de X" ou "Senioriales du X")
   const villeFromTitle = titre.match(/Senioriales (?:de |du |d'|des )(.+)/i);
   const ville = villeFromTitle ? villeFromTitle[1].trim() : localisation.split(",")[0] || "";
 
-  // Determiner la region depuis l'URL
   const regionMatch = url_path.match(/\/(acheter|investir)\/([^/]+)\//);
   const region = regionMatch ? regionMatch[2].replace(/-/g, " ") : "";
 
   return {
-    id: `SEN-${url_path.replace(/[^a-z0-9]/gi, "-").replace(/-+/g, "-")}`,
+    id: "SEN-" + url_path.split("/").pop().replace(/[^a-z0-9]/gi, "-"),
     source: "senioriales",
-    titre,
-    ville,
-    localisation,
-    departement,
-    code_postal,
-    region,
-    types,
-    livraison,
-    prix_min: prix,
-    description,
-    url_detail: SENIORIALES_BASE + url_path,
-    image: image.startsWith("http") ? image : (image ? SENIORIALES_BASE + image : ""),
+    titre, ville, localisation, departement, code_postal, region,
+    types, livraison, prix_min: prix, description,
+    url_detail: BASE + url_path,
+    image: image.startsWith("http") ? image : (image ? BASE + image : ""),
     dispositif: isInvest ? "investissement-senior" : "residence-senior",
     promoteur: "Senioriales",
     badge: "Partenaire",
     type: "residence senior",
     categorie: isInvest ? "investir" : "acheter",
-    lots: [],
-    lots_disponibles: 0,
+    scraped_at: new Date().toISOString(),
   };
 }
 
-// Parser page detail d'un programme
-function parseProgrammeDetail(html, programmeId) {
-  const lots = [];
+// Parse page detail d'un programme
+function parseProgrammeDetail(html, url) {
+  const meta = {};
+  const metaRe = /<meta[^>]+(?:property|name)=["']([^"']+)["'][^>]+content=["']([^"']+)["'][^>]*>/gi;
+  let mm;
+  while ((mm = metaRe.exec(html)) !== null) meta[mm[1]] = mm[2];
 
   // JSON-LD
-  const jsonLd = extractJsonLd(html);
-  for (const ld of jsonLd) {
-    if (ld["@type"] === "Offer" || ld["@type"] === "Product") {
-      lots.push({
-        id: `SEN-LOT-${ld.sku || Date.now()}`,
-        programme_id: programmeId,
-        source: "senioriales",
-        reference: ld.sku || ld.identifier || "",
-        type: ld.name || "",
-        surface: parseFloat(ld.additionalProperty?.find(p => p.name === "surface")?.value || 0),
-        prix: parseInt(ld.offers?.price || ld.price || 0),
-        disponible: ld.offers?.availability !== "OutOfStock",
-      });
-    }
+  const ldMatch = html.match(/<script[^>]+ld\+json[^>]*>([\s\S]*?)<\/script>/i);
+  let ld = {};
+  if (ldMatch) {
+    try { ld = JSON.parse(ldMatch[1]); } catch (e) {}
   }
 
-  if (lots.length > 0) return lots;
+  const titre = meta["og:title"] || ld.name || (html.match(/<h1[^>]*>([^<]+)<\/h1>/) || [])[1]?.trim() || "";
+  const description = meta["og:description"] || ld.description || "";
+  const image = meta["og:image"] || ld.image || "";
 
-  // Chercher les informations de lots dans le HTML
-  // Structure Senioriales: souvent des blocs avec prix/surface/type
-  const lotBlocks = html.match(/<(?:div|li)[^>]*class="[^"]*(?:lot|typology|offer|product)[^"]*"[^>]*>([\s\S]*?)<\/(?:div|li)>/gi) || [];
-  for (const lotBlock of lotBlocks) {
-    const prixMatch = lotBlock.match(/(\d[\d\s]*)\s*\u20ac/);
-    const surfMatch = lotBlock.match(/(\d+(?:[.,]\d+)?)\s*m\u00b2/);
-    const typeMatch = lotBlock.match(/T[1-5]/i);
-    if (prixMatch || surfMatch) {
-      lots.push({
-        id: `SEN-LOT-${programmeId}-${lots.length + 1}`,
-        programme_id: programmeId,
-        source: "senioriales",
-        reference: `Lot ${lots.length + 1}`,
-        type: typeMatch ? typeMatch[0].toUpperCase() : "",
-        surface: surfMatch ? parseFloat(surfMatch[1].replace(",", ".")) : 0,
-        prix: prixMatch ? parseInt(prixMatch[1].replace(/\s/g, "")) : 0,
-        disponible: !lotBlock.toLowerCase().includes("vendu") && !lotBlock.toLowerCase().includes("reserve"),
-      });
-    }
-  }
-
-  // Table de lots
-  const tableMatch = html.match(/<table[^>]*>([\s\S]*?)<\/table>/i);
-  if (tableMatch && lots.length === 0) {
-    const rows = tableMatch[1].match(/<tr[^>]*>([\s\S]*?)<\/tr>/gi) || [];
-    for (const row of rows.slice(1)) {
-      const cells = row.match(/<td[^>]*>([\s\S]*?)<\/td>/gi) || [];
-      const texts = cells.map(c => stripHtml(c));
-      if (texts.length >= 2) {
-        const prixCell = texts.find(t => t.match(/\d[\d\s]*\s*\u20ac/));
-        const surfCell = texts.find(t => t.match(/\d+\s*m\u00b2/));
-        lots.push({
-          id: `SEN-LOT-${programmeId}-${lots.length + 1}`,
-          programme_id: programmeId,
-          source: "senioriales",
-          reference: texts[0] || `Lot ${lots.length + 1}`,
-          type: texts.find(t => t.match(/T[1-5]/i)) || "",
-          surface: surfCell ? parseFloat(surfCell.replace(/[^\d.,]/g, "").replace(",", ".")) : 0,
-          prix: prixCell ? parseInt(prixCell.replace(/[^\d]/g, "")) : 0,
-          disponible: !row.toLowerCase().includes("vendu") && !row.toLowerCase().includes("reserve"),
-        });
-      }
-    }
-  }
-
-  return lots;
+  return {
+    titre, description, image,
+    ville: ld.address?.addressLocality || "",
+    code_postal: ld.address?.postalCode || "",
+    adresse: ld.address?.streetAddress || "",
+    lat: ld.geo?.latitude || 0,
+    lng: ld.geo?.longitude || 0,
+  };
 }
 
-// --- SCRAPER PRINCIPAL ---
-async function scrapeProgrammes(env) {
-  const log = [];
-  const startTime = Date.now();
-  const SCRAP_KEY = "senioriales:scraping_in_progress";
+const H = { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" };
 
-  const inProgress = await env.STRATEGE_DB.get(SCRAP_KEY);
-  if (inProgress) {
-    return { ok: false, error: "Scraping deja en cours", log };
+export async function onRequest({ request, env, params }) {
+  const subPath = (params?.path || []).join("/");
+
+  // -- Test connectivite --
+  if (subPath === "test") {
+    const r = await fetchHtml(BASE);
+    return Response.json({
+      accessible: r.ok,
+      status: r.status,
+      message: r.ok ? "Senioriales accessible" : `Bloque (${r.status || r.error})`,
+      preview: r.html?.slice(0, 150),
+    }, { headers: H });
   }
-  await env.STRATEGE_DB.put(SCRAP_KEY, "1", { expirationTtl: 600 });
 
-  try {
-    log.push(`[${new Date().toISOString()}] Debut scraping Senioriales`);
+  // -- Clear lock --
+  if (subPath === "clear-lock") {
+    await env.STRATEGE_DB.delete("senioriales:syncing");
+    await env.STRATEGE_DB.delete("senioriales:queue");
+    await env.STRATEGE_DB.delete("senioriales:cursor");
+    await env.STRATEGE_DB.delete("senioriales:scraping_in_progress");
+    return Response.json({ ok: true, message: "Lock supprime" }, { headers: H });
+  }
 
-    // ETAPE 1 : Page d'accueil (etablir la session)
-    await humanDelay();
-    const home = await fetchPage(SENIORIALES_BASE);
-    if (!home.ok) {
-      await env.STRATEGE_DB.delete(SCRAP_KEY);
-      return { ok: false, error: `Page d'accueil bloquee (${home.status || home.error})`, log };
-    }
-    log.push(`OK Page d'accueil (${home.html.length} bytes)`);
-
-    // ETAPE 2 : Scraper les 2 pages de listings
+  // -- STEP 1: Init — scrape les pages liste, extrait les URLs --
+  if (subPath === "init" && request.method === "POST") {
     let allProgrammes = [];
+    let allUrls = new Set();
 
     const listPages = [
-      { url: `${SENIORIALES_BASE}/acheter/recherche-residence`, type: "acheter" },
-      { url: `${SENIORIALES_BASE}/investir/recherche-programme`, type: "investir" },
+      BASE + "/acheter/recherche-residence",
+      BASE + "/investir/recherche-programme",
     ];
 
-    for (const { url, type } of listPages) {
-      await humanDelay();
-      log.push(`Scraping ${type}: ${url}`);
-      const result = await fetchPage(url, SENIORIALES_BASE + "/");
+    for (const listUrl of listPages) {
+      const r = await fetchHtml(listUrl);
+      if (!r.ok) continue;
 
-      if (!result.ok) {
-        log.push(`  -> Echec ${type}: ${result.status || result.error}`);
-        continue;
+      // Extraire les cartes pour les metadonnees
+      const cards = parseSearchCards(r.html);
+      allProgrammes.push(...cards);
+
+      // Extraire les URLs
+      const urls = extractProgrammeUrls(r.html);
+      urls.forEach(u => allUrls.add(u));
+
+      // Pagination — chercher ?page=N
+      const pageMatches = r.html.match(/href="\?page=(\d+)"/g) || [];
+      const pageNums = [...new Set(pageMatches.map(m => parseInt(m.match(/page=(\d+)/)[1])))].filter(n => n > 0);
+
+      for (const pn of pageNums.slice(0, 3)) {
+        const pr = await fetchHtml(listUrl + "?page=" + pn);
+        if (!pr.ok) break;
+        const moreCards = parseSearchCards(pr.html);
+        allProgrammes.push(...moreCards);
+        const moreUrls = extractProgrammeUrls(pr.html);
+        moreUrls.forEach(u => allUrls.add(u));
       }
-
-      log.push(`  OK ${type} (${result.html.length} bytes)`);
-      const programmes = parseSearchCards(result.html);
-      log.push(`  -> ${programmes.length} programmes trouves`);
-      allProgrammes.push(...programmes);
-
-      // Pagination - chercher ?page=1, ?page=2, etc.
-      const pageMatches = result.html.match(/href="\?page=(\d+)"/g) || [];
-      const pageNums = [...new Set(pageMatches.map(m => parseInt(m.match(/page=(\d+)/)[1])))].filter(n => n > 0).sort();
-
-      for (const pageNum of pageNums.slice(0, 5)) {
-        await humanDelay();
-        const pageUrl = `${url}?page=${pageNum}`;
-        log.push(`  Pagination ${type} page ${pageNum + 1}: ${pageUrl}`);
-        const pageResult = await fetchPage(pageUrl, url);
-        if (!pageResult.ok) {
-          log.push(`    -> Bloque (${pageResult.status || pageResult.error})`);
-          break;
-        }
-        const moreProg = parseSearchCards(pageResult.html);
-        log.push(`    -> +${moreProg.length} programmes`);
-        allProgrammes.push(...moreProg);
-      }
-
-      // Pause anti-ban entre les 2 sections
-      log.push(`  Pause 5s (anti-ban)...`);
-      await sleep(5000);
     }
 
-    // Dedupliquer par URL
+    // Dedupliquer les programmes par id
     const seen = new Set();
     allProgrammes = allProgrammes.filter(p => {
-      if (seen.has(p.url_detail)) return false;
-      seen.add(p.url_detail);
+      if (seen.has(p.id)) return false;
+      seen.add(p.id);
       return true;
     });
 
-    log.push(`-> ${allProgrammes.length} programmes uniques au total`);
-
-    // ETAPE 3 : Recuperer les details de chaque programme
-    let totalLots = 0;
-
-    for (let i = 0; i < allProgrammes.length; i++) {
-      const prog = allProgrammes[i];
-
-      await humanDelay();
-      log.push(`Detail ${i + 1}/${allProgrammes.length}: ${prog.titre}`);
-
-      const detail = await fetchPage(prog.url_detail, SENIORIALES_BASE + "/");
-      if (detail.ok) {
-        const lots = parseProgrammeDetail(detail.html, prog.id);
-        const meta = extractMeta(detail.html);
-        const detailLd = extractJsonLd(detail.html);
-
-        if (meta["og:title"]) prog.titre = meta["og:title"];
-        if (meta["og:description"]) prog.description = meta["og:description"];
-        if (meta["og:image"]) prog.image = meta["og:image"];
-
-        for (const ld of detailLd) {
-          if (ld.address) {
-            prog.adresse = ld.address.streetAddress || prog.adresse;
-            prog.ville = ld.address.addressLocality || prog.ville;
-            prog.code_postal = ld.address.postalCode || prog.code_postal;
-          }
-          if (ld.geo) {
-            prog.lat = ld.geo.latitude;
-            prog.lng = ld.geo.longitude;
-          }
-        }
-
-        prog.lots = lots;
-        prog.lots_disponibles = lots.filter(l => l.disponible).length;
-        totalLots += prog.lots_disponibles;
-        log.push(`  OK ${lots.length} lots (${prog.lots_disponibles} dispo)`);
-
-        await env.STRATEGE_DB.put(
-          `senioriales:prog:${prog.id}`,
-          JSON.stringify({ ...prog, scraped_at: new Date().toISOString() }),
-          { expirationTtl: CACHE_TTL }
-        );
-      } else {
-        log.push(`  WARN Detail inaccessible (${detail.error})`);
-      }
-
-      // Pause longue tous les 5 programmes
-      if ((i + 1) % 5 === 0 && i < allProgrammes.length - 1) {
-        log.push(`  Pause 8s (anti-ban)...`);
-        await sleep(8000);
-      }
+    // Stocker chaque programme depuis les cartes (donnees de base)
+    for (const prog of allProgrammes) {
+      await env.STRATEGE_DB.put(
+        `senioriales:prog:${prog.id}`,
+        JSON.stringify(prog),
+        { expirationTtl: CACHE_TTL }
+      );
     }
 
-    // ETAPE 4 : Stocker l'index global
-    const index = {
-      programmes: allProgrammes,
-      total_programmes: allProgrammes.length,
-      total_lots: totalLots,
-      scraped_at: new Date().toISOString(),
-      duration_ms: Date.now() - startTime,
-      next_refresh: new Date(Date.now() + CACHE_TTL * 1000).toISOString(),
-    };
+    // Queue = URLs uniques pour les details
+    const queue = [...allUrls];
+    await env.STRATEGE_DB.put("senioriales:queue", JSON.stringify(queue), { expirationTtl: 3600 });
+    await env.STRATEGE_DB.put("senioriales:cursor", "0", { expirationTtl: 3600 });
+    await env.STRATEGE_DB.put("senioriales:syncing", "1", { expirationTtl: 3600 });
 
-    await env.STRATEGE_DB.put(
-      "senioriales:index",
-      JSON.stringify(index),
-      { expirationTtl: CACHE_TTL }
-    );
-
-    log.push(`DONE Sync terminee en ${Math.round(index.duration_ms / 1000)}s`);
-    log.push(`DONE ${index.total_programmes} programmes, ${index.total_lots} lots disponibles`);
-
-    await env.STRATEGE_DB.delete(SCRAP_KEY);
-    return { ok: true, ...index, log };
-
-  } catch (err) {
-    await env.STRATEGE_DB.delete(SCRAP_KEY);
-    log.push(`ERREUR: ${err.message}`);
-    return { ok: false, error: err.message, log };
-  }
-}
-
-// --- ROUTEUR ---
-export async function onRequest(context) {
-  const { request, env } = context;
-  const pathParts = (context.params?.path || []);
-  const subPath = pathParts.join("/");
-
-  const JSON_HEADERS = {
-    "Content-Type": "application/json",
-    "Access-Control-Allow-Origin": "*",
-  };
-
-  // /api/senioriales/test
-  if (subPath === "test") {
-    await humanDelay();
-    const result = await fetchPage(SENIORIALES_BASE);
-    return new Response(JSON.stringify({
-      accessible: result.ok,
-      status: result.status,
-      message: result.ok
-        ? "Site Senioriales accessible depuis Cloudflare Workers"
-        : `Bloque (${result.status || result.error})`,
-      html_preview: result.html?.substring(0, 300),
-    }), { headers: JSON_HEADERS });
-  }
-
-  // /api/senioriales/sync (POST)
-  if (subPath === "sync" && request.method === "POST") {
-    context.waitUntil(scrapeProgrammes(env));
-    return new Response(JSON.stringify({
+    return Response.json({
       ok: true,
-      message: "Scraping lance en arriere-plan (~5 min). Verifiez /api/senioriales/status",
-      check: "/api/senioriales/status",
-    }), { headers: JSON_HEADERS });
+      programmes_from_list: allProgrammes.length,
+      urls_to_detail: queue.length,
+      programmes: allProgrammes.map(p => ({ titre: p.titre, ville: p.ville, prix: p.prix_min })),
+      next: "POST /api/senioriales/next",
+    }, { headers: H });
   }
 
-  // /api/senioriales/programmes
-  if (subPath === "programmes") {
-    const cached = await env.STRATEGE_DB.get("senioriales:index");
-    if (cached) {
-      return new Response(cached, { headers: JSON_HEADERS });
+  // -- STEP 2: Next — scrape UN detail --
+  if (subPath === "next" && request.method === "POST") {
+    const queueRaw = await env.STRATEGE_DB.get("senioriales:queue");
+    const cursorRaw = await env.STRATEGE_DB.get("senioriales:cursor");
+
+    if (!queueRaw) {
+      return Response.json({ ok: false, error: "Queue vide - POST /api/senioriales/init d'abord" }, { headers: H });
     }
-    return new Response(JSON.stringify({
-      ok: false,
-      message: "Aucune donnee. POST /api/senioriales/sync pour lancer le scraping.",
-      status: "empty",
-    }), { status: 404, headers: JSON_HEADERS });
-  }
 
-  // /api/senioriales/programme/<id>
-  if (pathParts[0] === "programme" && pathParts[1]) {
-    const progId = pathParts.slice(1).join("/");
-    const cached = await env.STRATEGE_DB.get(`senioriales:prog:${progId}`);
-    if (cached) {
-      return new Response(cached, { headers: JSON_HEADERS });
+    const queue = JSON.parse(queueRaw);
+    const cursor = parseInt(cursorRaw || "0");
+    const total = queue.length;
+
+    if (cursor >= total) {
+      // Construire l'index final
+      const programmes = [];
+      for (const url of queue) {
+        const id = "SEN-" + url.split("/").pop().replace(/[^a-z0-9]/gi, "-");
+        const cached = await env.STRATEGE_DB.get(`senioriales:prog:${id}`);
+        if (cached) programmes.push(JSON.parse(cached));
+      }
+
+      const index = {
+        programmes,
+        total_programmes: programmes.length,
+        scraped_at: new Date().toISOString(),
+        next_refresh: new Date(Date.now() + CACHE_TTL * 1000).toISOString(),
+      };
+
+      await env.STRATEGE_DB.put("senioriales:index", JSON.stringify(index), { expirationTtl: CACHE_TTL });
+      await env.STRATEGE_DB.delete("senioriales:syncing");
+      await env.STRATEGE_DB.delete("senioriales:queue");
+      await env.STRATEGE_DB.delete("senioriales:cursor");
+
+      return Response.json({
+        ok: true, finished: true,
+        done: total, total,
+        message: `Sync terminee - ${programmes.length} programmes`,
+      }, { headers: H });
     }
-    return new Response(JSON.stringify({ error: "Programme non trouve" }), {
-      status: 404, headers: JSON_HEADERS
-    });
+
+    // Scraper l'URL courante
+    const url = queue[cursor];
+    const id = "SEN-" + url.split("/").pop().replace(/[^a-z0-9]/gi, "-");
+    const r = await fetchHtml(url);
+    let enriched = null;
+
+    if (r.ok) {
+      const detail = parseProgrammeDetail(r.html, url);
+      // Enrichir le programme existant
+      const existingRaw = await env.STRATEGE_DB.get(`senioriales:prog:${id}`);
+      let prog = existingRaw ? JSON.parse(existingRaw) : {
+        id, source: "senioriales", url_detail: url,
+        dispositif: "residence-senior", promoteur: "Senioriales", badge: "Partenaire",
+      };
+
+      if (detail.titre) prog.titre = detail.titre;
+      if (detail.description) prog.description = detail.description;
+      if (detail.image) prog.image = detail.image;
+      if (detail.ville) prog.ville = detail.ville;
+      if (detail.code_postal) prog.code_postal = detail.code_postal;
+      if (detail.adresse) prog.adresse = detail.adresse;
+      if (detail.lat) prog.lat = detail.lat;
+      if (detail.lng) prog.lng = detail.lng;
+      prog.detail_scraped = true;
+      prog.scraped_at = new Date().toISOString();
+
+      await env.STRATEGE_DB.put(`senioriales:prog:${id}`, JSON.stringify(prog), { expirationTtl: CACHE_TTL });
+      enriched = { titre: prog.titre, ville: prog.ville };
+    }
+
+    await env.STRATEGE_DB.put("senioriales:cursor", String(cursor + 1), { expirationTtl: 3600 });
+
+    return Response.json({
+      ok: true, finished: false,
+      done: cursor + 1, total,
+      programme: enriched,
+      skipped: !enriched,
+      url,
+    }, { headers: H });
   }
 
-  // /api/senioriales/status
+  // -- Status --
   if (subPath === "status") {
-    const cached = await env.STRATEGE_DB.get("senioriales:index");
-    const inProgress = await env.STRATEGE_DB.get("senioriales:scraping_in_progress");
+    const syncing = await env.STRATEGE_DB.get("senioriales:syncing");
+    const cursor = await env.STRATEGE_DB.get("senioriales:cursor");
+    const queueRaw = await env.STRATEGE_DB.get("senioriales:queue");
+    const indexRaw = await env.STRATEGE_DB.get("senioriales:index");
 
-    if (cached) {
-      const data = JSON.parse(cached);
-      return new Response(JSON.stringify({
+    if (indexRaw) {
+      const data = JSON.parse(indexRaw);
+      return Response.json({
         has_data: true,
         total_programmes: data.total_programmes,
-        total_lots: data.total_lots,
         scraped_at: data.scraped_at,
         next_refresh: data.next_refresh,
-        syncing: !!inProgress,
-      }), { headers: JSON_HEADERS });
+      }, { headers: H });
     }
 
-    return new Response(JSON.stringify({
+    return Response.json({
       has_data: false,
-      syncing: !!inProgress,
-      message: inProgress ? "Scraping en cours..." : "Aucune donnee - POST /api/senioriales/sync pour lancer",
-    }), { headers: JSON_HEADERS });
+      syncing: !!syncing,
+      done: parseInt(cursor || "0"),
+      total: queueRaw ? JSON.parse(queueRaw).length : 0,
+    }, { headers: H });
   }
 
-  return new Response(JSON.stringify({
-    error: "Not found",
+  // -- Programmes (lecture cache) --
+  if (subPath === "programmes") {
+    const cached = await env.STRATEGE_DB.get("senioriales:index");
+    if (!cached) {
+      return Response.json({ ok: false, message: "POST /api/senioriales/init puis /next" }, { status: 404, headers: H });
+    }
+    return new Response(cached, { headers: H });
+  }
+
+  // -- Programme detail --
+  if (subPath.startsWith("programme/")) {
+    const progId = subPath.replace("programme/", "");
+    const cached = await env.STRATEGE_DB.get(`senioriales:prog:${progId}`);
+    if (cached) return new Response(cached, { headers: H });
+    return Response.json({ error: "Programme non trouve" }, { status: 404, headers: H });
+  }
+
+  return Response.json({
     routes: [
-      "GET  /api/senioriales/test",
-      "POST /api/senioriales/sync",
-      "GET  /api/senioriales/status",
-      "GET  /api/senioriales/programmes",
-      "GET  /api/senioriales/programme/:id",
+      "GET  /test", "POST /clear-lock", "POST /init",
+      "POST /next", "GET  /status", "GET  /programmes",
     ]
-  }), { status: 404, headers: JSON_HEADERS });
+  }, { status: 404, headers: H });
 }
