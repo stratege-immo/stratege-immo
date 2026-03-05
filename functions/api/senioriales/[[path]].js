@@ -356,6 +356,22 @@ export async function onRequest({ request, env, params }) {
     return Response.json({ error: "Programme non trouve" }, { status: 404, headers: H });
   }
 
+  // -- Reset photos (clear images to re-enrich) --
+  if (subPath === "reset-photos" && request.method === "POST") {
+    const indexRaw = await env.STRATEGE_DB.get("senioriales:index");
+    if (!indexRaw) return Response.json({ ok: false, error: "Pas d'index" }, { status: 404, headers: H });
+    const index = JSON.parse(indexRaw);
+    let count = 0;
+    for (const prog of index.programmes) {
+      prog.images = undefined;
+      prog.image = "";
+      await env.STRATEGE_DB.put(`senioriales:prog:${prog.id}`, JSON.stringify(prog), { expirationTtl: CACHE_TTL });
+      count++;
+    }
+    await env.STRATEGE_DB.put("senioriales:index", JSON.stringify(index), { expirationTtl: CACHE_TTL });
+    return Response.json({ ok: true, reset: count }, { headers: H });
+  }
+
   // -- Enrich Photos (incremental, 1 programme par requete) --
   if (subPath === "enrich-photos" && request.method === "POST") {
     const indexRaw = await env.STRATEGE_DB.get("senioriales:index");
@@ -439,8 +455,13 @@ export async function onRequest({ request, env, params }) {
     let ism;
     while ((ism = imgSrcRe.exec(html)) !== null) images.add(ism[1]);
 
-    // Filter out logos, icons, favicons, tiny images
-    const EXCLUDE = /logo|icon|favicon|sprite|pixel|tracking|badge|btn|button|arrow|loader|spinner/i;
+    // 6. Senioriales-specific: /sites/default/files/externals/ images
+    const extRe = /(?:src|data-src)=["'](\/sites\/default\/files\/(?:externals|styles\/[^"']+)\/[^"']+\.(?:jpg|jpeg|png|webp)[^"']*)["']/gi;
+    let exm;
+    while ((exm = extRe.exec(html)) !== null) images.add(exm[1]);
+
+    // Filter out logos, icons, favicons, tiny images, testimonials
+    const EXCLUDE = /logo|icon|favicon|sprite|pixel|tracking|badge|btn|button|arrow|loader|spinner|picto|testimony|articles\//i;
     let filtered = [...images]
       .filter(u => !EXCLUDE.test(u))
       .map(u => {
