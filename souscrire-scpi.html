@@ -432,6 +432,7 @@
     }
 
     async function signDocument() {
+      if (typeof track === 'function') track('scpi_souscription');
       var btn = document.getElementById('btn-esign');
       btn.disabled = true;
       btn.textContent = 'Signature en cours...';

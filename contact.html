@@ -226,6 +226,7 @@
 
     document.getElementById('contact-form').addEventListener('submit', async function(e) {
       e.preventDefault();
+      if (typeof track === 'function') track('contact_submitted');
       var btn = this.querySelector('button[type="submit"]');
       var result = document.getElementById('contact-result');
       btn.disabled = true;

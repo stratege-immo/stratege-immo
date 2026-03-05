@@ -520,6 +520,7 @@
 
     // ─── CONFIRM ────────────────────────────────────────
     async function confirmRDV() {
+      if (typeof track === 'function') track('rdv_booked');
       var btn = document.getElementById('btn-confirm');
       btn.disabled = true;
       btn.textContent = 'Confirmation en cours...';
