@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Administration Conseiller — Stratege</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css?v=121" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <style>
+    .admin-login { max-width:400px;margin:80px auto;padding:40px;background:var(--surface-1);border-radius:16px;border:1px solid var(--neutral-200); }
+    .admin-grid { display:grid;grid-template-columns:240px 1fr;min-height:100vh; }
+    .admin-sidebar { background:var(--neutral-800);color:#fff;padding:24px 0;position:sticky;top:0;height:100vh;overflow-y:auto; }
+    .admin-sidebar h3 { padding:0 20px;font-size:14px;color:var(--primary-300);margin-bottom:20px;font-family:'Inter',sans-serif;letter-spacing:1px;text-transform:uppercase; }
+    .admin-sidebar .admin-nav a { display:flex;align-items:center;gap:10px;padding:10px 20px;color:var(--neutral-300);text-decoration:none;font-size:14px;transition:all .2s; }
+    .admin-sidebar .admin-nav a:hover,.admin-sidebar .admin-nav a.active { background:rgba(78,205,196,.15);color:#fff; }
+    .admin-sidebar .admin-nav a.active { border-left:3px solid var(--primary-300); }
+    .admin-content { padding:32px;background:var(--surface-2);overflow-y:auto; }
+    .admin-header { display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px; }
+    .admin-header h1 { font-size:24px;font-weight:600; }
+    .stat-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:24px; }
+    .stat-card { background:var(--surface-1);padding:20px;border-radius:12px;border:1px solid var(--neutral-200); }
+    .stat-card .stat-value { font-size:28px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--primary-600); }
+    .stat-card .stat-label { font-size:13px;color:var(--neutral-500);margin-top:4px; }
+    .admin-table { width:100%;border-collapse:collapse;background:var(--surface-1);border-radius:12px;overflow:hidden; }
+    .admin-table th { background:var(--neutral-100);padding:12px 16px;text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--neutral-600); }
+    .admin-table td { padding:12px 16px;border-top:1px solid var(--neutral-100);font-size:14px; }
+    .admin-table tr:hover td { background:var(--neutral-50); }
+    .status-dot { display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px; }
+    .status-dot.green { background:#22c55e; }
+    .status-dot.yellow { background:#eab308; }
+    .status-dot.red { background:#ef4444; }
+    .status-dot.blue { background:#3b82f6; }
+    .admin-card { background:var(--surface-1);border-radius:12px;border:1px solid var(--neutral-200);padding:24px;margin-bottom:20px; }
+    .admin-card h3 { font-size:16px;font-weight:600;margin-bottom:16px; }
+    .pipeline-col { min-width:250px;background:var(--surface-2);border-radius:12px;padding:12px; }
+    .pipeline-col h4 { font-size:13px;text-transform:uppercase;letter-spacing:.5px;color:var(--neutral-500);margin-bottom:12px; }
+    .pipeline-card { background:var(--surface-1);padding:12px;border-radius:8px;border:1px solid var(--neutral-200);margin-bottom:8px;cursor:pointer;transition:all .2s; }
+    .pipeline-card:hover { border-color:var(--primary-300);box-shadow:0 2px 8px rgba(78,205,196,.15); }
+    .pipeline-card .name { font-weight:600;font-size:14px; }
+    .pipeline-card .detail { font-size:12px;color:var(--neutral-500);margin-top:4px; }
+    .chart-placeholder { height:200px;background:var(--surface-2);border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--neutral-400);font-size:14px; }
+    .admin-tabs { display:flex;gap:4px;margin-bottom:20px;border-bottom:2px solid var(--neutral-200);padding-bottom:0; }
+    .admin-tab { padding:10px 20px;cursor:pointer;font-size:14px;font-weight:500;color:var(--neutral-500);border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s; }
+    .admin-tab.active,.admin-tab:hover { color:var(--primary-600);border-bottom-color:var(--primary-500); }
+    .lead-form { display:grid;grid-template-columns:1fr 1fr;gap:16px; }
+    .lead-form .full { grid-column:1/-1; }
+    .activity-item { display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--neutral-100); }
+    .activity-item:last-child { border-bottom:none; }
+    .activity-dot { width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0; }
+    .activity-dot.lead { background:#dbeafe;color:#3b82f6; }
+    .activity-dot.rdv { background:#dcfce7;color:#22c55e; }
+    .activity-dot.sign { background:#fef3c7;color:#d97706; }
+    .activity-dot.call { background:#f3e8ff;color:#9333ea; }
+    @media(max-width:768px) {
+      .admin-grid { grid-template-columns:1fr; }
+      .admin-sidebar { display:none; }
+      .stat-grid { grid-template-columns:1fr 1fr; }
+      .lead-form { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ======= LOGIN SCREEN ======= -->
+<div id="admin-login-screen">
+  <div class="admin-login">
+    <div style="text-align:center;margin-bottom:24px">
+      <div style="font-size:32px;margin-bottom:8px">&#x1f6e1;&#xfe0f;</div>
+      <h2 style="font-size:20px">Espace Conseiller</h2>
+      <p style="color:var(--neutral-500);font-size:14px">Acces reserve aux conseillers Stratege</p>
+    </div>
+    <div class="form-group">
+      <label>Code conseiller</label>
+      <input type="password" id="admin-code" placeholder="Entrez votre code" />
+    </div>
+    <button class="btn-primary" style="width:100%;justify-content:center" onclick="adminLogin()">Connexion</button>
+    <p id="admin-login-error" style="color:var(--error);font-size:13px;margin-top:12px;display:none"></p>
+  </div>
+</div>
+
+<!-- ======= ADMIN DASHBOARD ======= -->
+<div id="admin-dashboard" style="display:none">
+  <div class="admin-grid">
+
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <h3>Stratege Admin</h3>
+      <nav class="admin-nav">
+        <a href="#" class="active" onclick="showAdmin('dashboard',this)">&#x1f4ca; Dashboard</a>
+        <a href="#" onclick="showAdmin('prospects',this)">&#x1f465; Prospects</a>
+        <a href="#" onclick="showAdmin('pipeline',this)">&#x1f4b0; Pipeline</a>
+        <a href="#" onclick="showAdmin('rdv',this)">&#x1f4c5; Rendez-vous</a>
+        <a href="#" onclick="showAdmin('biens',this)">&#x1f3e0; Biens</a>
+        <a href="#" onclick="showAdmin('senioriales',this)">&#x1f3e2; Senioriales</a>
+        <a href="#" onclick="showAdmin('marketing',this)">&#x1f4e7; Marketing</a>
+        <a href="#" onclick="showAdmin('stats',this)">&#x1f4c8; Statistiques</a>
+      </nav>
+      <div style="padding:20px;margin-top:auto;border-top:1px solid rgba(255,255,255,.1)">
+        <div style="font-size:13px;color:var(--neutral-400)">Connecte en tant que</div>
+        <div style="font-size:14px;font-weight:600;color:#fff;margin-top:4px">Conseiller Stratege</div>
+        <a href="#" onclick="adminLogout()" style="font-size:12px;color:var(--primary-300);margin-top:8px;display:block">Deconnexion</a>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="admin-content">
+
+      <!-- ===== DASHBOARD ===== -->
+      <div id="admin-dashboard-section" class="admin-section">
+        <div class="admin-header">
+          <h1>Dashboard</h1>
+          <span style="color:var(--neutral-500);font-size:14px" id="admin-date"></span>
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-value" id="stat-prospects">0</div>
+            <div class="stat-label">Prospects actifs</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-rdv">0</div>
+            <div class="stat-label">RDV cette semaine</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-pipeline">0 k</div>
+            <div class="stat-label">Pipeline total</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-conversion">0%</div>
+            <div class="stat-label">Taux de conversion</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+          <div class="admin-card">
+            <h3>Activite recente</h3>
+            <div id="recent-activity">
+              <div class="activity-item">
+                <div class="activity-dot lead">+</div>
+                <div>
+                  <div style="font-weight:500;font-size:14px">Nouveau prospect</div>
+                  <div style="font-size:12px;color:var(--neutral-500)">Jean Dupont - Simulation LMNP 180k - il y a 2h</div>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-dot rdv">&#x1f4c5;</div>
+                <div>
+                  <div style="font-weight:500;font-size:14px">RDV confirme</div>
+                  <div style="font-size:12px;color:var(--neutral-500)">Marie Martin - Bilan patrimonial - Demain 14h</div>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-dot sign">&#x270d;&#xfe0f;</div>
+                <div>
+                  <div style="font-weight:500;font-size:14px">Contrat signe</div>
+                  <div style="font-size:12px;color:var(--neutral-500)">Pierre Durand - SCPI Iroko Zen 25k - Hier</div>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-dot call">&#x1f4de;</div>
+                <div>
+                  <div style="font-weight:500;font-size:14px">Appel entrant</div>
+                  <div style="font-size:12px;color:var(--neutral-500)">Sophie Lefebvre - Demande info SCPI - il y a 4h</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="admin-card">
+            <h3>Performance mensuelle</h3>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px">
+              <div>
+                <div style="font-size:13px;color:var(--neutral-500)">Leads generes</div>
+                <div style="font-size:24px;font-weight:700;font-family:'JetBrains Mono'">47</div>
+                <div style="font-size:12px;color:#22c55e">+12% vs mois precedent</div>
+              </div>
+              <div>
+                <div style="font-size:13px;color:var(--neutral-500)">RDV effectues</div>
+                <div style="font-size:24px;font-weight:700;font-family:'JetBrains Mono'">18</div>
+                <div style="font-size:12px;color:#22c55e">+8% vs mois precedent</div>
+              </div>
+              <div>
+                <div style="font-size:13px;color:var(--neutral-500)">Contrats signes</div>
+                <div style="font-size:24px;font-weight:700;font-family:'JetBrains Mono'">6</div>
+                <div style="font-size:12px;color:#22c55e">+2 vs mois precedent</div>
+              </div>
+              <div>
+                <div style="font-size:13px;color:var(--neutral-500)">CA genere</div>
+                <div style="font-size:24px;font-weight:700;font-family:'JetBrains Mono'">142k</div>
+                <div style="font-size:12px;color:#22c55e">+23% vs mois precedent</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Prochains RDV -->
+        <div class="admin-card">
+          <h3>Prochains rendez-vous</h3>
+          <table class="admin-table">
+            <thead>
+              <tr><th>Date</th><th>Heure</th><th>Client</th><th>Type</th><th>Mode</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="upcoming-rdv">
+              <tr>
+                <td>06/03/2026</td><td>10:00</td>
+                <td><strong>Marie Martin</strong><br><span style="font-size:12px;color:var(--neutral-500)">marie.martin@email.com</span></td>
+                <td>Bilan patrimonial</td>
+                <td><span class="status-dot blue"></span>Visio</td>
+                <td><button class="btn-primary btn-small" onclick="window.open('https://meet.jit.si/stratege-rdv-'+Date.now(),'_blank')">Lancer visio</button></td>
+              </tr>
+              <tr>
+                <td>06/03/2026</td><td>14:30</td>
+                <td><strong>Luc Moreau</strong><br><span style="font-size:12px;color:var(--neutral-500)">luc.moreau@gmail.com</span></td>
+                <td>Conseil SCPI</td>
+                <td><span class="status-dot green"></span>Telephone</td>
+                <td><button class="btn-ghost btn-small">Appeler</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== PROSPECTS ===== -->
+      <div id="admin-prospects-section" class="admin-section" style="display:none">
+        <div class="admin-header">
+          <h1>Prospects</h1>
+          <button class="btn-primary btn-small" onclick="document.getElementById('add-lead-modal').style.display='flex'">+ Ajouter un prospect</button>
+        </div>
+
+        <div class="admin-tabs">
+          <div class="admin-tab active" onclick="filterProspects('all',this)">Tous</div>
+          <div class="admin-tab" onclick="filterProspects('new',this)">Nouveaux</div>
+          <div class="admin-tab" onclick="filterProspects('contacted',this)">Contactes</div>
+          <div class="admin-tab" onclick="filterProspects('rdv',this)">RDV planifie</div>
+          <div class="admin-tab" onclick="filterProspects('signed',this)">Signes</div>
+        </div>
+
+        <div class="admin-card" style="padding:0;overflow:hidden">
+          <table class="admin-table">
+            <thead>
+              <tr><th>Prospect</th><th>Source</th><th>Interet</th><th>Budget</th><th>Statut</th><th>Derniere action</th><th></th></tr>
+            </thead>
+            <tbody id="prospects-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== PIPELINE ===== -->
+      <div id="admin-pipeline-section" class="admin-section" style="display:none">
+        <div class="admin-header">
+          <h1>Pipeline commercial</h1>
+        </div>
+        <div style="display:flex;gap:16px;overflow-x:auto;padding-bottom:12px">
+          <div class="pipeline-col">
+            <h4>Decouverte (4)</h4>
+            <div class="pipeline-card"><div class="name">Jean Dupont</div><div class="detail">LMNP - 180 000 EUR</div></div>
+            <div class="pipeline-card"><div class="name">Sophie Lefebvre</div><div class="detail">SCPI - 50 000 EUR</div></div>
+            <div class="pipeline-card"><div class="name">Marc Petit</div><div class="detail">Jeanbrun - 250 000 EUR</div></div>
+            <div class="pipeline-card"><div class="name">Julie Roux</div><div class="detail">Deficit foncier - 190 000 EUR</div></div>
+          </div>
+          <div class="pipeline-col">
+            <h4>Qualification (3)</h4>
+            <div class="pipeline-card"><div class="name">Marie Martin</div><div class="detail">Bilan patrimonial - RDV demain</div></div>
+            <div class="pipeline-card"><div class="name">Paul Bernard</div><div class="detail">SCPI Corum - 100 000 EUR</div></div>
+            <div class="pipeline-card"><div class="name">Claire Dubois</div><div class="detail">LMNP Lyon - 220 000 EUR</div></div>
+          </div>
+          <div class="pipeline-col">
+            <h4>Proposition (2)</h4>
+            <div class="pipeline-card"><div class="name">Luc Moreau</div><div class="detail">SCPI Iroko Zen - 75 000 EUR</div></div>
+            <div class="pipeline-card"><div class="name">Anne Girard</div><div class="detail">Denormandie Marseille - 220 000 EUR</div></div>
+          </div>
+          <div class="pipeline-col">
+            <h4>Signature (1)</h4>
+            <div class="pipeline-card"><div class="name">Pierre Durand</div><div class="detail">SCPI Iroko Zen - 25 000 EUR - En cours</div></div>
+          </div>
+          <div class="pipeline-col">
+            <h4>Gagne (2)</h4>
+            <div class="pipeline-card" style="border-color:#22c55e"><div class="name">Thomas Laurent</div><div class="detail">LMNP Toulouse - 189 000 EUR</div></div>
+            <div class="pipeline-card" style="border-color:#22c55e"><div class="name">Emma Richard</div><div class="detail">SCPI Corum Origin - 50 000 EUR</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== RDV ===== -->
+      <div id="admin-rdv-section" class="admin-section" style="display:none">
+        <div class="admin-header">
+          <h1>Rendez-vous</h1>
+          <button class="btn-primary btn-small" onclick="window.open('rdv.html','_blank')">Voir page RDV publique</button>
+        </div>
+        <div class="admin-card">
+          <h3>RDV a venir</h3>
+          <div id="admin-rdv-list">
+            <p style="color:var(--neutral-400);text-align:center;padding:20px">Chargement des rendez-vous...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== BIENS ===== -->
+      <div id="admin-biens-section" class="admin-section" style="display:none">
+        <div class="admin-header">
+          <h1>Catalogue biens</h1>
+        </div>
+        <div id="admin-biens-list">
+          <p style="color:var(--neutral-400);text-align:center;padding:20px">Chargement...</p>
+        </div>
+      </div>
+
+      <!-- ===== SENIORIALES ===== -->
+      <div id="admin-senioriales-section" class="admin-section" style="display:none">
+        <div class="admin-header">
+          <h1>Partenaire Senioriales</h1>
+          <button class="btn-primary btn-small" onclick="refreshSenioriales()">Rafraichir les donnees</button>
+        </div>
+        <div class="stat-grid" id="senioriales-stats">
+          <div class="stat-card"><div class="stat-value" id="sen-total">-</div><div class="stat-label">Programmes</div></div>
+          <div class="stat-card"><div class="stat-value" id="sen-date">-</div><div class="stat-label">Dernier scraping</div></div>
+        </div>
+        <div class="admin-card" style="padding:0;overflow:hidden">
+          <table class="admin-table">
+            <thead><tr><th>Residence</th><th>Ville</th><th>Region</th><th>Prix min</th><th>Categorie</th><th></th></tr></thead>
+            <tbody id="sen-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== MARKETING ===== -->
+      <div id="admin-marketing-section" class="admin-section" style="display:none">
+        <div class="admin-header">
+          <h1>Marketing</h1>
+        </div>
+        <div class="stat-grid">
+          <div class="stat-card"><div class="stat-value">312</div><div class="stat-label">Abonnes newsletter</div></div>
+          <div class="stat-card"><div class="stat-value">47.2%</div><div class="stat-label">Taux d'ouverture</div></div>
+          <div class="stat-card"><div class="stat-value">8.1%</div><div class="stat-label">Taux de clic</div></div>
+          <div class="stat-card"><div class="stat-value">23</div><div class="stat-label">Leads ce mois</div></div>
+        </div>
+        <div class="admin-card">
+          <h3>Campagnes recentes</h3>
+          <table class="admin-table">
+            <thead><tr><th>Campagne</th><th>Envoyes</th><th>Ouverts</th><th>Clics</th><th>Date</th><th>Statut</th></tr></thead>
+            <tbody>
+              <tr><td>Newsletter Mars - Top SCPI 2026</td><td>312</td><td>147 (47%)</td><td>25 (8%)</td><td>01/03/2026</td><td><span class="status-dot green"></span>Envoye</td></tr>
+              <tr><td>Alerte nouveau bien - Lyon T2</td><td>89</td><td>52 (58%)</td><td>14 (16%)</td><td>27/02/2026</td><td><span class="status-dot green"></span>Envoye</td></tr>
+              <tr><td>Guide defiscalisation 2026</td><td>245</td><td>98 (40%)</td><td>18 (7%)</td><td>15/02/2026</td><td><span class="status-dot green"></span>Envoye</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== STATS ===== -->
+      <div id="admin-stats-section" class="admin-section" style="display:none">
+        <div class="admin-header">
+          <h1>Statistiques</h1>
+        </div>
+        <div class="stat-grid">
+          <div class="stat-card"><div class="stat-value">1 247</div><div class="stat-label">Visiteurs / mois</div></div>
+          <div class="stat-card"><div class="stat-value">3.2%</div><div class="stat-label">Taux conversion</div></div>
+          <div class="stat-card"><div class="stat-value">2m 34s</div><div class="stat-label">Duree moy. session</div></div>
+          <div class="stat-card"><div class="stat-value">4.2</div><div class="stat-label">Pages / session</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+          <div class="admin-card">
+            <h3>Pages les plus visitees</h3>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;justify-content:space-between;font-size:14px"><span>Accueil</span><strong>412</strong></div>
+              <div style="display:flex;justify-content:space-between;font-size:14px"><span>Catalogue</span><strong>289</strong></div>
+              <div style="display:flex;justify-content:space-between;font-size:14px"><span>SCPI</span><strong>198</strong></div>
+              <div style="display:flex;justify-content:space-between;font-size:14px"><span>Simulateur pret</span><strong>167</strong></div>
+              <div style="display:flex;justify-content:space-between;font-size:14px"><span>Blog</span><strong>134</strong></div>
+            </div>
+          </div>
+          <div class="admin-card">
+            <h3>Sources de trafic</h3>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;justify-content:space-between;font-size:14px"><span>Google Organic</span><strong>52%</strong></div>
+              <div style="display:flex;justify-content:space-between;font-size:14px"><span>Direct</span><strong>28%</strong></div>
+              <div style="display:flex;justify-content:space-between;font-size:14px"><span>Reseaux sociaux</span><strong>12%</strong></div>
+              <div style="display:flex;justify-content:space-between;font-size:14px"><span>Email</span><strong>5%</strong></div>
+              <div style="display:flex;justify-content:space-between;font-size:14px"><span>Referral</span><strong>3%</strong></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ===== ADD LEAD MODAL ===== -->
+<div id="add-lead-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;align-items:center;justify-content:center">
+  <div style="background:var(--surface-1);border-radius:16px;padding:32px;max-width:600px;width:90%;max-height:90vh;overflow-y:auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <h3>Ajouter un prospect</h3>
+      <button onclick="document.getElementById('add-lead-modal').style.display='none'" style="background:none;border:none;font-size:24px;cursor:pointer">&times;</button>
+    </div>
+    <div class="lead-form">
+      <div class="form-group"><label>Prenom</label><input type="text" id="lead-prenom" /></div>
+      <div class="form-group"><label>Nom</label><input type="text" id="lead-nom" /></div>
+      <div class="form-group"><label>Email</label><input type="email" id="lead-email" /></div>
+      <div class="form-group"><label>Telephone</label><input type="tel" id="lead-tel" /></div>
+      <div class="form-group"><label>Interet</label>
+        <select id="lead-interet"><option>SCPI</option><option>LMNP</option><option>Jeanbrun Social</option><option>Denormandie</option><option>Deficit foncier</option><option>Bilan patrimonial</option><option>Credit immobilier</option></select>
+      </div>
+      <div class="form-group"><label>Budget estime</label><input type="number" id="lead-budget" placeholder="200000" /></div>
+      <div class="form-group full"><label>Notes</label><textarea id="lead-notes" rows="3" placeholder="Contexte, besoins specifiques..."></textarea></div>
+      <div class="full"><button class="btn-primary" style="width:100%;justify-content:center" onclick="saveLead()">Enregistrer le prospect</button></div>
+    </div>
+  </div>
+</div>
+
+<script src="assets/shared.js?v=121"></script>
+<script>
+var ADMIN_CODE = 'stratege2026';
+
+function adminLogin() {
+  var code = document.getElementById('admin-code').value;
+  if (code === ADMIN_CODE) {
+    localStorage.setItem('admin_auth', '1');
+    showDashboard();
+  } else {
+    var err = document.getElementById('admin-login-error');
+    err.textContent = 'Code incorrect';
+    err.style.display = 'block';
+  }
+}
+
+function adminLogout() {
+  localStorage.removeItem('admin_auth');
+  location.reload();
+}
+
+function showDashboard() {
+  document.getElementById('admin-login-screen').style.display = 'none';
+  document.getElementById('admin-dashboard').style.display = 'block';
+  document.getElementById('admin-date').textContent = new Date().toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+  loadProspects();
+  loadBiens();
+  loadSenioriales();
+  loadAdminRdv();
+  updateStats();
+}
+
+if (localStorage.getItem('admin_auth') === '1') showDashboard();
+
+function showAdmin(section, el) {
+  document.querySelectorAll('.admin-section').forEach(function(s) { s.style.display = 'none'; });
+  document.getElementById('admin-' + section + '-section').style.display = 'block';
+  document.querySelectorAll('.admin-nav a').forEach(function(a) { a.classList.remove('active'); });
+  if (el) el.classList.add('active');
+}
+
+// ===== PROSPECTS =====
+var prospects = [
+  { prenom:'Jean', nom:'Dupont', email:'jean.dupont@email.com', tel:'06 12 34 56 78', interet:'LMNP', budget:180000, statut:'new', source:'Simulation', date:'05/03/2026' },
+  { prenom:'Marie', nom:'Martin', email:'marie.martin@email.com', tel:'06 98 76 54 32', interet:'Bilan patrimonial', budget:0, statut:'rdv', source:'Contact', date:'04/03/2026' },
+  { prenom:'Sophie', nom:'Lefebvre', email:'sophie.l@gmail.com', tel:'07 11 22 33 44', interet:'SCPI', budget:50000, statut:'new', source:'Newsletter', date:'05/03/2026' },
+  { prenom:'Luc', nom:'Moreau', email:'luc.moreau@gmail.com', tel:'06 55 44 33 22', interet:'SCPI', budget:75000, statut:'contacted', source:'RDV', date:'03/03/2026' },
+  { prenom:'Pierre', nom:'Durand', email:'p.durand@outlook.fr', tel:'06 77 88 99 00', interet:'SCPI', budget:25000, statut:'signed', source:'Recommendation', date:'02/03/2026' },
+  { prenom:'Anne', nom:'Girard', email:'a.girard@yahoo.fr', tel:'07 66 55 44 33', interet:'Denormandie', budget:220000, statut:'contacted', source:'Blog', date:'01/03/2026' },
+];
+
+function loadProspects(filter) {
+  var tbody = document.getElementById('prospects-tbody');
+  tbody.innerHTML = '';
+  var filtered = filter && filter !== 'all' ? prospects.filter(function(p) { return p.statut === filter; }) : prospects;
+  filtered.forEach(function(p) {
+    var statusLabel = { new:'Nouveau', contacted:'Contacte', rdv:'RDV planifie', signed:'Signe' };
+    var statusColor = { new:'blue', contacted:'yellow', rdv:'green', signed:'green' };
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td><strong>' + p.prenom + ' ' + p.nom + '</strong><br><span style="font-size:12px;color:var(--neutral-500)">' + p.email + '</span></td>' +
+      '<td>' + p.source + '</td><td>' + p.interet + '</td>' +
+      '<td style="font-family:JetBrains Mono;font-size:13px">' + (p.budget ? p.budget.toLocaleString('fr-FR') + ' EUR' : '-') + '</td>' +
+      '<td><span class="status-dot ' + statusColor[p.statut] + '"></span>' + statusLabel[p.statut] + '</td>' +
+      '<td>' + p.date + '</td>' +
+      '<td><button class="btn-ghost btn-small">Voir</button></td>';
+    tbody.appendChild(tr);
+  });
+}
+
+function filterProspects(filter, el) {
+  document.querySelectorAll('.admin-tab').forEach(function(t) { t.classList.remove('active'); });
+  el.classList.add('active');
+  loadProspects(filter);
+}
+
+function saveLead() {
+  var lead = {
+    prenom: document.getElementById('lead-prenom').value,
+    nom: document.getElementById('lead-nom').value,
+    email: document.getElementById('lead-email').value,
+    tel: document.getElementById('lead-tel').value,
+    interet: document.getElementById('lead-interet').value,
+    budget: parseInt(document.getElementById('lead-budget').value) || 0,
+    notes: document.getElementById('lead-notes').value,
+    statut: 'new',
+    source: 'Manuel',
+    date: new Date().toLocaleDateString('fr-FR'),
+  };
+  if (!lead.prenom || !lead.email) { alert('Prenom et email requis'); return; }
+  prospects.unshift(lead);
+  loadProspects();
+  document.getElementById('add-lead-modal').style.display = 'none';
+  updateStats();
+  // Also save to KV
+  fetch('/api/admin?action=save-lead', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(lead)
+  }).catch(function() {});
+}
+
+// ===== BIENS =====
+async function loadBiens() {
+  try {
+    var res = await fetch('/api/biens');
+    var data = await res.json();
+    if (!data.success || !data.biens) return;
+    var container = document.getElementById('admin-biens-list');
+    container.innerHTML = '<div class="admin-card" style="padding:0;overflow:hidden"><table class="admin-table"><thead><tr><th>Bien</th><th>Ville</th><th>Prix</th><th>Rendement</th><th>Dispositif</th><th>Dispo</th></tr></thead><tbody id="biens-tbody"></tbody></table></div>';
+    var tbody = document.getElementById('biens-tbody');
+    data.biens.forEach(function(b) {
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td><strong>' + b.titre + '</strong></td><td>' + b.ville + '</td><td class="mono">' + b.prix.toLocaleString('fr-FR') + ' EUR</td><td class="mono">' + b.rendement + '%</td><td>' + b.dispositif + '</td><td>' + (b.disponible ? '<span class="status-dot green"></span>Oui' : '<span class="status-dot red"></span>Non') + '</td>';
+      tbody.appendChild(tr);
+    });
+    document.getElementById('stat-pipeline').textContent = Math.round(data.biens.reduce(function(s,b) { return s + b.prix; }, 0) / 1000) + ' k';
+  } catch(e) {}
+}
+
+// ===== SENIORIALES =====
+async function loadSenioriales() {
+  try {
+    var res = await fetch('/api/senioriales/programmes');
+    var data = await res.json();
+    if (!data.programmes) return;
+    document.getElementById('sen-total').textContent = data.total_programmes;
+    document.getElementById('sen-date').textContent = data.scraped_at ? new Date(data.scraped_at).toLocaleDateString('fr-FR') + ' ' + new Date(data.scraped_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}) : '-';
+    var tbody = document.getElementById('sen-tbody');
+    tbody.innerHTML = '';
+    data.programmes.forEach(function(p) {
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td><strong>' + p.titre + '</strong></td><td>' + (p.ville || '-') + '</td><td>' + (p.region || '-') + '</td><td class="mono">' + (p.prix_min ? p.prix_min.toLocaleString('fr-FR') + ' EUR' : '-') + '</td><td>' + (p.categorie || 'acheter') + '</td><td><a href="' + (p.url_detail || '#') + '" target="_blank" class="btn-ghost btn-small">Voir</a></td>';
+      tbody.appendChild(tr);
+    });
+  } catch(e) {
+    document.getElementById('sen-total').textContent = 'Erreur';
+  }
+}
+
+async function refreshSenioriales() {
+  try {
+    await fetch('/api/senioriales/clear-lock', { method:'POST' });
+    var res = await fetch('/api/senioriales/init', { method:'POST' });
+    var data = await res.json();
+    alert('Scraping lance : ' + (data.urls_to_detail || 0) + ' programmes a scraper. Utilisez /api/senioriales/next en boucle.');
+  } catch(e) {
+    alert('Erreur: ' + e.message);
+  }
+}
+
+// ===== RDV =====
+async function loadAdminRdv() {
+  // Load from KV via API
+  try {
+    var container = document.getElementById('admin-rdv-list');
+    container.innerHTML = '<table class="admin-table"><thead><tr><th>Ref</th><th>Date</th><th>Heure</th><th>Client</th><th>Type</th><th>Mode</th><th>Statut</th></tr></thead><tbody id="admin-rdv-tbody"></tbody></table>';
+    // We'll populate from the RDV API when it's ready
+    document.getElementById('admin-rdv-tbody').innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--neutral-400);padding:20px">Les rendez-vous pris via le site apparaitront ici automatiquement</td></tr>';
+  } catch(e) {}
+}
+
+function updateStats() {
+  document.getElementById('stat-prospects').textContent = prospects.length;
+  document.getElementById('stat-rdv').textContent = '3';
+  document.getElementById('stat-conversion').textContent = Math.round((prospects.filter(function(p){return p.statut==='signed'}).length / Math.max(prospects.length,1)) * 100) + '%';
+}
+
+function fmt(n) { return Number(n).toLocaleString('fr-FR'); }
+</script>
+</body>
+</html>

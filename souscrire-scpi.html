@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Souscrire en SCPI en ligne — Stratege</title>
+  <meta name="description" content="Souscription SCPI 100% en ligne : simulation, choix de SCPI, signature electronique et suivi." />
+  <link rel="canonical" href="https://stratege-immo.fr/souscrire-scpi.html" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css?v=121" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <style>
+    .scpi-flow { max-width:800px;margin:0 auto;padding:40px 20px 80px; }
+    .flow-progress { display:flex;justify-content:space-between;margin-bottom:40px;position:relative; }
+    .flow-progress::before { content:'';position:absolute;top:20px;left:40px;right:40px;height:2px;background:var(--neutral-200); }
+    .flow-step { display:flex;flex-direction:column;align-items:center;position:relative;z-index:1;flex:1; }
+    .flow-step .step-circle { width:40px;height:40px;border-radius:50%;background:var(--neutral-200);color:var(--neutral-500);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px;transition:all .3s; }
+    .flow-step.active .step-circle { background:var(--primary-500);color:#fff; }
+    .flow-step.done .step-circle { background:#22c55e;color:#fff; }
+    .flow-step .step-label { font-size:12px;color:var(--neutral-500);margin-top:8px;text-align:center; }
+    .flow-step.active .step-label { color:var(--primary-600);font-weight:600; }
+    .flow-panel { background:var(--surface-1);border-radius:16px;border:1px solid var(--neutral-200);padding:32px;margin-bottom:24px; }
+    .flow-panel h2 { font-size:22px;margin-bottom:8px; }
+    .flow-panel .subtitle { color:var(--neutral-500);margin-bottom:24px;font-size:15px; }
+    .scpi-card { border:2px solid var(--neutral-200);border-radius:12px;padding:20px;cursor:pointer;transition:all .2s;position:relative; }
+    .scpi-card:hover { border-color:var(--primary-300);background:rgba(78,205,196,.03); }
+    .scpi-card.selected { border-color:var(--primary-500);background:rgba(78,205,196,.05); }
+    .scpi-card.selected::after { content:'\\2713';position:absolute;top:12px;right:12px;width:24px;height:24px;border-radius:50%;background:var(--primary-500);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px; }
+    .scpi-card h4 { font-size:16px;margin-bottom:4px; }
+    .scpi-card .gestionnaire { font-size:13px;color:var(--neutral-500); }
+    .scpi-card .scpi-stats { display:flex;gap:20px;margin-top:12px;flex-wrap:wrap; }
+    .scpi-card .scpi-stat { display:flex;flex-direction:column; }
+    .scpi-card .scpi-stat .val { font-family:'JetBrains Mono';font-weight:600;font-size:16px;color:var(--primary-600); }
+    .scpi-card .scpi-stat .lbl { font-size:11px;color:var(--neutral-500);text-transform:uppercase;letter-spacing:.5px; }
+    .scpi-grid { display:grid;gap:12px; }
+    .invest-mode { display:grid;grid-template-columns:1fr 1fr;gap:12px; }
+    .invest-mode-card { border:2px solid var(--neutral-200);border-radius:12px;padding:20px;cursor:pointer;transition:all .2s;text-align:center; }
+    .invest-mode-card:hover { border-color:var(--primary-300); }
+    .invest-mode-card.selected { border-color:var(--primary-500);background:rgba(78,205,196,.05); }
+    .invest-mode-card .mode-icon { font-size:32px;margin-bottom:8px; }
+    .invest-mode-card h4 { font-size:15px;margin-bottom:4px; }
+    .invest-mode-card p { font-size:13px;color:var(--neutral-500); }
+    .recap-grid { display:grid;grid-template-columns:1fr 1fr;gap:16px; }
+    .recap-item { display:flex;flex-direction:column; }
+    .recap-item .lbl { font-size:12px;color:var(--neutral-500);text-transform:uppercase;letter-spacing:.5px; }
+    .recap-item .val { font-size:16px;font-weight:600;margin-top:4px; }
+    .recap-item .val.mono { font-family:'JetBrains Mono'; }
+    .esign-box { border:2px dashed var(--neutral-300);border-radius:12px;padding:40px;text-align:center;background:var(--surface-2); }
+    .esign-box.signed { border-color:#22c55e;border-style:solid;background:rgba(34,197,94,.05); }
+    .flow-nav { display:flex;justify-content:space-between;gap:12px; }
+    .kyc-grid { display:grid;grid-template-columns:1fr 1fr;gap:16px; }
+    @media(max-width:768px) {
+      .flow-progress { gap:4px; }
+      .flow-step .step-label { font-size:10px; }
+      .invest-mode { grid-template-columns:1fr; }
+      .recap-grid { grid-template-columns:1fr; }
+      .kyc-grid { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar"></nav>
+
+  <section class="page-hero">
+    <div class="container">
+      <div class="section-label">Souscription 100% en ligne</div>
+      <h1>Investir en <span class="highlight">SCPI</span></h1>
+      <p>Selectionnez votre SCPI, definissez votre investissement et signez electroniquement en quelques minutes.</p>
+    </div>
+  </section>
+
+  <div class="scpi-flow">
+    <!-- Progress bar -->
+    <div class="flow-progress" id="flow-progress">
+      <div class="flow-step active" data-step="1"><div class="step-circle">1</div><div class="step-label">Choix SCPI</div></div>
+      <div class="flow-step" data-step="2"><div class="step-circle">2</div><div class="step-label">Investissement</div></div>
+      <div class="flow-step" data-step="3"><div class="step-circle">3</div><div class="step-label">Identite</div></div>
+      <div class="flow-step" data-step="4"><div class="step-circle">4</div><div class="step-label">Recap</div></div>
+      <div class="flow-step" data-step="5"><div class="step-circle">5</div><div class="step-label">Signature</div></div>
+    </div>
+
+    <!-- STEP 1 : Choix SCPI -->
+    <div class="flow-panel" id="step-1">
+      <h2>Choisissez votre SCPI</h2>
+      <p class="subtitle">Selectionnez une ou plusieurs SCPI pour diversifier votre investissement.</p>
+      <div class="scpi-grid" id="scpi-selection"></div>
+      <div class="flow-nav" style="margin-top:24px">
+        <div></div>
+        <button class="btn-primary" onclick="goStep(2)">Continuer</button>
+      </div>
+    </div>
+
+    <!-- STEP 2 : Montant & Mode -->
+    <div class="flow-panel" id="step-2" style="display:none">
+      <h2>Definissez votre investissement</h2>
+      <p class="subtitle">Montant, mode de financement et frequence.</p>
+
+      <div class="form-group">
+        <label>Montant a investir</label>
+        <input type="number" id="invest-montant" value="20000" min="200" step="100" oninput="updateSimu()" />
+        <span class="input-suffix">EUR</span>
+      </div>
+
+      <label style="display:block;margin-bottom:12px;font-weight:500">Mode d'investissement</label>
+      <div class="invest-mode">
+        <div class="invest-mode-card selected" onclick="selectMode('comptant',this)">
+          <div class="mode-icon">&#x1f4b0;</div>
+          <h4>Au comptant</h4>
+          <p>Versement unique depuis votre epargne</p>
+        </div>
+        <div class="invest-mode-card" onclick="selectMode('credit',this)">
+          <div class="mode-icon">&#x1f3e6;</div>
+          <h4>A credit</h4>
+          <p>Financement bancaire avec effet de levier</p>
+        </div>
+      </div>
+
+      <div id="credit-options" style="display:none;margin-top:20px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="form-group">
+            <label>Duree du credit</label>
+            <select id="credit-duree" onchange="updateSimu()">
+              <option value="10">10 ans</option>
+              <option value="15" selected>15 ans</option>
+              <option value="20">20 ans</option>
+              <option value="25">25 ans</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Apport personnel</label>
+            <input type="number" id="credit-apport" value="5000" oninput="updateSimu()" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Simulation temps reel -->
+      <div style="background:var(--surface-2);border-radius:12px;padding:20px;margin-top:20px">
+        <h4 style="font-size:15px;margin-bottom:12px">Estimation de vos revenus</h4>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;text-align:center">
+          <div>
+            <div style="font-size:12px;color:var(--neutral-500)">Revenus bruts/mois</div>
+            <div style="font-size:20px;font-weight:700;font-family:'JetBrains Mono';color:var(--primary-600)" id="simu-brut">0 EUR</div>
+          </div>
+          <div>
+            <div style="font-size:12px;color:var(--neutral-500)">Fiscalite/mois</div>
+            <div style="font-size:20px;font-weight:700;font-family:'JetBrains Mono';color:var(--error)" id="simu-fisc">0 EUR</div>
+          </div>
+          <div>
+            <div style="font-size:12px;color:var(--neutral-500)">Revenus nets/mois</div>
+            <div style="font-size:20px;font-weight:700;font-family:'JetBrains Mono';color:#22c55e" id="simu-net">0 EUR</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-nav" style="margin-top:24px">
+        <button class="btn-ghost" onclick="goStep(1)">Retour</button>
+        <button class="btn-primary" onclick="goStep(3)">Continuer</button>
+      </div>
+    </div>
+
+    <!-- STEP 3 : KYC / Identite -->
+    <div class="flow-panel" id="step-3" style="display:none">
+      <h2>Vos informations</h2>
+      <p class="subtitle">Informations requises pour la souscription (conformite AMF).</p>
+
+      <div class="kyc-grid">
+        <div class="form-group"><label>Civilite</label><select id="kyc-civilite"><option>M.</option><option>Mme</option></select></div>
+        <div class="form-group"><label>Date de naissance</label><input type="date" id="kyc-dob" /></div>
+        <div class="form-group"><label>Prenom</label><input type="text" id="kyc-prenom" /></div>
+        <div class="form-group"><label>Nom</label><input type="text" id="kyc-nom" /></div>
+        <div class="form-group"><label>Email</label><input type="email" id="kyc-email" /></div>
+        <div class="form-group"><label>Telephone</label><input type="tel" id="kyc-tel" /></div>
+        <div class="form-group" style="grid-column:1/-1"><label>Adresse</label><input type="text" id="kyc-adresse" placeholder="12 rue de la Paix, 69001 Lyon" /></div>
+      </div>
+
+      <div style="margin-top:24px">
+        <h4 style="font-size:15px;margin-bottom:12px">Profil investisseur (DER - Document d'Entree en Relation)</h4>
+        <div class="kyc-grid">
+          <div class="form-group">
+            <label>Revenus annuels nets</label>
+            <select id="kyc-revenus">
+              <option>Moins de 30 000 EUR</option>
+              <option selected>30 000 - 60 000 EUR</option>
+              <option>60 000 - 100 000 EUR</option>
+              <option>Plus de 100 000 EUR</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Patrimoine net</label>
+            <select id="kyc-patrimoine">
+              <option>Moins de 50 000 EUR</option>
+              <option selected>50 000 - 200 000 EUR</option>
+              <option>200 000 - 500 000 EUR</option>
+              <option>Plus de 500 000 EUR</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Experience en SCPI</label>
+            <select id="kyc-experience">
+              <option>Aucune - Premiere souscription</option>
+              <option>1 a 3 ans</option>
+              <option>Plus de 3 ans</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Horizon de placement</label>
+            <select id="kyc-horizon">
+              <option>Moins de 5 ans</option>
+              <option selected>5 a 10 ans</option>
+              <option>Plus de 10 ans</option>
+            </select>
+          </div>
+          <div class="form-group" style="grid-column:1/-1">
+            <label>Objectif principal</label>
+            <select id="kyc-objectif">
+              <option>Revenus complementaires</option>
+              <option>Constitution de patrimoine</option>
+              <option>Preparation retraite</option>
+              <option>Diversification</option>
+              <option>Transmission</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:20px;padding:16px;background:rgba(234,179,8,.1);border-radius:8px;border:1px solid rgba(234,179,8,.3)">
+        <div style="font-size:13px"><strong>Avertissement sur les risques</strong> : L'investissement en SCPI comporte des risques de perte en capital. Les performances passees ne presagent pas des performances futures. La liquidite des parts n'est pas garantie.</div>
+      </div>
+
+      <div class="flow-nav" style="margin-top:24px">
+        <button class="btn-ghost" onclick="goStep(2)">Retour</button>
+        <button class="btn-primary" onclick="goStep(4)">Valider et continuer</button>
+      </div>
+    </div>
+
+    <!-- STEP 4 : Recapitulatif -->
+    <div class="flow-panel" id="step-4" style="display:none">
+      <h2>Recapitulatif de votre souscription</h2>
+      <p class="subtitle">Verifiez les informations avant signature.</p>
+
+      <div class="recap-grid" id="recap-content"></div>
+
+      <div style="margin-top:24px;padding:16px;background:var(--surface-2);border-radius:8px">
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:14px">
+          <input type="checkbox" id="accept-terms" style="margin-top:3px" />
+          <span>J'ai lu et j'accepte les <a href="cgv-cgu.html" target="_blank" style="color:var(--primary-500)">conditions generales</a>, la <a href="politique-confidentialite.html" target="_blank" style="color:var(--primary-500)">politique de confidentialite</a>, et je reconnais avoir pris connaissance des risques lies a l'investissement en SCPI.</span>
+        </label>
+      </div>
+
+      <div class="flow-nav" style="margin-top:24px">
+        <button class="btn-ghost" onclick="goStep(3)">Retour</button>
+        <button class="btn-primary" onclick="goStep(5)" id="btn-sign">Proceder a la signature</button>
+      </div>
+    </div>
+
+    <!-- STEP 5 : Signature -->
+    <div class="flow-panel" id="step-5" style="display:none">
+      <h2>Signature electronique</h2>
+      <p class="subtitle">Signez votre bulletin de souscription en toute securite.</p>
+
+      <div class="esign-box" id="esign-box">
+        <div style="font-size:48px;margin-bottom:12px">&#x270d;&#xfe0f;</div>
+        <h4>Signature electronique</h4>
+        <p style="color:var(--neutral-500);font-size:14px;margin:12px 0">Cliquez pour signer votre bulletin de souscription SCPI.<br>Conforme eIDAS et RGPD.</p>
+        <button class="btn-primary" onclick="signDocument()" id="btn-esign">Signer le document</button>
+      </div>
+
+      <div id="sign-success" style="display:none;text-align:center;padding:40px">
+        <div style="font-size:64px;margin-bottom:16px">&#x2705;</div>
+        <h3 style="color:#22c55e;font-size:22px">Souscription signee avec succes !</h3>
+        <p style="color:var(--neutral-500);margin:16px 0">Votre bulletin de souscription a ete signe electroniquement.<br>Vous recevrez un email de confirmation avec votre attestation.</p>
+        <div style="background:var(--surface-2);border-radius:12px;padding:20px;margin:20px auto;max-width:400px">
+          <div style="font-size:13px;color:var(--neutral-500)">Reference souscription</div>
+          <div style="font-size:20px;font-weight:700;font-family:'JetBrains Mono';margin-top:4px" id="sign-ref">SCPI-2026-XXXXX</div>
+        </div>
+        <div style="display:flex;gap:12px;justify-content:center;margin-top:20px">
+          <a href="dashboard.html" class="btn-primary">Mon espace</a>
+          <a href="scpi.html" class="btn-ghost">Voir d'autres SCPI</a>
+        </div>
+      </div>
+
+      <div class="flow-nav" style="margin-top:24px" id="sign-nav">
+        <button class="btn-ghost" onclick="goStep(4)">Retour</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer"></footer>
+
+  <script src="assets/shared.js?v=121"></script>
+  <script>
+    renderNavbar('scpi');
+    renderFooter();
+
+    var SCPI_DATA = [
+      { id:'iroko-zen', nom:'Iroko Zen', gestionnaire:'Iroko', td:7.14, prix:204, tof:97, depuis:2020, frais:'0%', risque:'Modere' },
+      { id:'corum-origin', nom:'Corum Origin', gestionnaire:'Corum AM', td:6.50, prix:1135, tof:98, depuis:2012, frais:'11.96%', risque:'Modere' },
+      { id:'transitions-europe', nom:'Transitions Europe', gestionnaire:'Arkea REIM', td:7.60, prix:200, tof:95, depuis:2022, frais:'-', risque:'Modere' },
+      { id:'sofidynamic', nom:'Sofidynamic', gestionnaire:'Sofidy', td:9.04, prix:200, tof:98, depuis:2024, frais:'-', risque:'Eleve' },
+      { id:'corum-xl', nom:'Corum XL', gestionnaire:'Corum AM', td:6.26, prix:1050, tof:96, depuis:2017, frais:'12%', risque:'Modere' },
+      { id:'corum-eurion', nom:'Corum Eurion', gestionnaire:'Corum AM', td:5.97, prix:215, tof:97, depuis:2020, frais:'-', risque:'Faible' },
+      { id:'pfo2', nom:'PFO2', gestionnaire:'Perial', td:4.50, prix:204, tof:91, depuis:2009, frais:'-', risque:'Faible' },
+    ];
+
+    var selectedScpi = [];
+    var investMode = 'comptant';
+    var currentStep = 1;
+
+    // Render SCPI cards
+    var scpiGrid = document.getElementById('scpi-selection');
+    SCPI_DATA.forEach(function(scpi) {
+      var card = document.createElement('div');
+      card.className = 'scpi-card';
+      card.setAttribute('data-id', scpi.id);
+      card.innerHTML =
+        '<h4>' + scpi.nom + '</h4>' +
+        '<div class="gestionnaire">' + scpi.gestionnaire + ' - Depuis ' + scpi.depuis + '</div>' +
+        '<div class="scpi-stats">' +
+          '<div class="scpi-stat"><div class="val">' + scpi.td + '%</div><div class="lbl">TD 2025</div></div>' +
+          '<div class="scpi-stat"><div class="val">' + scpi.prix + ' EUR</div><div class="lbl">Prix part</div></div>' +
+          '<div class="scpi-stat"><div class="val">' + scpi.tof + '%</div><div class="lbl">TOF</div></div>' +
+          '<div class="scpi-stat"><div class="val">' + scpi.risque + '</div><div class="lbl">Risque</div></div>' +
+        '</div>';
+      card.onclick = function() {
+        card.classList.toggle('selected');
+        var idx = selectedScpi.indexOf(scpi.id);
+        if (idx > -1) selectedScpi.splice(idx, 1);
+        else selectedScpi.push(scpi.id);
+        updateSimu();
+      };
+      scpiGrid.appendChild(card);
+    });
+
+    // Pre-select Iroko Zen
+    document.querySelector('.scpi-card[data-id="iroko-zen"]').click();
+
+    function selectMode(mode, el) {
+      investMode = mode;
+      document.querySelectorAll('.invest-mode-card').forEach(function(c) { c.classList.remove('selected'); });
+      el.classList.add('selected');
+      document.getElementById('credit-options').style.display = mode === 'credit' ? 'block' : 'none';
+      updateSimu();
+    }
+
+    function updateSimu() {
+      var montant = parseFloat(document.getElementById('invest-montant').value) || 0;
+      var avgTd = 0;
+      if (selectedScpi.length > 0) {
+        var total = 0;
+        selectedScpi.forEach(function(id) {
+          var s = SCPI_DATA.find(function(x) { return x.id === id; });
+          if (s) total += s.td;
+        });
+        avgTd = total / selectedScpi.length;
+      }
+
+      var brut = montant * (avgTd / 100) / 12;
+      var fisc = brut * 0.472; // TMI 30% + PS 17.2%
+      var net = brut - fisc;
+
+      if (investMode === 'credit') {
+        var duree = parseInt(document.getElementById('credit-duree').value) || 15;
+        var taux = { 10:2.95, 15:3.10, 20:3.25, 25:3.40 }[duree] || 3.10;
+        var apport = parseFloat(document.getElementById('credit-apport').value) || 0;
+        var emprunt = montant - apport;
+        var mensualiteCredit = emprunt * (taux/100/12) / (1 - Math.pow(1 + taux/100/12, -duree*12));
+        net = brut - fisc - mensualiteCredit;
+      }
+
+      document.getElementById('simu-brut').textContent = Math.round(brut).toLocaleString('fr-FR') + ' EUR';
+      document.getElementById('simu-fisc').textContent = '-' + Math.round(fisc).toLocaleString('fr-FR') + ' EUR';
+      document.getElementById('simu-net').textContent = (net >= 0 ? '' : '') + Math.round(net).toLocaleString('fr-FR') + ' EUR';
+      document.getElementById('simu-net').style.color = net >= 0 ? '#22c55e' : 'var(--error)';
+    }
+
+    function goStep(n) {
+      if (n === 2 && selectedScpi.length === 0) { alert('Selectionnez au moins une SCPI'); return; }
+      if (n === 4) buildRecap();
+      if (n === 5 && !document.getElementById('accept-terms').checked) { alert('Veuillez accepter les conditions'); return; }
+
+      document.querySelectorAll('.flow-panel').forEach(function(p) { p.style.display = 'none'; });
+      document.getElementById('step-' + n).style.display = 'block';
+
+      document.querySelectorAll('.flow-step').forEach(function(s) {
+        var sn = parseInt(s.getAttribute('data-step'));
+        s.classList.remove('active', 'done');
+        if (sn < n) s.classList.add('done');
+        if (sn === n) s.classList.add('active');
+      });
+      currentStep = n;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      // Pre-fill from logged in user
+      if (n === 3) {
+        try {
+          var u = getUser();
+          if (u) {
+            if (u.prenom) document.getElementById('kyc-prenom').value = u.prenom;
+            if (u.nom) document.getElementById('kyc-nom').value = u.nom;
+            if (u.email) document.getElementById('kyc-email').value = u.email;
+            if (u.telephone) document.getElementById('kyc-tel').value = u.telephone;
+          }
+        } catch(e) {}
+      }
+    }
+
+    function buildRecap() {
+      var montant = parseFloat(document.getElementById('invest-montant').value) || 0;
+      var scpiNames = selectedScpi.map(function(id) {
+        var s = SCPI_DATA.find(function(x) { return x.id === id; });
+        return s ? s.nom : id;
+      }).join(', ');
+
+      var prenom = document.getElementById('kyc-prenom').value;
+      var nom = document.getElementById('kyc-nom').value;
+      var email = document.getElementById('kyc-email').value;
+
+      document.getElementById('recap-content').innerHTML =
+        '<div class="recap-item"><div class="lbl">SCPI selectionnee(s)</div><div class="val">' + scpiNames + '</div></div>' +
+        '<div class="recap-item"><div class="lbl">Montant</div><div class="val mono">' + montant.toLocaleString('fr-FR') + ' EUR</div></div>' +
+        '<div class="recap-item"><div class="lbl">Mode</div><div class="val">' + (investMode === 'comptant' ? 'Au comptant' : 'A credit') + '</div></div>' +
+        '<div class="recap-item"><div class="lbl">Souscripteur</div><div class="val">' + prenom + ' ' + nom + '</div></div>' +
+        '<div class="recap-item"><div class="lbl">Email</div><div class="val">' + email + '</div></div>' +
+        '<div class="recap-item"><div class="lbl">Horizon</div><div class="val">' + document.getElementById('kyc-horizon').value + '</div></div>' +
+        '<div class="recap-item"><div class="lbl">Objectif</div><div class="val">' + document.getElementById('kyc-objectif').value + '</div></div>' +
+        '<div class="recap-item"><div class="lbl">Revenus estimes nets/mois</div><div class="val mono" style="color:var(--primary-600)">' + document.getElementById('simu-net').textContent + '</div></div>';
+    }
+
+    async function signDocument() {
+      var btn = document.getElementById('btn-esign');
+      btn.disabled = true;
+      btn.textContent = 'Signature en cours...';
+
+      // Generate reference
+      var ref = 'SCPI-2026-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+
+      // Store souscription
+      var souscription = {
+        reference: ref,
+        scpi: selectedScpi,
+        montant: parseFloat(document.getElementById('invest-montant').value) || 0,
+        mode: investMode,
+        souscripteur: {
+          civilite: document.getElementById('kyc-civilite').value,
+          prenom: document.getElementById('kyc-prenom').value,
+          nom: document.getElementById('kyc-nom').value,
+          email: document.getElementById('kyc-email').value,
+          tel: document.getElementById('kyc-tel').value,
+          adresse: document.getElementById('kyc-adresse').value,
+          dob: document.getElementById('kyc-dob').value,
+        },
+        profil: {
+          revenus: document.getElementById('kyc-revenus').value,
+          patrimoine: document.getElementById('kyc-patrimoine').value,
+          experience: document.getElementById('kyc-experience').value,
+          horizon: document.getElementById('kyc-horizon').value,
+          objectif: document.getElementById('kyc-objectif').value,
+        },
+        signed_at: new Date().toISOString(),
+      };
+
+      try {
+        await fetch('/api/admin?action=save-souscription', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(souscription)
+        });
+      } catch(e) {}
+
+      // Simulate signing delay
+      await new Promise(function(r) { setTimeout(r, 2000); });
+
+      document.getElementById('esign-box').style.display = 'none';
+      document.getElementById('sign-nav').style.display = 'none';
+      document.getElementById('sign-success').style.display = 'block';
+      document.getElementById('sign-ref').textContent = ref;
+
+      // Mark step 5 as done
+      document.querySelectorAll('.flow-step').forEach(function(s) { s.classList.add('done'); s.classList.remove('active'); });
+
+      // Send confirmation email
+      try {
+        await fetch('/api/email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'scpi-confirmation',
+            to: souscription.souscripteur.email,
+            data: { reference: ref, scpi: selectedScpi.join(', '), montant: souscription.montant }
+          })
+        });
+      } catch(e) {}
+    }
+
+    updateSimu();
+  </script>
+</body>
+</html>

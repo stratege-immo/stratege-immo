@@ -59,6 +59,8 @@ function renderNavbar(activePage) {
         '<li><a href="scpi.html"' + isActive('scpi') + '>SCPI</a></li>' +
         '<li><a href="pret.html"' + isActive('pret') + '>Prêt immobilier</a></li>' +
         '<li><a href="blog.html"' + isActive('blog') + '>Blog</a></li>' +
+        '<li><a href="souscrire-scpi.html"' + isActive('souscrire') + '>Souscrire SCPI</a></li>' +
+        '<li><a href="rdv.html"' + isActive('rdv') + ' style="color:var(--primary-500);font-weight:600">Prendre RDV</a></li>' +
         (loggedIn ? '<li><a href="dashboard.html"' + isActive('dashboard') + '>Dashboard</a></li>' : '') +
       '</ul>' +
       authHTML +
@@ -211,6 +213,15 @@ function hideLoader() {
 // Auto-hide loader on DOMContentLoaded
 document.addEventListener('DOMContentLoaded', function() {
   setTimeout(hideLoader, 200);
+
+  // Load chatbot widget
+  if (!document.getElementById('stg-chatbot-script')) {
+    var chatScript = document.createElement('script');
+    chatScript.id = 'stg-chatbot-script';
+    chatScript.src = '/assets/chatbot.js';
+    chatScript.defer = true;
+    document.body.appendChild(chatScript);
+  }
 });
 
 // ── IntersectionObserver for animations ─────────────────
