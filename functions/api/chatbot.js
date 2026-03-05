@@ -6,6 +6,51 @@
 
 const BEDROCK_MODEL = 'us.anthropic.claude-haiku-4-5-20251001-v1:0';
 const BEDROCK_REGION = 'us-east-1';
+const MAX_BEDROCK_PER_SESSION = 5;
+const CACHE_TTL = 604800; // 7 jours
+
+// ── FAQ locale — réponses instantanées sans IA (0 coût) ──
+
+const FAQ_LOCAL = {
+  "jeanbrun": "La **loi Jeanbrun** remplace Pinel depuis janvier 2025. Reduction d'impot jusqu'a **21% sur 12 ans**. Zones tendues, plafonds de loyers.\n\nSimulez gratuitement votre investissement.",
+  "pinel": "Le dispositif Pinel a pris fin au 31/12/2024. Il est remplace par la **loi Jeanbrun Social** avec des taux de reduction similaires.\n\nDecouvrez les biens eligibles dans notre catalogue.",
+  "lmnp": "**LMNP** = Location Meublee Non Professionnelle. Amortissement du bien, revenus locatifs peu imposes pendant 15-20 ans. Ideal pour les residences seniors et etudiantes.",
+  "scpi": "Top SCPI 2026 :\n1. **Transitions Europe** — 8.16%\n2. **Remake Live** — 7.79%\n3. **Iroko Zen** — 7.12%\n4. **Novaxia Neo** — 6.51%\n5. **Corum Origin** — 6.06%\n\nAccessible des 200EUR.",
+  "taux": "**Taux credit immobilier mars 2026** :\n- 7 ans : 2.85%\n- 10 ans : 2.95%\n- 15 ans : 3.10%\n- 20 ans : 3.25%\n- 25 ans : 3.40%",
+  "credit": "**Taux credit immobilier mars 2026** :\n- 15 ans : 3.10%\n- 20 ans : 3.25%\n- 25 ans : 3.40%\n\nSimulez votre capacite d'emprunt.",
+  "rdv": "Prenez rendez-vous avec un conseiller Stratege. Disponibilites en ligne, visio Jitsi gratuite.",
+  "contact": "Contactez-nous : **contact@stratege-immo.fr** ou prenez RDV en ligne.",
+  "prix": "Nos simulations sont **100% gratuites**. Plan Approfondi avec accompagnement personnalise : 29EUR/mois.",
+  "cpi": "Oui, nous sommes detenteurs de la **CPI N 7501 2025 000 000 012** — Carte Transaction. Societe JESPER SAS.",
+  "senioriales": "Nous proposons **38 residences seniors Senioriales** en France. Rendements 5-6%, gestion deleguee, eligible LMNP.",
+  "senior": "Les **residences seniors** offrent un rendement stable de 5-6% avec gestion deleguee. Ideal en LMNP. 38 programmes disponibles.",
+  "denormandie": "Le **Denormandie** concerne l'ancien renove dans 245 villes moyennes. Travaux >= 25% du cout total. Memes taux de reduction que Jeanbrun (14/17.5/21%).",
+  "deficit": "Le **deficit foncier** permet de deduire jusqu'a 10 700EUR/an de travaux de vos revenus fonciers. Ideal pour les biens anciens a renover.",
+  "malraux": "La **loi Malraux** offre une reduction d'impot pour la renovation d'immeubles historiques en secteur sauvegarde.",
+  "effort": "L'**effort reel d'epargne** = Mensualite credit - Loyer percu - Avantage fiscal. Exemple : T2 Toulouse 189k => effort reel **248EUR/mois** seulement.",
+  "stratege": "**Stratege** est un cabinet de gestion de patrimoine (CGP) base a Lyon. Societe JESPER SAS, marque deposee INPI. Specialiste investissement immobilier et SCPI.",
+  "qui etes": "**Stratege** est un cabinet de gestion de patrimoine (CGP). Societe JESPER SAS, CPI 7501 2025 000 000 012. Siege : 51 bis rue de Miromesnil, 75008 Paris.",
+};
+
+function matchLocal(message) {
+  const msg = message.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  for (const [key, response] of Object.entries(FAQ_LOCAL)) {
+    if (msg.includes(key)) return response;
+  }
+  // Greetings
+  if (/^(bonjour|salut|hello|hey|coucou|bonsoir|hi)\b/.test(msg)) {
+    return 'Bonjour ! Je suis votre **conseiller IA Stratege**. Comment puis-je vous aider ?\n\nInvestissement immobilier, SCPI, credit, defiscalisation — je suis la pour repondre a vos questions.';
+  }
+  return null;
+}
+
+// ── Cache helpers ──
+
+async function sha1(str) {
+  const data = new TextEncoder().encode(str);
+  const hash = await crypto.subtle.digest('SHA-1', data);
+  return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
 
 const BIENS = [
   { id:'bien_001', titre:'Appartement T2 — Toulouse Capitole', ville:'Toulouse', surface:42, pieces:2, prix:189000, loyer:750, rendement:5.8, dispositif:'Jeanbrun Social', effort:248 },
@@ -46,8 +91,9 @@ Site : stratege-immo.fr
 
 Tu reponds en francais, de maniere professionnelle mais accessible. Tu tutoies le client.
 Tu es expert en investissement immobilier, SCPI, defiscalisation et credit immobilier.
-Tes reponses sont concises (2-4 paragraphes max) et orientees action.
+Reponds en 2-3 phrases MAX. Sois concis et oriente action.
 Utilise **gras** pour les points importants. N'utilise pas d'emojis.
+Propose toujours un lien : /simulation.html /scpi.html /rdv.html /pret.html /catalogue.html
 
 === CATALOGUE DE BIENS (${BIENS.length} biens disponibles) ===
 ${BIENS.map(b => `- ${b.titre} : ${b.prix.toLocaleString('fr-FR')}EUR, ${b.surface}m2, ${b.pieces}p, loyer ${b.loyer}EUR/mois, rendement ${b.rendement}%, dispositif ${b.dispositif}, effort reel ${b.effort}EUR/mois`).join('\n')}
@@ -171,7 +217,7 @@ async function callBedrock(env, messages) {
 
   const body = JSON.stringify({
     anthropic_version: 'bedrock-2023-05-31',
-    max_tokens: 800,
+    max_tokens: 300,
     system: SYSTEM_PROMPT,
     messages: messages,
   });
@@ -277,35 +323,92 @@ export async function onRequestPost({ request, env }) {
 
     const trimmed = message.trim();
     let result;
+    let source = 'bedrock';
 
-    // Build conversation messages for Bedrock
-    const messages = [];
-    if (history && Array.isArray(history)) {
-      for (const h of history.slice(-6)) {
-        if (h.role === 'user' && h.text) messages.push({ role: 'user', content: h.text });
-        else if (h.role === 'bot' && h.text) messages.push({ role: 'assistant', content: h.text });
+    // ═══ ÉTAPE 1 : Réponse locale (0 coût) ═══
+    const localResponse = matchLocal(trimmed);
+    if (localResponse) {
+      result = { response: localResponse, suggestions: generateSuggestions(localResponse) };
+      source = 'local';
+    }
+
+    // ═══ ÉTAPE 2 : Cache KV (0 coût) ═══
+    if (!result && env.STRATEGE_DB) {
+      try {
+        const msgHash = await sha1(trimmed.toLowerCase().trim());
+        const cached = await env.STRATEGE_DB.get(`chat_cache:${msgHash}`);
+        if (cached) {
+          result = { response: cached, suggestions: generateSuggestions(cached) };
+          source = 'cache';
+        }
+      } catch (e) { /* non-fatal */ }
+    }
+
+    // ═══ ÉTAPE 3 : Rate limit — max 5 appels Bedrock/session ═══
+    if (!result && env.STRATEGE_DB && sessionId) {
+      try {
+        const rlKey = `chat_rl:${sessionId}`;
+        const rlCount = parseInt(await env.STRATEGE_DB.get(rlKey) || '0', 10);
+        if (rlCount >= MAX_BEDROCK_PER_SESSION) {
+          result = {
+            response: 'Vous avez atteint la limite de questions pour cette session. Pour aller plus loin, **prenez rendez-vous** avec un conseiller Stratege — c\'est gratuit et sans engagement.',
+            suggestions: [{ label: 'Prendre RDV', action: 'link', url: 'rdv.html' }, { label: 'Nous contacter', action: 'link', url: 'contact.html' }]
+          };
+          source = 'rate_limit';
+        }
+      } catch (e) { /* non-fatal */ }
+    }
+
+    // ═══ ÉTAPE 4 : Bedrock (coût minimal) ═══
+    if (!result) {
+      // Build conversation — seulement 4 derniers échanges
+      const messages = [];
+      if (history && Array.isArray(history)) {
+        for (const h of history.slice(-4)) {
+          if (h.role === 'user' && h.text) messages.push({ role: 'user', content: h.text });
+          else if (h.role === 'bot' && h.text) messages.push({ role: 'assistant', content: h.text });
+        }
+      }
+      messages.push({ role: 'user', content: trimmed });
+
+      try {
+        const aiResponse = await callBedrock(env, messages);
+        result = { response: aiResponse, suggestions: generateSuggestions(aiResponse) };
+        source = 'bedrock';
+
+        // Cache la réponse Bedrock en KV (7 jours)
+        if (env.STRATEGE_DB) {
+          try {
+            const msgHash = await sha1(trimmed.toLowerCase().trim());
+            await env.STRATEGE_DB.put(`chat_cache:${msgHash}`, aiResponse, { expirationTtl: CACHE_TTL });
+          } catch (e) { /* non-fatal */ }
+        }
+
+        // Incrémenter le compteur rate limit
+        if (env.STRATEGE_DB && sessionId) {
+          try {
+            const rlKey = `chat_rl:${sessionId}`;
+            const rlCount = parseInt(await env.STRATEGE_DB.get(rlKey) || '0', 10);
+            await env.STRATEGE_DB.put(rlKey, String(rlCount + 1), { expirationTtl: 86400 }); // reset 24h
+          } catch (e) { /* non-fatal */ }
+        }
+      } catch (aiErr) {
+        console.error('Bedrock error:', aiErr.message);
+        result = fallbackResponse(trimmed);
+        source = 'fallback';
       }
     }
-    messages.push({ role: 'user', content: trimmed });
 
-    try {
-      const aiResponse = await callBedrock(env, messages);
-      result = { response: aiResponse, suggestions: generateSuggestions(aiResponse) };
-    } catch (aiErr) {
-      console.error('Bedrock error:', aiErr.message);
-      result = fallbackResponse(trimmed);
-    }
-
-    // Store in KV (non-blocking)
+    // Store conversation in KV (non-blocking)
     if (env.STRATEGE_DB && sessionId) {
       try {
         const key = `chat:${sessionId}`;
         const existing = await env.STRATEGE_DB.get(key, 'json');
         const conversation = existing || { messages: [], created_at: new Date().toISOString() };
-        conversation.messages.push({ message: trimmed, response: result.response, timestamp: new Date().toISOString(), ai: true });
+        conversation.messages.push({ message: trimmed, response: result.response, timestamp: new Date().toISOString(), source });
         conversation.updated_at = new Date().toISOString();
         if (conversation.messages.length > 50) conversation.messages = conversation.messages.slice(-50);
-        await env.STRATEGE_DB.put(key, JSON.stringify(conversation), { expirationTtl: 604800 });
+        await env.STRATEGE_DB.put(key, JSON.stringify(conversation), { expirationTtl: CACHE_TTL });
       } catch (kvErr) { /* non-fatal */ }
     }
 
