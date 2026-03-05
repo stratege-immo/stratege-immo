@@ -130,7 +130,7 @@ function renderFooter() {
         'Les performances passées ne préjugent pas des performances futures.' +
       '</div>' +
       '<div class="footer-bottom">' +
-        '&copy; 2025 JESPER SAS — Marque Stratège déposée INPI N° FR5029558. Tous droits réservés.' +
+        '&copy; 2025–2026 JESPER SAS — Marque Stratège déposée INPI N° FR5029558. Tous droits réservés.' +
       '</div>' +
     '</div>';
 }

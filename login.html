@@ -16,55 +16,78 @@
   <nav class="navbar"></nav>
 
   <main class="auth-page">
-    <div class="auth-box">
-      <h1>Connexion</h1>
-      <p class="auth-subtitle">Accédez à votre espace investisseur</p>
+    <!-- Left: Brand panel -->
+    <div class="auth-brand">
+      <h2>Votre espace<br>investisseur</h2>
+      <p>Retrouvez vos simulations, suivez vos investissements et pilotez votre patrimoine immobilier en toute sérénité.</p>
+      <div class="auth-brand-stats">
+        <div class="auth-brand-stat">
+          <div class="value">5.8%</div>
+          <div class="label">Rendement moyen</div>
+        </div>
+        <div class="auth-brand-stat">
+          <div class="value">248€</div>
+          <div class="label">Effort mensuel</div>
+        </div>
+        <div class="auth-brand-stat">
+          <div class="value">97%</div>
+          <div class="label">Satisfaction</div>
+        </div>
+      </div>
+    </div>
 
-      <div class="auth-error" id="login-error" style="display:none"></div>
+    <!-- Right: Forms -->
+    <div class="auth-form-side">
+      <div class="auth-box">
+        <h1>Connexion</h1>
+        <p class="auth-subtitle">Accédez à votre espace investisseur</p>
 
-      <!-- Login form -->
-      <form id="login-form" onsubmit="return handleLogin(event)" style="display:block">
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input type="email" id="email" required placeholder="vous@exemple.fr" autocomplete="email" />
-        </div>
-        <div class="form-group">
-          <label for="password">Mot de passe</label>
-          <input type="password" id="password" required placeholder="Votre mot de passe" autocomplete="current-password" />
-        </div>
-        <button type="submit" class="btn-primary btn-full" id="login-btn">Se connecter</button>
-        <div class="auth-links">
-          <a href="#" onclick="showReset(event)">Mot de passe oublié ?</a>
-          <span>Pas encore de compte ? <a href="register.html">Créer un compte</a></span>
-        </div>
-      </form>
+        <div class="auth-error" id="login-error" style="display:none"></div>
 
-      <!-- Reset request form -->
-      <form id="reset-form" onsubmit="return handleResetRequest(event)" style="display:none">
-        <p class="auth-subtitle">Entrez votre email pour recevoir un lien de réinitialisation.</p>
-        <div class="form-group">
-          <label for="reset-email">Email</label>
-          <input type="email" id="reset-email" required placeholder="vous@exemple.fr" autocomplete="email" />
-        </div>
-        <button type="submit" class="btn-primary btn-full" id="reset-btn">Envoyer le lien</button>
-        <div class="auth-links">
-          <a href="#" onclick="showLogin(event)">Retour à la connexion</a>
-        </div>
-      </form>
+        <!-- Login form -->
+        <form id="login-form" onsubmit="return handleLogin(event)" style="display:block">
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" required placeholder="vous@exemple.fr" autocomplete="email" />
+          </div>
+          <div class="form-group">
+            <label for="password">Mot de passe</label>
+            <input type="password" id="password" required placeholder="Votre mot de passe" autocomplete="current-password" />
+          </div>
+          <button type="submit" class="btn-primary" style="width:100%;justify-content:center" id="login-btn">Se connecter</button>
+          <div class="auth-links">
+            <a href="#" onclick="showReset(event)">Mot de passe oublié ?</a>
+            <span>Pas encore de compte ? <a href="register.html">Créer un compte</a></span>
+          </div>
+        </form>
 
-      <!-- Reset password form (shown via ?reset=TOKEN) -->
-      <form id="new-password-form" onsubmit="return handleReset(event)" style="display:none">
-        <p class="auth-subtitle">Choisissez votre nouveau mot de passe.</p>
-        <div class="form-group">
-          <label for="new-password">Nouveau mot de passe</label>
-          <input type="password" id="new-password" required minlength="8" placeholder="Min. 8 caractères" autocomplete="new-password" />
-        </div>
-        <div class="form-group">
-          <label for="confirm-password">Confirmer</label>
-          <input type="password" id="confirm-password" required minlength="8" placeholder="Confirmez le mot de passe" autocomplete="new-password" />
-        </div>
-        <button type="submit" class="btn-primary btn-full" id="new-pw-btn">Réinitialiser</button>
-      </form>
+        <!-- Reset request form -->
+        <form id="reset-form" onsubmit="return handleResetRequest(event)" style="display:none">
+          <p class="auth-subtitle">Entrez votre email pour recevoir un lien de réinitialisation.</p>
+          <div class="form-group">
+            <label for="reset-email">Email</label>
+            <input type="email" id="reset-email" required placeholder="vous@exemple.fr" autocomplete="email" />
+          </div>
+          <button type="submit" class="btn-primary" style="width:100%;justify-content:center" id="reset-btn">Envoyer le lien</button>
+          <div class="auth-links">
+            <a href="#" onclick="showLogin(event)">Retour à la connexion</a>
+          </div>
+        </form>
+
+        <!-- Reset password form (shown via ?reset=TOKEN) -->
+        <form id="new-password-form" onsubmit="return handleReset(event)" style="display:none">
+          <p class="auth-subtitle">Choisissez votre nouveau mot de passe.</p>
+          <div class="form-group">
+            <label for="new-password">Nouveau mot de passe</label>
+            <input type="password" id="new-password" required minlength="8" placeholder="Min. 8 caractères" autocomplete="new-password" />
+          </div>
+          <div class="form-group">
+            <label for="confirm-password">Confirmer</label>
+            <input type="password" id="confirm-password" required minlength="8" placeholder="Confirmez le mot de passe" autocomplete="new-password" />
+          </div>
+          <button type="submit" class="btn-primary" style="width:100%;justify-content:center" id="new-pw-btn">Réinitialiser</button>
+        </form>
+      </div>
     </div>
   </main>
 

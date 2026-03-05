@@ -1,51 +1,49 @@
 /* ═══════════════════════════════════════════════════════════
    STRATÈGE — Design System CGP Premium
+   Fidèle au PDF Stratège + staging reference
    ═══════════════════════════════════════════════════════════ */
 
 /* ─── DESIGN TOKENS ─────────────────────────────────────── */
 :root {
-  /* Background */
-  --bg: #F8F9FA;
-  --bg-dark: #1B2A4A;
-
-  /* Surface & Elevation */
-  --surface-0: #FFFFFF;
-  --surface-1: #FFFFFF;
-  --surface-2: #F1F3F5;
+  /* === COULEURS (fidèles au PDF Stratège) === */
 
   /* Primary (teal) */
-  --primary-50:  #E8FAF8;
-  --primary-100: #C2F2EC;
-  --primary-200: #95E8DF;
-  --primary-300: #6EDDD2;
-  --primary-400: #4ECDC4;
-  --primary-500: #3DBDB5;
-  --primary-600: #2DA39C;
-  --primary-700: #1E8A83;
-  --primary-800: #14706A;
-  --primary-900: #0A5751;
+  --primary-0:    #F0FFFE;
+  --primary-50:   #EBF8F5;
+  --primary-100:  #C8EDE8;
+  --primary-200:  #9EDCD5;
+  --primary-300:  #4ECDC4;  /* ← COULEUR PRINCIPALE */
+  --primary-400:  #35B8AF;
+  --primary-500:  #26A09A;
+  --primary-600:  #1A857F;
+  --primary-700:  #136B66;
+  --primary-800:  #0D524E;
+  --primary-900:  #083A37;
+  --primary-1000: #042422;
 
-  /* Neutral (navy-based) */
-  --neutral-0:   #F8F9FA;
-  --neutral-50:  #EDF0F5;
-  --neutral-100: #D1D9E4;
-  --neutral-200: #B0BDD0;
-  --neutral-300: #8A9BB3;
-  --neutral-400: #6B7F99;
-  --neutral-500: #536480;
-  --neutral-600: #3F4E66;
-  --neutral-700: #2D3A52;
-  --neutral-800: #1B2A4A;
-  --neutral-900: #111D36;
-  --neutral-1000:#0A1222;
+  /* Neutral (gris-navy) */
+  --neutral-0:    #F8F9FA;
+  --neutral-50:   #F1F3F5;
+  --neutral-100:  #E9ECEF;
+  --neutral-200:  #DEE2E6;
+  --neutral-300:  #CED4DA;
+  --neutral-400:  #ADB5BD;
+  --neutral-500:  #868E96;
+  --neutral-600:  #495057;
+  --neutral-700:  #343A40;
+  --neutral-800:  #1B2A4A;  /* ← NAVY PRINCIPAL */
+  --neutral-900:  #0F1B2D;
+  --neutral-1000: #0A1222;
 
-  /* Secondary (deep teal) */
+  /* Secondary (bleu-gris profond) */
   --secondary-50:  #E6F0F5;
   --secondary-100: #B8D4E2;
-  --secondary-500: #4A6B82;
-  --secondary-600: #3D5A72;
-  --secondary-700: #2F4A60;
-  --secondary-800: #233A4E;
+  --secondary-500: #4D6E82;
+  --secondary-600: #3D5A70;
+  --secondary-700: #2E4558;
+  --secondary-800: #1F3040;
+  --secondary-900: #152330;
+  --secondary-1000:#0A1520;
 
   /* Gold accent */
   --gold-50:  #FFFBEB;
@@ -57,48 +55,79 @@
   --gold-600: #D4AC0D;
   --gold-700: #A16207;
 
-  /* Success (green) */
+  /* Success */
   --success-50:  #ECFDF5;
   --success-100: #D1FAE5;
   --success-300: #6EE7B7;
-  --success-500: #10B981;
+  --success-500: #3DB87A;
   --success-600: #059669;
   --success-700: #047857;
 
-  /* Warning (amber) */
+  /* Warning */
   --warning-50:  #FFFBEB;
   --warning-100: #FEF3C7;
   --warning-300: #FCD34D;
-  --warning-500: #F59E0B;
+  --warning-500: #F5A623;
   --warning-600: #D97706;
   --warning-700: #B45309;
 
-  /* Error (red) */
+  /* Error */
   --error-50:  #FEF2F2;
   --error-100: #FEE2E2;
   --error-300: #FCA5A5;
-  --error-500: #EF4444;
+  --error-500: #E8445A;
   --error-600: #DC2626;
   --error-700: #B91C1C;
 
-  /* Typography */
+  /* === ALIASES SÉMANTIQUES === */
+  --color-navy:   var(--neutral-800);
+  --color-teal:   var(--primary-300);
+  --color-bg:     var(--neutral-0);
+  --color-surface: #FFFFFF;
+  --color-text:   var(--neutral-800);
+  --color-text-secondary: var(--neutral-500);
+  --color-border: var(--neutral-200);
+
+  /* Backward compat */
+  --bg:        var(--color-bg);
+  --bg-dark:   var(--neutral-800);
+  --surface-0: var(--color-surface);
+  --surface-1: var(--color-surface);
+  --surface-2: var(--neutral-50);
+
+  /* === TYPOGRAPHIE === */
   --font-display: 'Playfair Display', Georgia, serif;
   --font-body:    'Inter', system-ui, sans-serif;
   --font-mono:    'JetBrains Mono', 'Fira Code', monospace;
 
-  /* Radius */
+  /* === ESPACEMENTS === */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+
+  /* === BORDER RADIUS === */
   --radius-xs: 4px;
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 24px;
+  --radius-pill: 50px;
   --radius-full: 999px;
 
-  /* Shadows */
-  --shadow-sm:    0 1px 3px rgba(27,42,74,0.06);
-  --shadow-md:    0 4px 12px rgba(27,42,74,0.08);
-  --shadow-lg:    0 8px 24px rgba(27,42,74,0.1);
+  /* === SHADOWS === */
+  --shadow-sm:    0 1px 3px rgba(27,42,74,0.06), 0 1px 2px rgba(27,42,74,0.04);
+  --shadow-md:    0 4px 16px rgba(27,42,74,0.08), 0 2px 6px rgba(27,42,74,0.05);
+  --shadow-lg:    0 12px 40px rgba(27,42,74,0.12), 0 4px 12px rgba(27,42,74,0.06);
   --shadow-xl:    0 16px 48px rgba(27,42,74,0.12);
+  --shadow-teal:  0 8px 32px rgba(78,205,196,0.30);
   --shadow-glass: 0 8px 32px rgba(27,42,74,0.08);
 }
 
@@ -218,44 +247,43 @@ h6 { font-size: 20px; line-height: 28px; }
   transition: 0.3s;
 }
 
-/* ─── BUTTONS (from PDF: pill shape, 3 variants) ────────── */
-/* Filled Primary */
-.btn-primary {
-  background: var(--primary-400);
-  color: var(--neutral-800);
-  padding: 12px 24px;
-  border-radius: var(--radius-full);
+/* ─── BUTTONS (PDF page 8: pill shape, 3 variants × 3 tailles) ── */
+.btn-primary, .btn-secondary, .btn-ghost, .btn-primary-dark {
+  border-radius: var(--radius-pill);
   font-weight: 600;
-  font-size: 15px;
-  transition: all 0.2s;
+  font-size: 14px;
+  transition: all 0.2s ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
+  padding: 12px 24px;
+  line-height: 1;
+  border: none;
+}
+
+/* Filled Primary */
+.btn-primary {
+  background: var(--primary-300);
+  color: white;
+  box-shadow: var(--shadow-teal);
 }
 .btn-primary:hover {
-  background: var(--primary-500);
-  box-shadow: 0 4px 16px rgba(78,205,196,0.3);
+  background: var(--primary-400);
+  box-shadow: 0 4px 20px rgba(78,205,196,0.4);
   transform: translateY(-1px);
 }
-.btn-primary:active { transform: translateY(0); }
+.btn-primary:active { transform: translateY(0); box-shadow: var(--shadow-teal); }
+.btn-primary:disabled { background: var(--primary-100); color: var(--primary-300); box-shadow: none; cursor: not-allowed; }
 
 /* Outlined / Secondary */
 .btn-secondary {
-  background: var(--surface-0);
+  background: var(--color-surface);
   color: var(--neutral-800);
-  padding: 12px 24px;
-  border-radius: var(--radius-full);
-  font-weight: 600;
-  font-size: 15px;
-  border: 1.5px solid var(--neutral-100);
-  transition: all 0.2s;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
+  border: 1.5px solid var(--color-border);
 }
 .btn-secondary:hover {
-  border-color: var(--primary-400);
+  border-color: var(--primary-300);
   color: var(--primary-600);
 }
 
@@ -263,53 +291,51 @@ h6 { font-size: 20px; line-height: 28px; }
 .btn-ghost {
   background: transparent;
   color: var(--neutral-600);
-  padding: 12px 24px;
-  border-radius: var(--radius-full);
-  font-weight: 500;
-  font-size: 15px;
-  border: 1.5px solid var(--neutral-100);
-  transition: all 0.2s;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
+  border: 1.5px solid var(--color-border);
 }
 .btn-ghost:hover {
-  border-color: var(--primary-400);
+  border-color: var(--primary-300);
   color: var(--primary-600);
   background: var(--primary-50);
 }
 
-.btn-small { padding: 8px 18px; font-size: 13px; }
-
 /* Dark variant (for dark sections) */
 .btn-primary-dark {
-  background: var(--primary-400);
+  background: var(--primary-300);
   color: var(--neutral-800);
-  padding: 12px 24px;
-  border-radius: var(--radius-full);
-  font-weight: 600;
-  font-size: 15px;
-  transition: all 0.2s;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
 }
 
-/* ─── BADGES (from PDF: pill with icon slots) ────────────── */
+/* Sizes */
+.btn-small { padding: 8px 16px; font-size: 13px; }
+.btn-sm    { padding: 8px 16px; font-size: 13px; }
+.btn-lg    { padding: 16px 32px; font-size: 16px; }
+
+/* Icon slots */
+.btn .btn-icon-left  { margin-right: 4px; }
+.btn .btn-icon-right { margin-left: 4px; }
+
+/* Full width */
+.btn-full { width: 100%; justify-content: center; }
+
+/* ─── BADGES (PDF page 10: pill with icon slots) ────────────── */
 .badge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   padding: 4px 12px;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-pill);
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
   line-height: 1.4;
 }
 .badge-primary {
   background: var(--primary-50);
   color: var(--primary-700);
   border: 1px solid var(--primary-100);
+}
+.badge-primary-solid {
+  background: var(--primary-300);
+  color: white;
 }
 .badge-secondary {
   background: var(--neutral-50);
@@ -330,6 +356,170 @@ h6 { font-size: 20px; line-height: 28px; }
   background: var(--error-50);
   color: var(--error-700);
   border: 1px solid var(--error-100);
+}
+
+/* ─── AVATARS (PDF page 11: circle, 3 tailles, status) ──────── */
+.avatar {
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.avatar-sm { width: 32px; height: 32px; font-size: 12px; }
+.avatar-md { width: 40px; height: 40px; font-size: 14px; }
+.avatar-lg { width: 56px; height: 56px; font-size: 18px; }
+.avatar-initials { background: var(--primary-50); color: var(--primary-600); }
+.avatar-navy     { background: var(--neutral-800); color: white; }
+.avatar-wrapper  { position: relative; display: inline-flex; }
+.avatar-status {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid white;
+  background: var(--success-500);
+}
+
+/* ─── INPUTS (PDF page 12: box style, focus ring) ────────────── */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.input-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--neutral-800);
+}
+.input-field {
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  font-size: 14px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+.input-field:focus-within {
+  border-color: var(--primary-300);
+  box-shadow: 0 0 0 3px rgba(78,205,196,0.15);
+  outline: none;
+}
+.input-field.error { border-color: var(--error-500); }
+.input-field.error:focus-within { box-shadow: 0 0 0 3px rgba(232,68,90,0.15); }
+.input-helper { font-size: 12px; color: var(--neutral-500); }
+.input-helper.error { color: var(--error-500); }
+.input-addon { color: var(--neutral-500); font-size: 13px; flex-shrink: 0; }
+
+/* ─── PROGRESS STEPS (PDF page 17: vertical & horizontal) ───── */
+.steps-horizontal {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+.steps-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.step-indicator {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 600;
+  border: 2px solid var(--color-border);
+  color: var(--neutral-500);
+  background: var(--color-surface);
+  transition: all 0.3s ease;
+}
+.step.active .step-indicator {
+  border-color: var(--primary-300);
+  color: var(--primary-300);
+}
+.step.done .step-indicator {
+  background: var(--primary-300);
+  border-color: var(--primary-300);
+  color: white;
+}
+.step-content { flex: 1; }
+.step-title { font-size: 14px; font-weight: 600; color: var(--neutral-800); }
+.step-desc  { font-size: 13px; color: var(--neutral-500); }
+.step-connector {
+  width: 2px;
+  height: 32px;
+  background: var(--color-border);
+  margin-left: 15px;
+  transition: background 0.3s;
+}
+.step.done + .step-connector,
+.step.done ~ .step-connector { background: var(--primary-300); }
+.steps-horizontal .step-connector {
+  width: 40px;
+  height: 2px;
+  margin: 0;
+}
+
+/* ─── ALERTS (PDF page 15: inline, 4 types) ──────────────────── */
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  line-height: 1.5;
+  position: relative;
+}
+.alert-success { background: rgba(61,184,122,0.08); color: #1A7A4A; }
+.alert-warning { background: rgba(245,166,35,0.08); color: #9A6800; }
+.alert-error   { background: rgba(232,68,90,0.08);  color: #B32240; }
+.alert-info    { background: var(--primary-50);      color: var(--primary-600); }
+.alert-title   { font-weight: 600; }
+.alert-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  opacity: 0.5;
+  cursor: pointer;
+  background: none;
+  font-size: 16px;
+}
+.alert-close:hover { opacity: 1; }
+
+/* ─── CARDS (PDF: surface, hover lift, featured) ─────────────── */
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-8);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+.card-featured {
+  border-color: var(--primary-200);
+  box-shadow: var(--shadow-teal);
 }
 
 /* ─── HERO ──────────────────────────────────────────────── */
@@ -765,18 +955,18 @@ h6 { font-size: 20px; line-height: 28px; }
 .form-group select {
   width: 100%;
   padding: 12px 16px;
-  border: 1.5px solid var(--neutral-100);
-  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
   font-size: 15px;
   color: var(--neutral-800);
-  background: var(--surface-0);
+  background: var(--color-surface);
   transition: all 0.2s;
   outline: none;
 }
 .form-group input:focus,
 .form-group textarea:focus,
 .form-group select:focus {
-  border-color: var(--primary-400);
+  border-color: var(--primary-300);
   box-shadow: 0 0 0 3px rgba(78,205,196,0.15);
 }
 .form-group input::placeholder,
@@ -1037,33 +1227,6 @@ h6 { font-size: 20px; line-height: 28px; }
   color: var(--neutral-500);
   font-size: 15px;
   margin-bottom: 28px;
-}
-
-/* ─── ALERTS (from PDF page 15: inline alert) ────────────── */
-.alert {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 16px 20px;
-  border-radius: var(--radius-sm);
-  font-size: 15px;
-  line-height: 1.6;
-  border: 1px solid;
-}
-.alert-success {
-  background: var(--success-50);
-  border-color: var(--success-100);
-  color: var(--success-700);
-}
-.alert-warning {
-  background: var(--warning-50);
-  border-color: var(--warning-100);
-  color: var(--warning-700);
-}
-.alert-error {
-  background: var(--error-50);
-  border-color: var(--error-100);
-  color: var(--error-700);
 }
 
 /* ─── RGPD / WHY ────────────────────────────────────────── */
@@ -1597,20 +1760,89 @@ h6 { font-size: 20px; line-height: 28px; }
 }
 
 /* ─── AUTH PAGES ───────────────────────────────────────── */
+/* Split-screen auth layout */
 .auth-page {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.auth-brand {
+  background: var(--neutral-800);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px;
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+.auth-brand::before {
+  content: '';
+  position: absolute;
+  top: -80px;
+  right: -40px;
+  width: 400px;
+  height: 400px;
+  background: var(--primary-300);
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  opacity: 0.1;
+}
+.auth-brand h2 {
+  color: white;
+  font-size: 32px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+.auth-brand p {
+  color: rgba(255,255,255,0.7);
+  font-size: 16px;
+  line-height: 1.6;
+  text-align: center;
+  max-width: 360px;
+}
+.auth-brand-stats {
+  display: flex;
+  gap: 32px;
+  margin-top: 40px;
+}
+.auth-brand-stat {
+  text-align: center;
+}
+.auth-brand-stat .value {
+  font-family: var(--font-mono);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--primary-300);
+}
+.auth-brand-stat .label {
+  font-size: 13px;
+  color: rgba(255,255,255,0.5);
+  margin-top: 4px;
+}
+.auth-form-side {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+.auth-box {
+  width: 100%;
+  max-width: 440px;
+  padding: 48px 40px;
+}
+/* Fallback for simple centered auth (404, etc.) */
+.auth-page-simple {
   padding: 120px 0 80px;
   min-height: 100vh;
   display: flex;
   align-items: flex-start;
   justify-content: center;
 }
-.auth-box {
-  width: 100%;
-  max-width: 440px;
-  background: var(--surface-0);
+.auth-page-simple .auth-box {
+  background: var(--color-surface);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-lg);
-  padding: 48px 40px;
   border: 1px solid var(--neutral-50);
 }
 .auth-box h2 {
@@ -1642,6 +1874,17 @@ h6 { font-size: 20px; line-height: 28px; }
   display: none;
 }
 .auth-error.visible { display: block; }
+.auth-links {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 14px;
+  color: var(--neutral-500);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.auth-links a { color: var(--primary-500); font-weight: 600; }
+.auth-links a:hover { text-decoration: underline; }
 
 /* ─── DASHBOARD ────────────────────────────────────────── */
 .dash-header {
@@ -1784,7 +2027,11 @@ h6 { font-size: 20px; line-height: 28px; }
 .checkbox-group a { color: var(--primary-500); }
 
 @media (max-width: 768px) {
+  .auth-page { grid-template-columns: 1fr; }
+  .auth-brand { display: none; }
+  .auth-form-side { padding: 100px 20px 40px; align-items: flex-start; }
   .auth-box { padding: 32px 20px; margin: 0 16px; }
+  .auth-page-simple .auth-box { padding: 32px 20px; margin: 0 16px; }
   .legal-content { padding: 32px 20px; margin: 0 16px; }
   .dash-table-wrapper { overflow-x: auto; }
 }
