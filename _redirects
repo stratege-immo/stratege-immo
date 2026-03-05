@@ -1,14 +1,5 @@
 # Cloudflare Pages redirects
-# Clean URLs → HTML files
+# CF Pages automatically serves .html files without extension
+# API routes are handled by Functions
 
-/blog          /blog.html         200
-/catalogue     /catalogue.html    200
-/a-propos      /a-propos.html     200
-/contact       /contact.html      200
-/scpi          /scpi.html         200
-/pret          /pret.html         200
-/login         /login.html        200
-/register      /register.html     200
-/dashboard     /dashboard.html    200
-
-# API routes are handled by Functions, not this file
+# 404 fallback handled by 404.html automatically
