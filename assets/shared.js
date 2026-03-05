@@ -75,7 +75,7 @@ function renderNavbar(activePage) {
       '</ul>' +
       authHTML +
       '<button class="nav-hamburger" onclick="toggleMenu()" aria-label="Menu">' +
-        '<span></span><span></span><span></span>' +
+        '<i style="display:none">Menu</i><span></span><span></span><span></span>' +
       '</button>' +
     '</div>';
 }
