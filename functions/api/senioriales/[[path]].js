@@ -1,11 +1,11 @@
 // ============================================================
 // SENIORIALES SCRAPER — Cloudflare Workers
-// Recupere les programmes et lots via le site public
+// Site: www.senioriales.com (Drupal, derriere Cloudflare)
 // Anti-ban : delais humains, headers realistes, cache KV 6h
 // Route: /api/senioriales/*
 // ============================================================
 
-const SENIORIALES_BASE = "https://www.les-senioriales.com";
+const SENIORIALES_BASE = "https://www.senioriales.com";
 const CACHE_TTL = 21600; // 6h
 const DELAY_MIN = 2000;
 const DELAY_MAX = 4000;
@@ -88,114 +88,113 @@ function extractMeta(html) {
   return meta;
 }
 
-function extractBetween(html, start, end) {
-  const idx = html.indexOf(start);
-  if (idx === -1) return null;
-  const from = idx + start.length;
-  const to = html.indexOf(end, from);
-  if (to === -1) return null;
-  return html.slice(from, to).trim()
-    .replace(/<[^>]+>/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+function stripHtml(str) {
+  return (str || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
 }
 
-function parseProgrammesList(html) {
+// Parser adapte a la structure reelle de senioriales.com
+// Structure: <div class="search-card"> contenant h3, list-picto, img, description
+function parseSearchCards(html) {
   const programmes = [];
+  const cardRegex = /<div class="search-card">([\s\S]*?)<\/div>\s*<\/div>/gi;
+  let cardMatch;
 
-  const cardPatterns = [
-    /class="[^"]*(?:residence|programme|bien|property)[^"]*"[^>]*>([\s\S]{100,2000}?)<\/(?:div|article|section)/gi,
-    /class="[^"]*(?:card|listing|item)[^"]*"[^>]*>([\s\S]{100,1500}?)<\/(?:div|article)/gi,
-  ];
-
-  for (const pattern of cardPatterns) {
-    let match;
-    while ((match = pattern.exec(html)) !== null) {
-      const prog = parseOneProgramme(match[1]);
-      if (prog && prog.titre) programmes.push(prog);
-    }
-    if (programmes.length > 0) break;
+  while ((cardMatch = cardRegex.exec(html)) !== null) {
+    const bloc = cardMatch[1];
+    const prog = parseOneCard(bloc);
+    if (prog) programmes.push(prog);
   }
 
-  const dataPattern = /data-(?:programme|residence|property)=['"]({[^'"]+})['"]/gi;
-  let match;
-  while ((match = dataPattern.exec(html)) !== null) {
-    try {
-      programmes.push(mapRawToProgramme(JSON.parse(match[1].replace(/&quot;/g, '"'))));
-    } catch (e) {}
-  }
-
+  // Dedupliquer
   const seen = new Set();
   return programmes.filter(p => {
-    if (!p.titre || seen.has(p.titre)) return false;
+    if (seen.has(p.titre)) return false;
     seen.add(p.titre);
     return true;
   });
 }
 
-function parseOneProgramme(bloc) {
-  let titre = null;
-  for (const tag of ["h1", "h2", "h3", "h4"]) {
-    const t = extractBetween(bloc, `<${tag}`, `</${tag}>`);
-    if (t && t.length > 3 && t.length < 100) { titre = t.replace(/^[^>]+>/, ''); break; }
-  }
+function parseOneCard(bloc) {
+  // Titre + lien depuis <h3><a href="...">Nom</a></h3>
+  const titleMatch = bloc.match(/<h3><a href="([^"]+)">([^<]+)<\/a><\/h3>/);
+  if (!titleMatch) return null;
 
-  const prixMatch = bloc.match(/(\d[\d\s]*)\s*\u20ac/) || bloc.match(/price.*?(\d[\d\s]+)/i);
+  const url_path = titleMatch[1];
+  const titre = titleMatch[2].trim();
+
+  // Sous-titre (localisation) depuis <p><strong>...</strong></p>
+  const subtitleMatch = bloc.match(/<p><strong>\s*([\s\S]*?)\s*<\/strong><\/p>/);
+  const localisation = subtitleMatch ? stripHtml(subtitleMatch[1]) : "";
+
+  // Departement depuis <div class="region" title="...">
+  const deptMatch = bloc.match(/<div class="region" title="([^"]+)">/);
+  const departement = deptMatch ? deptMatch[1] : "";
+
+  // Code postal depuis <span class="postal-code">
+  const cpMatch = bloc.match(/<span class="postal-code">([^<]+)<\/span>/);
+  const code_postal = cpMatch ? cpMatch[1].trim() : "";
+
+  // Type depuis <li class="types">
+  const typesMatch = bloc.match(/<li class="types">([^<]+)<\/li>/);
+  const types = typesMatch ? typesMatch[1].trim() : "";
+
+  // Livraison depuis <li class="delivery">
+  const deliveryMatch = bloc.match(/<li class="delivery">[\s\S]*?<strong>([^<]+)<\/strong>/);
+  const livraison = deliveryMatch ? deliveryMatch[1].trim() : "";
+
+  // Prix depuis <li class="price">
+  const prixMatch = bloc.match(/<li class="price">[^<]*?(\d[\d\s]*)\s*\u20ac/);
   const prix = prixMatch ? parseInt(prixMatch[1].replace(/\s/g, "")) : null;
 
-  const villeMatch = bloc.match(/(?:a|Ville|Commune|Location)[:\s]*([A-Z\u00c0-\u00dc][a-z\u00e0-\u00fc\s-]{2,30})/);
-  const ville = villeMatch ? villeMatch[1].trim() : null;
+  // Image
+  const imgMatch = bloc.match(/<img src="([^"]+)"/);
+  const image = imgMatch ? imgMatch[1] : "";
 
-  const surfMatch = bloc.match(/(\d+(?:[.,]\d+)?)\s*m\u00b2/);
-  const surface = surfMatch ? parseFloat(surfMatch[1].replace(",", ".")) : null;
+  // Description
+  const descMatch = bloc.match(/<\/figure>\s*<p>\s*([\s\S]*?)\s*<\/p>/);
+  const description = descMatch ? stripHtml(descMatch[1]) : "";
 
-  const linkMatch = bloc.match(/href="([^"]+(?:residence|programme|bien|lot)[^"]+)"/i);
-  const url = linkMatch ? linkMatch[1] : null;
+  // Determiner si c'est achat ou investissement depuis l'URL
+  const isInvest = url_path.startsWith("/investir");
 
-  const imgMatch = bloc.match(/src="([^"]+\.(?:jpg|jpeg|png|webp)[^"]*)"/i);
-  const image = imgMatch ? imgMatch[1] : null;
+  // Extraire la ville du titre ("Senioriales de X" ou "Senioriales du X")
+  const villeFromTitle = titre.match(/Senioriales (?:de |du |d'|des )(.+)/i);
+  const ville = villeFromTitle ? villeFromTitle[1].trim() : localisation.split(",")[0] || "";
 
-  if (!titre && !prix && !ville) return null;
+  // Determiner la region depuis l'URL
+  const regionMatch = url_path.match(/\/(acheter|investir)\/([^/]+)\//);
+  const region = regionMatch ? regionMatch[2].replace(/-/g, " ") : "";
 
   return {
-    id: `SEN-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+    id: `SEN-${url_path.replace(/[^a-z0-9]/gi, "-").replace(/-+/g, "-")}`,
     source: "senioriales",
-    titre: titre || "Residence Senioriales",
-    ville: ville || "",
-    prix_min: prix, prix_max: prix, surface,
-    url_detail: url ? (url.startsWith("http") ? url : SENIORIALES_BASE + url) : null,
-    image: image ? (image.startsWith("http") ? image : SENIORIALES_BASE + image) : null,
-    dispositif: "residence-senior",
+    titre,
+    ville,
+    localisation,
+    departement,
+    code_postal,
+    region,
+    types,
+    livraison,
+    prix_min: prix,
+    description,
+    url_detail: SENIORIALES_BASE + url_path,
+    image: image.startsWith("http") ? image : (image ? SENIORIALES_BASE + image : ""),
+    dispositif: isInvest ? "investissement-senior" : "residence-senior",
     promoteur: "Senioriales",
     badge: "Partenaire",
     type: "residence senior",
+    categorie: isInvest ? "investir" : "acheter",
+    lots: [],
+    lots_disponibles: 0,
   };
 }
 
-function mapRawToProgramme(raw) {
-  return {
-    id: `SEN-${raw.id || raw.programme_id || Date.now()}`,
-    source: "senioriales",
-    titre: raw.nom || raw.name || raw.titre || raw.title || "",
-    ville: raw.ville || raw.city || raw.commune || "",
-    code_postal: raw.cp || raw.code_postal || raw.zip || "",
-    departement: raw.departement || raw.dept || "",
-    prix_min: parseInt(raw.prix_min || raw.price_min || raw.prix || 0),
-    prix_max: parseInt(raw.prix_max || raw.price_max || raw.prix || 0),
-    surface: parseFloat(raw.surface || raw.superficie || 0),
-    lots_disponibles: parseInt(raw.nb_lots || raw.lots_count || 0),
-    dispositif: "residence-senior",
-    promoteur: "Senioriales",
-    image: raw.photo || raw.image || raw.img || "",
-    url_detail: raw.url || raw.lien || "",
-    badge: "Partenaire",
-    type: "residence senior",
-  };
-}
-
+// Parser page detail d'un programme
 function parseProgrammeDetail(html, programmeId) {
   const lots = [];
 
+  // JSON-LD
   const jsonLd = extractJsonLd(html);
   for (const ld of jsonLd) {
     if (ld["@type"] === "Offer" || ld["@type"] === "Product") {
@@ -214,23 +213,45 @@ function parseProgrammeDetail(html, programmeId) {
 
   if (lots.length > 0) return lots;
 
-  const tableMatch = html.match(/<table[^>]*class="[^"]*lot[^"]*"[^>]*>([\s\S]*?)<\/table>/i) ||
-                     html.match(/<(?:div|ul)[^>]*class="[^"]*(?:lot|listing|disponib)[^"]*"[^>]*>([\s\S]*?)<\/(?:div|ul)>/i);
+  // Chercher les informations de lots dans le HTML
+  // Structure Senioriales: souvent des blocs avec prix/surface/type
+  const lotBlocks = html.match(/<(?:div|li)[^>]*class="[^"]*(?:lot|typology|offer|product)[^"]*"[^>]*>([\s\S]*?)<\/(?:div|li)>/gi) || [];
+  for (const lotBlock of lotBlocks) {
+    const prixMatch = lotBlock.match(/(\d[\d\s]*)\s*\u20ac/);
+    const surfMatch = lotBlock.match(/(\d+(?:[.,]\d+)?)\s*m\u00b2/);
+    const typeMatch = lotBlock.match(/T[1-5]/i);
+    if (prixMatch || surfMatch) {
+      lots.push({
+        id: `SEN-LOT-${programmeId}-${lots.length + 1}`,
+        programme_id: programmeId,
+        source: "senioriales",
+        reference: `Lot ${lots.length + 1}`,
+        type: typeMatch ? typeMatch[0].toUpperCase() : "",
+        surface: surfMatch ? parseFloat(surfMatch[1].replace(",", ".")) : 0,
+        prix: prixMatch ? parseInt(prixMatch[1].replace(/\s/g, "")) : 0,
+        disponible: !lotBlock.toLowerCase().includes("vendu") && !lotBlock.toLowerCase().includes("reserve"),
+      });
+    }
+  }
 
-  if (tableMatch) {
+  // Table de lots
+  const tableMatch = html.match(/<table[^>]*>([\s\S]*?)<\/table>/i);
+  if (tableMatch && lots.length === 0) {
     const rows = tableMatch[1].match(/<tr[^>]*>([\s\S]*?)<\/tr>/gi) || [];
     for (const row of rows.slice(1)) {
       const cells = row.match(/<td[^>]*>([\s\S]*?)<\/td>/gi) || [];
-      const texts = cells.map(c => c.replace(/<[^>]+>/g, "").trim());
+      const texts = cells.map(c => stripHtml(c));
       if (texts.length >= 2) {
+        const prixCell = texts.find(t => t.match(/\d[\d\s]*\s*\u20ac/));
+        const surfCell = texts.find(t => t.match(/\d+\s*m\u00b2/));
         lots.push({
           id: `SEN-LOT-${programmeId}-${lots.length + 1}`,
           programme_id: programmeId,
           source: "senioriales",
           reference: texts[0] || `Lot ${lots.length + 1}`,
-          type: texts[1] || "",
-          surface: parseFloat((texts.find(t => t.match(/\d+\s*m\u00b2/)) || "").replace(/[^\d.]/g, "")) || 0,
-          prix: parseInt((texts.find(t => t.match(/\d[\d\s]*\s*\u20ac/)) || "").replace(/[^\d]/g, "")) || 0,
+          type: texts.find(t => t.match(/T[1-5]/i)) || "",
+          surface: surfCell ? parseFloat(surfCell.replace(/[^\d.,]/g, "").replace(",", ".")) : 0,
+          prix: prixCell ? parseInt(prixCell.replace(/[^\d]/g, "")) : 0,
           disponible: !row.toLowerCase().includes("vendu") && !row.toLowerCase().includes("reserve"),
         });
       }
@@ -240,6 +261,7 @@ function parseProgrammeDetail(html, programmeId) {
   return lots;
 }
 
+// --- SCRAPER PRINCIPAL ---
 async function scrapeProgrammes(env) {
   const log = [];
   const startTime = Date.now();
@@ -249,161 +271,132 @@ async function scrapeProgrammes(env) {
   if (inProgress) {
     return { ok: false, error: "Scraping deja en cours", log };
   }
-  await env.STRATEGE_DB.put(SCRAP_KEY, "1", { expirationTtl: 300 });
+  await env.STRATEGE_DB.put(SCRAP_KEY, "1", { expirationTtl: 600 });
 
   try {
     log.push(`[${new Date().toISOString()}] Debut scraping Senioriales`);
 
+    // ETAPE 1 : Page d'accueil (etablir la session)
     await humanDelay();
     const home = await fetchPage(SENIORIALES_BASE);
     if (!home.ok) {
       await env.STRATEGE_DB.delete(SCRAP_KEY);
-      return { ok: false, error: `Page d'accueil bloquee (${home.status})`, log };
+      return { ok: false, error: `Page d'accueil bloquee (${home.status || home.error})`, log };
     }
-    log.push(`OK Page d'accueil`);
+    log.push(`OK Page d'accueil (${home.html.length} bytes)`);
 
-    const listUrls = [
-      `${SENIORIALES_BASE}/nos-residences`,
-      `${SENIORIALES_BASE}/residences`,
-      `${SENIORIALES_BASE}/programme-immobilier`,
-      `${SENIORIALES_BASE}/residence-senior`,
+    // ETAPE 2 : Scraper les 2 pages de listings
+    let allProgrammes = [];
+
+    const listPages = [
+      { url: `${SENIORIALES_BASE}/acheter/recherche-residence`, type: "acheter" },
+      { url: `${SENIORIALES_BASE}/investir/recherche-programme`, type: "investir" },
     ];
 
-    let listHtml = null;
-    let listUrl = null;
-
-    for (const url of listUrls) {
+    for (const { url, type } of listPages) {
       await humanDelay();
-      log.push(`Tentative: ${url}`);
+      log.push(`Scraping ${type}: ${url}`);
       const result = await fetchPage(url, SENIORIALES_BASE + "/");
-      if (result.ok) {
-        listHtml = result.html;
-        listUrl = url;
-        log.push(`OK Liste trouvee: ${url}`);
-        break;
+
+      if (!result.ok) {
+        log.push(`  -> Echec ${type}: ${result.status || result.error}`);
+        continue;
       }
-      log.push(`  -> ${result.status || result.error}`);
-    }
 
-    if (!listHtml) {
-      await env.STRATEGE_DB.delete(SCRAP_KEY);
-      return { ok: false, error: "Aucune page liste accessible", log };
-    }
+      log.push(`  OK ${type} (${result.html.length} bytes)`);
+      const programmes = parseSearchCards(result.html);
+      log.push(`  -> ${programmes.length} programmes trouves`);
+      allProgrammes.push(...programmes);
 
-    const jsonLd = extractJsonLd(listHtml);
-    let programmes = parseProgrammesList(listHtml);
+      // Pagination - chercher ?page=1, ?page=2, etc.
+      const pageMatches = result.html.match(/href="\?page=(\d+)"/g) || [];
+      const pageNums = [...new Set(pageMatches.map(m => parseInt(m.match(/page=(\d+)/)[1])))].filter(n => n > 0).sort();
 
-    for (const ld of jsonLd) {
-      if (ld["@type"] === "ItemList" && ld.itemListElement) {
-        const items = Array.isArray(ld.itemListElement) ? ld.itemListElement : [ld.itemListElement];
-        for (const item of items) {
-          programmes.push(mapRawToProgramme(item.item || item));
+      for (const pageNum of pageNums.slice(0, 5)) {
+        await humanDelay();
+        const pageUrl = `${url}?page=${pageNum}`;
+        log.push(`  Pagination ${type} page ${pageNum + 1}: ${pageUrl}`);
+        const pageResult = await fetchPage(pageUrl, url);
+        if (!pageResult.ok) {
+          log.push(`    -> Bloque (${pageResult.status || pageResult.error})`);
+          break;
         }
+        const moreProg = parseSearchCards(pageResult.html);
+        log.push(`    -> +${moreProg.length} programmes`);
+        allProgrammes.push(...moreProg);
       }
+
+      // Pause anti-ban entre les 2 sections
+      log.push(`  Pause 5s (anti-ban)...`);
+      await sleep(5000);
     }
 
-    log.push(`-> ${programmes.length} programmes parses`);
-
-    // Pagination
-    const pageLinks = [];
-    const pageRegex = /href="([^"]+(?:page|p)=(\d+)[^"]*)"/gi;
-    let pageMatch;
-    while ((pageMatch = pageRegex.exec(listHtml)) !== null) {
-      const pageNum = parseInt(pageMatch[2]);
-      if (pageNum > 1 && pageNum <= 10) {
-        pageLinks.push({ url: pageMatch[1].startsWith("http") ? pageMatch[1] : SENIORIALES_BASE + pageMatch[1], page: pageNum });
-      }
-    }
-
-    const uniquePages = [...new Map(pageLinks.map(p => [p.page, p])).values()]
-      .sort((a, b) => a.page - b.page)
-      .slice(0, 5);
-
-    for (const { url, page } of uniquePages) {
-      await humanDelay();
-      log.push(`Pagination page ${page}: ${url}`);
-      const result = await fetchPage(url, listUrl);
-      if (!result.ok) { log.push(`  -> Bloque (${result.status})`); break; }
-      const moreProg = parseProgrammesList(result.html);
-      programmes.push(...moreProg);
-      log.push(`  -> +${moreProg.length} programmes`);
-    }
-
+    // Dedupliquer par URL
     const seen = new Set();
-    programmes = programmes.filter(p => {
-      const key = p.titre + p.ville;
-      if (seen.has(key)) return false;
-      seen.add(key);
+    allProgrammes = allProgrammes.filter(p => {
+      if (seen.has(p.url_detail)) return false;
+      seen.add(p.url_detail);
       return true;
     });
 
-    log.push(`-> ${programmes.length} programmes uniques`);
+    log.push(`-> ${allProgrammes.length} programmes uniques au total`);
 
+    // ETAPE 3 : Recuperer les details de chaque programme
     let totalLots = 0;
-    const programmesComplets = [];
 
-    for (let i = 0; i < programmes.length; i++) {
-      const prog = programmes[i];
+    for (let i = 0; i < allProgrammes.length; i++) {
+      const prog = allProgrammes[i];
 
-      if (prog.url_detail) {
-        await humanDelay();
-        log.push(`Programme ${i + 1}/${programmes.length}: ${prog.titre}`);
+      await humanDelay();
+      log.push(`Detail ${i + 1}/${allProgrammes.length}: ${prog.titre}`);
 
-        const detail = await fetchPage(prog.url_detail, listUrl);
-        if (detail.ok) {
-          const lots = parseProgrammeDetail(detail.html, prog.id);
-          const meta = extractMeta(detail.html);
-          const detailLd = extractJsonLd(detail.html);
+      const detail = await fetchPage(prog.url_detail, SENIORIALES_BASE + "/");
+      if (detail.ok) {
+        const lots = parseProgrammeDetail(detail.html, prog.id);
+        const meta = extractMeta(detail.html);
+        const detailLd = extractJsonLd(detail.html);
 
-          if (meta["og:title"]) prog.titre = meta["og:title"];
-          if (meta["og:description"]) prog.description = meta["og:description"];
-          if (meta["og:image"]) prog.image = meta["og:image"];
+        if (meta["og:title"]) prog.titre = meta["og:title"];
+        if (meta["og:description"]) prog.description = meta["og:description"];
+        if (meta["og:image"]) prog.image = meta["og:image"];
 
-          for (const ld of detailLd) {
-            if (ld["@type"] === "RealEstateListing" || ld["@type"] === "Apartment" || ld["@type"] === "Product") {
-              if (ld.address) {
-                prog.adresse = ld.address.streetAddress || prog.adresse;
-                prog.ville = ld.address.addressLocality || prog.ville;
-                prog.code_postal = ld.address.postalCode || prog.code_postal;
-              }
-              if (ld.geo) {
-                prog.lat = ld.geo.latitude;
-                prog.lng = ld.geo.longitude;
-              }
-            }
+        for (const ld of detailLd) {
+          if (ld.address) {
+            prog.adresse = ld.address.streetAddress || prog.adresse;
+            prog.ville = ld.address.addressLocality || prog.ville;
+            prog.code_postal = ld.address.postalCode || prog.code_postal;
           }
-
-          prog.lots = lots;
-          prog.lots_disponibles = lots.filter(l => l.disponible).length;
-          totalLots += prog.lots_disponibles;
-          log.push(`  OK ${prog.lots_disponibles} lots disponibles`);
-
-          await env.STRATEGE_DB.put(
-            `senioriales:prog:${prog.id}`,
-            JSON.stringify({ ...prog, scraped_at: new Date().toISOString() }),
-            { expirationTtl: CACHE_TTL }
-          );
-        } else {
-          log.push(`  WARN Detail inaccessible (${detail.error})`);
-          prog.lots = [];
-          prog.lots_disponibles = 0;
+          if (ld.geo) {
+            prog.lat = ld.geo.latitude;
+            prog.lng = ld.geo.longitude;
+          }
         }
+
+        prog.lots = lots;
+        prog.lots_disponibles = lots.filter(l => l.disponible).length;
+        totalLots += prog.lots_disponibles;
+        log.push(`  OK ${lots.length} lots (${prog.lots_disponibles} dispo)`);
+
+        await env.STRATEGE_DB.put(
+          `senioriales:prog:${prog.id}`,
+          JSON.stringify({ ...prog, scraped_at: new Date().toISOString() }),
+          { expirationTtl: CACHE_TTL }
+        );
       } else {
-        prog.lots = [];
-        prog.lots_disponibles = 0;
+        log.push(`  WARN Detail inaccessible (${detail.error})`);
       }
 
-      programmesComplets.push(prog);
-
-      if ((i + 1) % 5 === 0) {
+      // Pause longue tous les 5 programmes
+      if ((i + 1) % 5 === 0 && i < allProgrammes.length - 1) {
         log.push(`  Pause 8s (anti-ban)...`);
         await sleep(8000);
       }
     }
 
+    // ETAPE 4 : Stocker l'index global
     const index = {
-      programmes: programmesComplets,
-      total_programmes: programmesComplets.length,
+      programmes: allProgrammes,
+      total_programmes: allProgrammes.length,
       total_lots: totalLots,
       scraped_at: new Date().toISOString(),
       duration_ms: Date.now() - startTime,
@@ -416,7 +409,7 @@ async function scrapeProgrammes(env) {
       { expirationTtl: CACHE_TTL }
     );
 
-    log.push(`DONE Sync terminee en ${index.duration_ms}ms`);
+    log.push(`DONE Sync terminee en ${Math.round(index.duration_ms / 1000)}s`);
     log.push(`DONE ${index.total_programmes} programmes, ${index.total_lots} lots disponibles`);
 
     await env.STRATEGE_DB.delete(SCRAP_KEY);
@@ -424,6 +417,7 @@ async function scrapeProgrammes(env) {
 
   } catch (err) {
     await env.STRATEGE_DB.delete(SCRAP_KEY);
+    log.push(`ERREUR: ${err.message}`);
     return { ok: false, error: err.message, log };
   }
 }
@@ -431,7 +425,6 @@ async function scrapeProgrammes(env) {
 // --- ROUTEUR ---
 export async function onRequest(context) {
   const { request, env } = context;
-  const url = new URL(request.url);
   const pathParts = (context.params?.path || []);
   const subPath = pathParts.join("/");
 
@@ -450,7 +443,7 @@ export async function onRequest(context) {
       message: result.ok
         ? "Site Senioriales accessible depuis Cloudflare Workers"
         : `Bloque (${result.status || result.error})`,
-      html_preview: result.html?.substring(0, 200),
+      html_preview: result.html?.substring(0, 300),
     }), { headers: JSON_HEADERS });
   }
 
@@ -459,8 +452,8 @@ export async function onRequest(context) {
     context.waitUntil(scrapeProgrammes(env));
     return new Response(JSON.stringify({
       ok: true,
-      message: "Scraping lance en arriere-plan. Resultats disponibles dans ~5 minutes sur /api/senioriales/programmes",
-      check: "/api/senioriales/programmes",
+      message: "Scraping lance en arriere-plan (~5 min). Verifiez /api/senioriales/status",
+      check: "/api/senioriales/status",
     }), { headers: JSON_HEADERS });
   }
 
@@ -470,17 +463,16 @@ export async function onRequest(context) {
     if (cached) {
       return new Response(cached, { headers: JSON_HEADERS });
     }
-    context.waitUntil(scrapeProgrammes(env));
     return new Response(JSON.stringify({
       ok: false,
-      message: "Donnees en cours de recuperation. Reessayez dans 5 minutes.",
-      status: "syncing",
-    }), { status: 202, headers: JSON_HEADERS });
+      message: "Aucune donnee. POST /api/senioriales/sync pour lancer le scraping.",
+      status: "empty",
+    }), { status: 404, headers: JSON_HEADERS });
   }
 
   // /api/senioriales/programme/<id>
   if (pathParts[0] === "programme" && pathParts[1]) {
-    const progId = pathParts[1];
+    const progId = pathParts.slice(1).join("/");
     const cached = await env.STRATEGE_DB.get(`senioriales:prog:${progId}`);
     if (cached) {
       return new Response(cached, { headers: JSON_HEADERS });
@@ -514,7 +506,14 @@ export async function onRequest(context) {
     }), { headers: JSON_HEADERS });
   }
 
-  return new Response(JSON.stringify({ error: "Not found", routes: ["test", "sync", "programmes", "programme/:id", "status"] }), {
-    status: 404, headers: JSON_HEADERS
-  });
+  return new Response(JSON.stringify({
+    error: "Not found",
+    routes: [
+      "GET  /api/senioriales/test",
+      "POST /api/senioriales/sync",
+      "GET  /api/senioriales/status",
+      "GET  /api/senioriales/programmes",
+      "GET  /api/senioriales/programme/:id",
+    ]
+  }), { status: 404, headers: JSON_HEADERS });
 }
