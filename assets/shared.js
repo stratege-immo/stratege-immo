@@ -48,7 +48,7 @@ function renderNavbar(activePage) {
           '<a href="dashboard.html">Tableau de bord</a>' +
           '<a href="dashboard.html#documents">Documents</a>' +
           '<a href="dashboard.html#profil">Profil</a>' +
-          '<a href="#" onclick="logout()">Déconnexion</a>' +
+          '<a href="javascript:void(0)" onclick="logout()">Déconnexion</a>' +
         '</div>' +
       '</div>'
     : '<div class="nav-actions">' +
@@ -145,10 +145,10 @@ function renderFooter() {
           '<div class="nav-logo">' + LOGO_SVG + 'Stratège</div>' +
           '<p>L\'immobilier malin et durable. Votre partenaire pour construire un patrimoine performant et responsable.</p>' +
           '<div class="footer-socials">' +
-            '<a href="#" aria-label="LinkedIn">in</a>' +
-            '<a href="#" aria-label="Instagram">ig</a>' +
-            '<a href="#" aria-label="Facebook">fb</a>' +
-            '<a href="#" aria-label="X">X</a>' +
+            '<a href="https://www.linkedin.com/company/stratege-immo" target="_blank" rel="noopener" aria-label="LinkedIn">in</a>' +
+            '<a href="https://www.instagram.com/stratege.immo" target="_blank" rel="noopener" aria-label="Instagram">ig</a>' +
+            '<a href="https://www.facebook.com/stratege.immo" target="_blank" rel="noopener" aria-label="Facebook">fb</a>' +
+            '<a href="https://x.com/stratege_immo" target="_blank" rel="noopener" aria-label="X">X</a>' +
           '</div>' +
         '</div>' +
         '<div class="footer-col">' +

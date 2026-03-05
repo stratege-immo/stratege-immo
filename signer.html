@@ -15,11 +15,11 @@
   <meta name="theme-color" content="#3ECFB4">
   <style>
     .signer-container { max-width:900px; margin:0 auto; padding:40px 20px 80px; }
-    .signer-container h1 { font-family:'Playfair Display',serif; font-size:32px; color:#1B2E3D; margin-bottom:8px; }
+    .signer-container h1 { font-family:'Cormorant Garamond',serif; font-size:32px; color:#1B2E3D; margin-bottom:8px; }
     .signer-container .subtitle { color:#6b7280; font-size:15px; margin-bottom:32px; }
 
     .signer-panel { background:var(--surface-1,#fff); border-radius:16px; border:1px solid var(--neutral-200,#e5e7eb); padding:32px; margin-bottom:24px; }
-    .signer-panel h2 { font-size:20px; color:#1B2E3D; margin-bottom:16px; font-family:'Playfair Display',serif; }
+    .signer-panel h2 { font-size:20px; color:#1B2E3D; margin-bottom:16px; font-family:'Cormorant Garamond',serif; }
 
     .form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
     .form-row.single { grid-template-columns:1fr; }
@@ -194,9 +194,7 @@
     </div>
   </div>
 
-  <div class="signer-footer">
-    JESPER SAS — SIREN 977 754 050 — CPI 7501 2025 000 000 012
-  </div>
+  <footer class="footer"></footer>
 
   <!-- Loading overlay -->
   <div class="loading-overlay" id="loadingOverlay" style="display:none;">
@@ -224,6 +222,8 @@
 
     // ========== Init ==========
     document.addEventListener('DOMContentLoaded', () => {
+      renderNavbar('signature');
+      renderFooter();
       pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
       const params = new URLSearchParams(window.location.search);

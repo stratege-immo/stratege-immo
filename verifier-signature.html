@@ -27,7 +27,7 @@
       border: 1px solid var(--neutral-100, #e9ecef);
     }
     .verify-title {
-      font-family: var(--font-display, 'Playfair Display', serif);
+      font-family: var(--font-display, 'Cormorant Garamond', serif);
       font-size: 28px;
       color: var(--neutral-900, #1B2E3D);
       margin-bottom: 8px;
@@ -144,7 +144,7 @@
       height: 24px;
     }
     .result-title {
-      font-family: var(--font-display, 'Playfair Display', serif);
+      font-family: var(--font-display, 'Cormorant Garamond', serif);
       font-size: 20px;
     }
     .valid .result-title { color: #155724; }
@@ -254,17 +254,7 @@
     </div>
   </section>
 
-  <!-- FOOTER -->
-  <footer style="background:#1B2E3D;color:white;padding:40px 0;text-align:center">
-    <div class="container">
-      <p style="color:#3ECFB4;font-family:var(--font-display);font-size:20px;margin-bottom:8px">STRATEGE</p>
-      <p style="color:rgba(255,255,255,0.5);font-size:12px;line-height:1.8">
-        JESPER SAS — Marque Stratege<br/>
-        Carte professionnelle CPI — Lyon<br/>
-        contact@stratege-immo.fr | stratege-immo.fr
-      </p>
-    </div>
-  </footer>
+  <footer class="footer"></footer>
 
   <script src="assets/shared.js?v=126"></script>
   <script>
@@ -272,6 +262,8 @@
 
     // Auto-verify from URL params
     document.addEventListener('DOMContentLoaded', function() {
+      renderNavbar();
+      renderFooter();
       const params = new URLSearchParams(window.location.search);
       const ref = params.get('ref');
       const hash = params.get('hash');
