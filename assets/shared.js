@@ -107,6 +107,8 @@ function renderFooter() {
             '<li><a href="catalogue.html">Catalogue</a></li>' +
             '<li><a href="scpi.html">SCPI</a></li>' +
             '<li><a href="pret.html">Prêt immobilier</a></li>' +
+            '<li><a href="souscrire-scpi.html">Souscrire SCPI</a></li>' +
+            '<li><a href="rdv.html">Prendre RDV</a></li>' +
             '<li><a href="dashboard.html">Espace client</a></li>' +
           '</ul>' +
         '</div>' +
