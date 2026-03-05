@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/style.css?v=122" />
+  <link rel="stylesheet" href="assets/style.css?v=123" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#4ECDC4">
@@ -374,6 +374,7 @@
         <div class="admin-tabs">
           <div class="admin-tab active" onclick="showMarketingTab('compose',this)">Nouvelle campagne</div>
           <div class="admin-tab" onclick="showMarketingTab('history',this)">Historique</div>
+          <div class="admin-tab" onclick="showMarketingTab('sequences',this)">Sequences automatiques</div>
         </div>
 
         <!-- Compose tab -->
@@ -419,6 +420,28 @@ L'equipe Stratege" style="font-family:'JetBrains Mono',monospace;font-size:13px"
               <thead><tr><th>Campagne</th><th>Segment</th><th>Envoyes</th><th>Erreurs</th><th>Date</th><th>Envoye par</th></tr></thead>
               <tbody id="mkt-history-tbody">
                 <tr><td colspan="6" style="text-align:center;color:var(--neutral-400);padding:20px">Chargement...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Sequences tab -->
+        <div id="marketing-sequences" style="display:none">
+          <div class="admin-card">
+            <h3>Lancer une sequence</h3>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px">
+              <button class="btn-primary" onclick="launchSequence('welcome','recent_7d')" id="seq-btn-welcome" style="font-size:13px">Lancer Bienvenue (inscrits &lt; 7j)</button>
+              <button class="btn-primary" onclick="launchSequence('no_simulation_30d','inactive_30d')" id="seq-btn-relance" style="font-size:13px;background:var(--warning)">Relancer inactifs 30j</button>
+              <button class="btn-ghost" onclick="processSequences()" id="seq-btn-process" style="font-size:13px">Traiter sequences en attente</button>
+            </div>
+            <p id="seq-action-result" style="font-size:13px;color:var(--primary-600);display:none;margin-bottom:16px"></p>
+          </div>
+
+          <div class="admin-card" style="padding:0;overflow:hidden">
+            <table class="admin-table">
+              <thead><tr><th>Sequence</th><th>Contacts actifs</th><th>Etapes</th><th>Prochaine envoi</th></tr></thead>
+              <tbody id="seq-tbody">
+                <tr><td colspan="4" style="text-align:center;color:var(--neutral-400);padding:20px">Chargement...</td></tr>
               </tbody>
             </table>
           </div>
@@ -521,7 +544,7 @@ L'equipe Stratege" style="font-family:'JetBrains Mono',monospace;font-size:13px"
   </div>
 </div>
 
-<script src="assets/shared.js?v=122"></script>
+<script src="assets/shared.js?v=123"></script>
 <script>
 // JWT-based admin authentication
 var adminUser = null;
@@ -924,7 +947,9 @@ function showMarketingTab(tab, el) {
   el.classList.add('active');
   document.getElementById('marketing-compose').style.display = tab === 'compose' ? 'block' : 'none';
   document.getElementById('marketing-history').style.display = tab === 'history' ? 'block' : 'none';
+  document.getElementById('marketing-sequences').style.display = tab === 'sequences' ? 'block' : 'none';
   if (tab === 'history') loadCampaignHistory();
+  if (tab === 'sequences') loadSequences();
 }
 
 function previewCampaign() {
@@ -1024,6 +1049,109 @@ async function loadCampaignHistory() {
   } catch(e) {
     tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--neutral-400);padding:20px">Erreur de chargement</td></tr>';
   }
+}
+
+// ===== SEQUENCES =====
+async function loadSequences() {
+  var tbody = document.getElementById('seq-tbody');
+  try {
+    var res = await fetch('/api/admin/sequences?action=list', { headers: getAuthHeaders() });
+    var data = await res.json();
+
+    if (!data.success || !data.sequences || data.sequences.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--neutral-400);padding:20px">Aucune sequence active</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = '';
+    data.sequences.forEach(function(seq) {
+      // Find nearest next_at among entries
+      var nearestNext = null;
+      seq.entries.forEach(function(e) {
+        if (!nearestNext || new Date(e.next_at) < new Date(nearestNext)) nearestNext = e.next_at;
+      });
+      var nextStr = nearestNext ? new Date(nearestNext).toLocaleDateString('fr-FR') + ' ' + new Date(nearestNext).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}) : '-';
+
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td><strong>' + seq.label + '</strong></td>' +
+        '<td>' + seq.active_count + '</td>' +
+        '<td>' + seq.total_steps + ' etape(s)</td>' +
+        '<td>' + nextStr + '</td>';
+      tbody.appendChild(tr);
+    });
+  } catch(e) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--neutral-400);padding:20px">Erreur de chargement</td></tr>';
+  }
+}
+
+async function launchSequence(sequence, target) {
+  var resultEl = document.getElementById('seq-action-result');
+  resultEl.style.display = 'none';
+
+  if (!confirm('Lancer la sequence "' + sequence + '" pour le segment "' + target + '" ?')) return;
+
+  var btn = document.getElementById('seq-btn-' + (sequence === 'welcome' ? 'welcome' : 'relance'));
+  if (btn) { btn.disabled = true; btn.textContent = 'Lancement...'; }
+
+  try {
+    var res = await fetch('/api/admin/sequences', {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ action: 'launch', sequence: sequence, target: target })
+    });
+    var data = await res.json();
+
+    if (data.success) {
+      resultEl.textContent = 'Sequence "' + (data.sequence || sequence) + '" lancee : ' + data.launched + ' contact(s), ' + (data.emails_sent || 0) + ' email(s) envoye(s) immediatement.';
+      resultEl.style.color = 'var(--primary-600)';
+    } else {
+      resultEl.textContent = 'Erreur : ' + (data.error || 'echec du lancement');
+      resultEl.style.color = 'var(--error)';
+    }
+    resultEl.style.display = 'block';
+    loadSequences();
+  } catch(e) {
+    resultEl.textContent = 'Erreur reseau : ' + e.message;
+    resultEl.style.color = 'var(--error)';
+    resultEl.style.display = 'block';
+  }
+
+  if (btn) { btn.disabled = false; btn.textContent = sequence === 'welcome' ? 'Lancer Bienvenue (inscrits < 7j)' : 'Relancer inactifs 30j'; }
+}
+
+async function processSequences() {
+  var resultEl = document.getElementById('seq-action-result');
+  resultEl.style.display = 'none';
+  var btn = document.getElementById('seq-btn-process');
+  btn.disabled = true;
+  btn.textContent = 'Traitement...';
+
+  try {
+    var res = await fetch('/api/admin/sequences', {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ action: 'process' })
+    });
+    var data = await res.json();
+
+    if (data.success) {
+      resultEl.textContent = 'Traitement termine : ' + data.processed + ' etape(s) traitee(s), ' + data.emails_sent + ' email(s) envoye(s), ' + data.completed + ' sequence(s) terminees' + (data.errors ? ', ' + data.errors + ' erreur(s)' : '') + '.';
+      resultEl.style.color = 'var(--primary-600)';
+    } else {
+      resultEl.textContent = 'Erreur : ' + (data.error || 'echec du traitement');
+      resultEl.style.color = 'var(--error)';
+    }
+    resultEl.style.display = 'block';
+    loadSequences();
+  } catch(e) {
+    resultEl.textContent = 'Erreur reseau : ' + e.message;
+    resultEl.style.color = 'var(--error)';
+    resultEl.style.display = 'block';
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Traiter sequences en attente';
 }
 
 // ===== CREDIT DOSSIERS =====

@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/style.css?v=122" />
+  <link rel="stylesheet" href="assets/style.css?v=123" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#4ECDC4">
@@ -292,7 +292,7 @@
 
   <footer class="footer"></footer>
 
-  <script src="assets/shared.js?v=122"></script>
+  <script src="assets/shared.js?v=123"></script>
   <script>
     renderNavbar('scpi');
     renderFooter();
@@ -436,12 +436,7 @@
       btn.disabled = true;
       btn.textContent = 'Signature en cours...';
 
-      // Generate reference
-      var ref = 'SCPI-2026-' + Math.random().toString(36).substring(2, 7).toUpperCase();
-
-      // Store souscription
       var souscription = {
-        reference: ref,
         scpi: selectedScpi,
         montant: parseFloat(document.getElementById('invest-montant').value) || 0,
         mode: investMode,
@@ -464,16 +459,28 @@
         signed_at: new Date().toISOString(),
       };
 
+      var ref = '';
       try {
-        await fetch('/api/admin?action=save-souscription', {
+        var res = await fetch('/api/scpi/subscribe', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(souscription)
         });
-      } catch(e) {}
-
-      // Simulate signing delay
-      await new Promise(function(r) { setTimeout(r, 2000); });
+        var data = await res.json();
+        if (data.success) {
+          ref = data.reference;
+        } else {
+          alert(data.message || 'Erreur lors de la souscription.');
+          btn.disabled = false;
+          btn.textContent = 'Signer le document';
+          return;
+        }
+      } catch(e) {
+        alert('Erreur de connexion. Veuillez reessayer.');
+        btn.disabled = false;
+        btn.textContent = 'Signer le document';
+        return;
+      }
 
       document.getElementById('esign-box').style.display = 'none';
       document.getElementById('sign-nav').style.display = 'none';
@@ -482,19 +489,6 @@
 
       // Mark step 5 as done
       document.querySelectorAll('.flow-step').forEach(function(s) { s.classList.add('done'); s.classList.remove('active'); });
-
-      // Send confirmation email
-      try {
-        await fetch('/api/email', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            type: 'scpi-confirmation',
-            to: souscription.souscripteur.email,
-            data: { reference: ref, scpi: selectedScpi.join(', '), montant: souscription.montant }
-          })
-        });
-      } catch(e) {}
     }
 
     updateSimu();

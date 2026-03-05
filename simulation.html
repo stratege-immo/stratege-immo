@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulations immobilieres — Stratege</title>
+  <meta name="description" content="Simulez vos investissements immobiliers : Jeanbrun Social, LMNP, Denormandie, Bilan patrimonial. Resultats instantanes et personnalises." />
+  <link rel="canonical" href="https://stratege-immo.fr/simulation" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css?v=123" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#4ECDC4">
+  <style>
+    .sim-container { max-width:960px;margin:0 auto;padding:40px 20px }
+
+    /* Tabs */
+    .sim-tabs { display:flex;gap:8px;margin:32px 0 24px;flex-wrap:wrap;justify-content:center }
+    .sim-tab { padding:12px 24px;border:2px solid var(--neutral-200);border-radius:999px;cursor:pointer;font-size:14px;font-weight:600;background:transparent;color:var(--neutral-600);transition:all .2s;font-family:'Inter',sans-serif }
+    .sim-tab:hover { border-color:var(--primary-300);color:var(--primary-600) }
+    .sim-tab.active { border-color:#4ECDC4;background:#4ECDC4;color:#1B2A4A }
+
+    /* Tab panels */
+    .tab-panel { display:none }
+    .tab-panel.active { display:block }
+
+    /* Grid layout */
+    .sim-grid { display:grid;grid-template-columns:1fr 1fr;gap:32px }
+    .sim-form { background:var(--surface-1);padding:32px;border-radius:16px;border:1px solid var(--neutral-200) }
+    .sim-results { background:linear-gradient(135deg,#1B2A4A,#2D3A52);color:#fff;padding:32px;border-radius:16px;position:sticky;top:100px }
+    .sim-results h3 { color:#4ECDC4;font-size:14px;text-transform:uppercase;letter-spacing:1px;margin-bottom:20px }
+
+    .sim-big { font-size:42px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#4ECDC4;margin-bottom:4px }
+    .sim-label { font-size:14px;color:rgba(255,255,255,.7);margin-bottom:20px }
+    .sim-detail { display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.1);font-size:14px }
+    .sim-detail:last-child { border-bottom:none }
+    .sim-detail .val { font-family:'JetBrains Mono',monospace;font-weight:600;color:#95E8DF }
+
+    /* Form elements */
+    .range-group { margin-bottom:20px }
+    .range-group label { display:block;font-size:14px;font-weight:500;margin-bottom:8px;color:var(--neutral-700) }
+    .range-group .range-values { display:flex;justify-content:space-between;font-size:13px;color:var(--neutral-500);margin-top:4px }
+    .range-group input[type=range] { width:100%;accent-color:#4ECDC4;height:6px }
+    .range-value-display { font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:600;color:var(--primary-600);text-align:right }
+
+    .select-group { margin-bottom:20px }
+    .select-group label { display:block;font-size:14px;font-weight:500;margin-bottom:8px;color:var(--neutral-700) }
+    .select-group select { width:100%;padding:10px 12px;border:1px solid var(--neutral-300);border-radius:8px;font-size:14px;font-family:'Inter',sans-serif;background:#fff }
+
+    .radio-group { margin-bottom:20px }
+    .radio-group label.radio-label { display:block;font-size:14px;font-weight:500;margin-bottom:10px;color:var(--neutral-700) }
+    .radio-options { display:flex;gap:12px }
+    .radio-options label { display:flex;align-items:center;gap:6px;cursor:pointer;padding:8px 16px;border:2px solid var(--neutral-200);border-radius:8px;font-size:14px;transition:all .2s }
+    .radio-options label:hover { border-color:var(--primary-300) }
+    .radio-options input[type=radio] { accent-color:#4ECDC4 }
+    .radio-options label:has(input:checked) { border-color:#4ECDC4;background:rgba(78,205,196,.08) }
+
+    /* Chart */
+    .chart-container { margin-top:24px;padding:20px;background:rgba(0,0,0,.15);border-radius:12px }
+    .chart-container h4 { font-size:13px;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px }
+
+    /* Action buttons */
+    .sim-actions { display:flex;flex-direction:column;gap:10px;margin-top:24px }
+    .btn-sim { padding:12px 24px;border-radius:999px;font-weight:600;cursor:pointer;font-size:14px;text-align:center;text-decoration:none;transition:all .2s;border:none;font-family:'Inter',sans-serif }
+    .btn-sim-primary { background:#4ECDC4;color:#1B2A4A }
+    .btn-sim-primary:hover { opacity:.9 }
+    .btn-sim-outline { background:transparent;color:#fff;border:1px solid rgba(255,255,255,.3) }
+    .btn-sim-outline:hover { border-color:#4ECDC4;color:#4ECDC4 }
+
+    /* Bilan profil card */
+    .profil-card { margin-top:20px;padding:20px;background:rgba(78,205,196,.1);border-radius:12px;border:1px solid rgba(78,205,196,.2) }
+    .profil-card h4 { color:#4ECDC4;font-size:16px;margin-bottom:8px }
+    .profil-card p { font-size:14px;color:rgba(255,255,255,.85);line-height:1.6 }
+
+    .section-title { font-size:16px;font-weight:600;margin-bottom:16px;color:var(--neutral-800) }
+
+    /* Responsive */
+    @media(max-width:768px) {
+      .sim-grid { grid-template-columns:1fr }
+      .sim-results { position:static }
+      .sim-tabs { gap:6px }
+      .sim-tab { padding:10px 16px;font-size:13px }
+      .sim-big { font-size:32px }
+      .radio-options { flex-wrap:wrap }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar"></nav>
+
+  <main style="padding-top:100px;padding-bottom:60px">
+    <div class="sim-container">
+      <!-- Hero -->
+      <div style="text-align:center;margin-bottom:8px">
+        <span class="badge badge-teal" style="display:inline-block;margin-bottom:12px">Simulations</span>
+        <h1 style="font-family:var(--font-display)">Centre de simulation patrimoniale</h1>
+        <p style="color:var(--neutral-500);max-width:640px;margin:12px auto 0">
+          Comparez les dispositifs fiscaux, estimez vos rendements et construisez votre strategie d'investissement immobilier.
+        </p>
+      </div>
+
+      <!-- Tabs -->
+      <div class="sim-tabs">
+        <button class="sim-tab active" onclick="switchTab('jeanbrun')">Jeanbrun Social</button>
+        <button class="sim-tab" onclick="switchTab('lmnp')">LMNP</button>
+        <button class="sim-tab" onclick="switchTab('denormandie')">Denormandie</button>
+        <button class="sim-tab" onclick="switchTab('bilan')">Bilan patrimonial</button>
+      </div>
+
+      <!-- ============ TAB 1: JEANBRUN SOCIAL ============ -->
+      <div class="tab-panel active" id="panel-jeanbrun">
+        <div class="sim-grid">
+          <div class="sim-form">
+            <h3 class="section-title">Parametres Jeanbrun Social</h3>
+
+            <div class="range-group">
+              <label>Montant investissement
+                <span class="range-value-display" id="jb-montant-display">200 000 EUR</span>
+              </label>
+              <input type="range" id="jb-montant" min="50000" max="500000" step="5000" value="200000" oninput="calcJeanbrun()">
+              <div class="range-values"><span>50 000 EUR</span><span>500 000 EUR</span></div>
+            </div>
+
+            <div class="select-group">
+              <label>Zone</label>
+              <select id="jb-zone" onchange="calcJeanbrun()">
+                <option value="Abis">A bis</option>
+                <option value="A" selected>A</option>
+                <option value="B1">B1</option>
+              </select>
+            </div>
+
+            <div class="radio-group">
+              <label class="radio-label">Duree d'engagement</label>
+              <div class="radio-options">
+                <label><input type="radio" name="jb-duree" value="6" onchange="calcJeanbrun()"> 6 ans</label>
+                <label><input type="radio" name="jb-duree" value="9" checked onchange="calcJeanbrun()"> 9 ans</label>
+                <label><input type="radio" name="jb-duree" value="12" onchange="calcJeanbrun()"> 12 ans</label>
+              </div>
+            </div>
+
+            <div class="select-group">
+              <label>TMI (Tranche Marginale d'Imposition)</label>
+              <select id="jb-tmi" onchange="calcJeanbrun()">
+                <option value="11">11%</option>
+                <option value="30" selected>30%</option>
+                <option value="41">41%</option>
+                <option value="45">45%</option>
+              </select>
+            </div>
+
+            <div class="select-group">
+              <label>Part residence sociale</label>
+              <select id="jb-social" onchange="calcJeanbrun()">
+                <option value="0" selected>0%</option>
+                <option value="20">20%</option>
+                <option value="25">25%</option>
+              </select>
+            </div>
+
+            <div class="range-group">
+              <label>Loyer mensuel estime
+                <span class="range-value-display" id="jb-loyer-display">700 EUR</span>
+              </label>
+              <input type="range" id="jb-loyer" min="400" max="2000" step="50" value="700" oninput="calcJeanbrun()">
+              <div class="range-values"><span>400 EUR</span><span>2 000 EUR</span></div>
+            </div>
+
+            <div class="range-group">
+              <label>Mensualite credit
+                <span class="range-value-display" id="jb-credit-display">900 EUR</span>
+              </label>
+              <input type="range" id="jb-credit" min="0" max="2500" step="50" value="900" oninput="calcJeanbrun()">
+              <div class="range-values"><span>0 EUR</span><span>2 500 EUR</span></div>
+            </div>
+          </div>
+
+          <div class="sim-results" id="jb-results">
+            <h3>Resultats Jeanbrun Social</h3>
+            <div class="sim-big" id="jb-res-total">-</div>
+            <div class="sim-label">Economie totale d'impots</div>
+
+            <div class="sim-detail"><span>Economie / an</span><span class="val" id="jb-res-annual">-</span></div>
+            <div class="sim-detail"><span>Taux effectif</span><span class="val" id="jb-res-taux">-</span></div>
+            <div class="sim-detail"><span>Cash-flow mensuel</span><span class="val" id="jb-res-cashflow">-</span></div>
+            <div class="sim-detail"><span>Rendement net</span><span class="val" id="jb-res-rendement">-</span></div>
+
+            <div class="chart-container">
+              <h4>Comparaison fiscale</h4>
+              <svg id="jb-chart" width="100%" height="200" viewBox="0 0 400 200"></svg>
+            </div>
+
+            <div class="sim-actions">
+              <button class="btn-sim btn-sim-primary" onclick="saveSimulation('jeanbrun')">Sauvegarder cette simulation</button>
+              <a href="rdv.html" class="btn-sim btn-sim-outline">Prendre RDV pour aller plus loin</a>
+              <a href="catalogue.html" class="btn-sim btn-sim-outline">Voir les programmes eligibles</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ TAB 2: LMNP ============ -->
+      <div class="tab-panel" id="panel-lmnp">
+        <div class="sim-grid">
+          <div class="sim-form">
+            <h3 class="section-title">Parametres LMNP</h3>
+
+            <div class="range-group">
+              <label>Prix acquisition
+                <span class="range-value-display" id="lmnp-prix-display">180 000 EUR</span>
+              </label>
+              <input type="range" id="lmnp-prix" min="80000" max="500000" step="5000" value="180000" oninput="calcLMNP()">
+              <div class="range-values"><span>80 000 EUR</span><span>500 000 EUR</span></div>
+            </div>
+
+            <div class="select-group">
+              <label>Type de bien</label>
+              <select id="lmnp-type" onchange="calcLMNP()">
+                <option value="neuf">Neuf (frais 2.5%)</option>
+                <option value="ancien">Ancien (frais 7.5%)</option>
+              </select>
+            </div>
+
+            <div class="range-group">
+              <label>Loyer mensuel
+                <span class="range-value-display" id="lmnp-loyer-display">650 EUR</span>
+              </label>
+              <input type="range" id="lmnp-loyer" min="300" max="2000" step="50" value="650" oninput="calcLMNP()">
+              <div class="range-values"><span>300 EUR</span><span>2 000 EUR</span></div>
+            </div>
+
+            <div class="range-group">
+              <label>Charges annuelles
+                <span class="range-value-display" id="lmnp-charges-display">1 500 EUR</span>
+              </label>
+              <input type="range" id="lmnp-charges" min="500" max="5000" step="100" value="1500" oninput="calcLMNP()">
+              <div class="range-values"><span>500 EUR</span><span>5 000 EUR</span></div>
+            </div>
+
+            <div class="select-group">
+              <label>TMI (Tranche Marginale d'Imposition)</label>
+              <select id="lmnp-tmi" onchange="calcLMNP()">
+                <option value="11">11%</option>
+                <option value="30" selected>30%</option>
+                <option value="41">41%</option>
+                <option value="45">45%</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="sim-results" id="lmnp-results">
+            <h3>Resultats LMNP</h3>
+            <div class="sim-big" id="lmnp-res-total">-</div>
+            <div class="sim-label">Impot evite par an grace a l'amortissement</div>
+
+            <div class="sim-detail"><span>Prix de revient</span><span class="val" id="lmnp-res-revient">-</span></div>
+            <div class="sim-detail"><span>Amortissement annuel</span><span class="val" id="lmnp-res-amort">-</span></div>
+            <div class="sim-detail"><span>Base imposable</span><span class="val" id="lmnp-res-base">-</span></div>
+            <div class="sim-detail"><span>Rendement brut</span><span class="val" id="lmnp-res-brut">-</span></div>
+            <div class="sim-detail"><span>Rendement net</span><span class="val" id="lmnp-res-net">-</span></div>
+
+            <div class="sim-actions">
+              <button class="btn-sim btn-sim-primary" onclick="saveSimulation('lmnp')">Sauvegarder cette simulation</button>
+              <a href="rdv.html" class="btn-sim btn-sim-outline">Prendre RDV pour aller plus loin</a>
+              <a href="catalogue.html" class="btn-sim btn-sim-outline">Voir les programmes eligibles</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ TAB 3: DENORMANDIE ============ -->
+      <div class="tab-panel" id="panel-denormandie">
+        <div class="sim-grid">
+          <div class="sim-form">
+            <h3 class="section-title">Parametres Denormandie</h3>
+
+            <div class="range-group">
+              <label>Prix du bien
+                <span class="range-value-display" id="dn-prix-display">150 000 EUR</span>
+              </label>
+              <input type="range" id="dn-prix" min="80000" max="400000" step="5000" value="150000" oninput="calcDenormandie()">
+              <div class="range-values"><span>80 000 EUR</span><span>400 000 EUR</span></div>
+            </div>
+
+            <div class="range-group">
+              <label>Montant travaux <span style="font-size:12px;color:var(--neutral-400)">(min 25% du prix)</span>
+                <span class="range-value-display" id="dn-travaux-display">50 000 EUR</span>
+              </label>
+              <input type="range" id="dn-travaux" min="10000" max="200000" step="5000" value="50000" oninput="calcDenormandie()">
+              <div class="range-values"><span>10 000 EUR</span><span>200 000 EUR</span></div>
+            </div>
+
+            <div class="select-group">
+              <label>Zone</label>
+              <select id="dn-zone" onchange="calcDenormandie()">
+                <option value="Abis">A bis</option>
+                <option value="A" selected>A</option>
+                <option value="B1">B1</option>
+              </select>
+            </div>
+
+            <div class="radio-group">
+              <label class="radio-label">Duree d'engagement</label>
+              <div class="radio-options">
+                <label><input type="radio" name="dn-duree" value="6" onchange="calcDenormandie()"> 6 ans</label>
+                <label><input type="radio" name="dn-duree" value="9" checked onchange="calcDenormandie()"> 9 ans</label>
+                <label><input type="radio" name="dn-duree" value="12" onchange="calcDenormandie()"> 12 ans</label>
+              </div>
+            </div>
+
+            <div class="select-group">
+              <label>TMI (Tranche Marginale d'Imposition)</label>
+              <select id="dn-tmi" onchange="calcDenormandie()">
+                <option value="11">11%</option>
+                <option value="30" selected>30%</option>
+                <option value="41">41%</option>
+                <option value="45">45%</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="sim-results" id="dn-results">
+            <h3>Resultats Denormandie</h3>
+            <div class="sim-big" id="dn-res-total">-</div>
+            <div class="sim-label">Economie totale d'impots</div>
+
+            <div class="sim-detail"><span>Assiette retenue</span><span class="val" id="dn-res-assiette">-</span></div>
+            <div class="sim-detail"><span>Economie / an</span><span class="val" id="dn-res-annual">-</span></div>
+            <div class="sim-detail"><span>Taux de reduction</span><span class="val" id="dn-res-taux">-</span></div>
+
+            <div id="dn-warning" style="display:none;margin-top:16px;padding:12px;background:rgba(239,68,68,.15);border-radius:8px;font-size:13px;color:#fca5a5">
+              Attention : le montant des travaux doit representer au minimum 25% du prix du bien.
+            </div>
+
+            <div class="sim-actions">
+              <button class="btn-sim btn-sim-primary" onclick="saveSimulation('denormandie')">Sauvegarder cette simulation</button>
+              <a href="rdv.html" class="btn-sim btn-sim-outline">Prendre RDV pour aller plus loin</a>
+              <a href="catalogue.html" class="btn-sim btn-sim-outline">Voir les programmes eligibles</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ TAB 4: BILAN PATRIMONIAL ============ -->
+      <div class="tab-panel" id="panel-bilan">
+        <div class="sim-grid">
+          <div class="sim-form">
+            <h3 class="section-title">Votre profil patrimonial</h3>
+
+            <div class="range-group">
+              <label>Revenus annuels
+                <span class="range-value-display" id="bp-revenus-display">50 000 EUR</span>
+              </label>
+              <input type="range" id="bp-revenus" min="20000" max="200000" step="5000" value="50000" oninput="calcBilan()">
+              <div class="range-values"><span>20 000 EUR</span><span>200 000 EUR</span></div>
+            </div>
+
+            <div class="range-group">
+              <label>Patrimoine immobilier
+                <span class="range-value-display" id="bp-immo-display">0 EUR</span>
+              </label>
+              <input type="range" id="bp-immo" min="0" max="2000000" step="25000" value="0" oninput="calcBilan()">
+              <div class="range-values"><span>0 EUR</span><span>2 000 000 EUR</span></div>
+            </div>
+
+            <div class="range-group">
+              <label>Patrimoine financier
+                <span class="range-value-display" id="bp-financier-display">0 EUR</span>
+              </label>
+              <input type="range" id="bp-financier" min="0" max="1000000" step="10000" value="0" oninput="calcBilan()">
+              <div class="range-values"><span>0 EUR</span><span>1 000 000 EUR</span></div>
+            </div>
+
+            <div class="range-group">
+              <label>Credits en cours
+                <span class="range-value-display" id="bp-credits-display">0 EUR</span>
+              </label>
+              <input type="range" id="bp-credits" min="0" max="500000" step="5000" value="0" oninput="calcBilan()">
+              <div class="range-values"><span>0 EUR</span><span>500 000 EUR</span></div>
+            </div>
+
+            <div class="select-group">
+              <label>Objectif principal</label>
+              <select id="bp-objectif" onchange="calcBilan()">
+                <option value="defiscaliser">Defiscaliser</option>
+                <option value="revenus">Generer des revenus</option>
+                <option value="retraite">Preparer ma retraite</option>
+                <option value="transmission">Transmission</option>
+              </select>
+            </div>
+
+            <div class="range-group">
+              <label>Age
+                <span class="range-value-display" id="bp-age-display">35 ans</span>
+              </label>
+              <input type="range" id="bp-age" min="25" max="70" step="1" value="35" oninput="calcBilan()">
+              <div class="range-values"><span>25 ans</span><span>70 ans</span></div>
+            </div>
+          </div>
+
+          <div class="sim-results" id="bp-results">
+            <h3>Votre bilan patrimonial</h3>
+            <div class="sim-big" id="bp-res-patrimoine">-</div>
+            <div class="sim-label">Patrimoine net total</div>
+
+            <div class="sim-detail"><span>Taux d'endettement</span><span class="val" id="bp-res-endettement">-</span></div>
+            <div class="sim-detail"><span>Capacite d'epargne estimee</span><span class="val" id="bp-res-epargne">-</span></div>
+            <div class="sim-detail"><span>TMI estimee</span><span class="val" id="bp-res-tmi">-</span></div>
+            <div class="sim-detail"><span>Profil investisseur</span><span class="val" id="bp-res-profil">-</span></div>
+
+            <div class="profil-card" id="bp-reco">
+              <h4 id="bp-reco-titre">-</h4>
+              <p id="bp-reco-texte">-</p>
+            </div>
+
+            <div class="sim-actions">
+              <button class="btn-sim btn-sim-primary" onclick="saveSimulation('bilan')">Sauvegarder cette simulation</button>
+              <a href="rdv.html" class="btn-sim btn-sim-outline">Prendre RDV pour aller plus loin</a>
+              <a href="catalogue.html" class="btn-sim btn-sim-outline">Voir les programmes eligibles</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Disclaimer -->
+      <div style="margin-top:32px;padding:24px;background:var(--neutral-50);border-radius:12px;font-size:13px;color:var(--neutral-500);line-height:1.6">
+        <strong>Avertissement :</strong> Ces simulations sont fournies a titre indicatif et ne constituent pas un conseil fiscal ou patrimonial. Les resultats dependent de votre situation personnelle. Les dispositifs fiscaux sont soumis a des conditions d'eligibilite specifiques. Consultez un conseiller en gestion de patrimoine pour une etude personnalisee.
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer"></footer>
+
+  <script src="assets/shared.js?v=123"></script>
+  <script>
+    renderNavbar('simulation');
+    renderFooter();
+
+    /* ---- Utilities ---- */
+    function fmt(n) { return Math.round(n).toLocaleString('fr-FR') + ' EUR'; }
+    function pct(n) { return n.toFixed(1) + '%'; }
+
+    function getRadioVal(name) {
+      var el = document.querySelector('input[name="' + name + '"]:checked');
+      return el ? parseInt(el.value) : 9;
+    }
+
+    function getTMI(income) {
+      if (income <= 11294) return 0;
+      if (income <= 28797) return 11;
+      if (income <= 82341) return 30;
+      if (income <= 177106) return 41;
+      return 45;
+    }
+
+    /* ---- Tab switching ---- */
+    function switchTab(tab) {
+      document.querySelectorAll('.sim-tab').forEach(function(t) { t.classList.remove('active'); });
+      document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+
+      var tabNames = ['jeanbrun', 'lmnp', 'denormandie', 'bilan'];
+      var idx = tabNames.indexOf(tab);
+      document.querySelectorAll('.sim-tab')[idx].classList.add('active');
+      document.getElementById('panel-' + tab).classList.add('active');
+    }
+
+    /* ============================================
+       TAB 1: JEANBRUN SOCIAL
+       ============================================ */
+    var JB_TAUX = {
+      'Abis': { 6: 0.29, 9: 0.32, 12: 0.34 },
+      'A':    { 6: 0.23, 9: 0.26, 12: 0.28 },
+      'B1':   { 6: 0.17, 9: 0.20, 12: 0.23 }
+    };
+    var JB_COMPLEMENT = { 0: 0, 20: 0.02, 25: 0.03 };
+
+    function calcJeanbrun() {
+      var montant = parseInt(document.getElementById('jb-montant').value);
+      var zone = document.getElementById('jb-zone').value;
+      var duree = getRadioVal('jb-duree');
+      var tmi = parseInt(document.getElementById('jb-tmi').value);
+      var partSociale = parseInt(document.getElementById('jb-social').value);
+      var loyerMensuel = parseInt(document.getElementById('jb-loyer').value);
+      var mensualiteCredit = parseInt(document.getElementById('jb-credit').value);
+
+      // Update displays
+      document.getElementById('jb-montant-display').textContent = fmt(montant);
+      document.getElementById('jb-loyer-display').textContent = fmt(loyerMensuel);
+      document.getElementById('jb-credit-display').textContent = fmt(mensualiteCredit);
+
+      // Calculation
+      var tauxBase = JB_TAUX[zone][duree];
+      var tauxFinal = tauxBase + JB_COMPLEMENT[partSociale];
+      var economie = Math.min(montant, 300000) * tauxFinal;
+      var economieAnnuelle = economie / duree;
+      var cashflowMensuel = (economieAnnuelle / 12 + loyerMensuel - mensualiteCredit);
+      var rendementNet = ((loyerMensuel * 12 + economieAnnuelle) / montant * 100);
+
+      // Display results
+      document.getElementById('jb-res-total').textContent = fmt(economie);
+      document.getElementById('jb-res-annual').textContent = fmt(economieAnnuelle) + '/an';
+      document.getElementById('jb-res-taux').textContent = pct(tauxFinal * 100);
+      document.getElementById('jb-res-cashflow').textContent = (cashflowMensuel >= 0 ? '+' : '') + fmt(cashflowMensuel) + '/mois';
+      document.getElementById('jb-res-rendement').textContent = pct(rendementNet);
+
+      // Color cashflow
+      var cfEl = document.getElementById('jb-res-cashflow');
+      cfEl.style.color = cashflowMensuel >= 0 ? '#95E8DF' : '#fca5a5';
+
+      // SVG Chart
+      var impotEstime = (tmi / 100) * 40000; // rough estimate based on TMI
+      var impotApres = Math.max(0, impotEstime - economieAnnuelle);
+      drawJBChart(impotEstime, impotApres);
+    }
+
+    function drawJBChart(impotSans, impotAvec) {
+      var svg = document.getElementById('jb-chart');
+      var maxVal = Math.max(impotSans, 1);
+      var h1 = Math.max((impotSans / maxVal) * 140, 10);
+      var h2 = Math.max((impotAvec / maxVal) * 140, 10);
+      var y1 = 160 - h1;
+      var y2 = 160 - h2;
+
+      svg.innerHTML =
+        '<rect x="60" y="' + y1 + '" width="100" height="' + h1 + '" fill="#ef4444" rx="4"/>' +
+        '<text x="110" y="' + (y1 - 8) + '" text-anchor="middle" fill="#ef4444" font-size="13" font-family="JetBrains Mono,monospace" font-weight="600">' + fmt(impotSans) + '</text>' +
+        '<text x="110" y="180" text-anchor="middle" fill="rgba(255,255,255,.5)" font-size="11">Sans investissement</text>' +
+        '<rect x="240" y="' + y2 + '" width="100" height="' + h2 + '" fill="#4ECDC4" rx="4"/>' +
+        '<text x="290" y="' + (y2 - 8) + '" text-anchor="middle" fill="#4ECDC4" font-size="13" font-family="JetBrains Mono,monospace" font-weight="600">' + fmt(impotAvec) + '</text>' +
+        '<text x="290" y="180" text-anchor="middle" fill="rgba(255,255,255,.5)" font-size="11">Avec Jeanbrun</text>';
+    }
+
+    /* ============================================
+       TAB 2: LMNP
+       ============================================ */
+    function calcLMNP() {
+      var prix = parseInt(document.getElementById('lmnp-prix').value);
+      var type = document.getElementById('lmnp-type').value;
+      var loyer = parseInt(document.getElementById('lmnp-loyer').value);
+      var charges = parseInt(document.getElementById('lmnp-charges').value);
+      var tmi = parseInt(document.getElementById('lmnp-tmi').value);
+
+      // Update displays
+      document.getElementById('lmnp-prix-display').textContent = fmt(prix);
+      document.getElementById('lmnp-loyer-display').textContent = fmt(loyer);
+      document.getElementById('lmnp-charges-display').textContent = fmt(charges);
+
+      // Calculation
+      var fraisNotaire = prix * (type === 'neuf' ? 0.025 : 0.075);
+      var prixRevient = prix + fraisNotaire;
+      var amortBien = (prixRevient * 0.85) / 30;
+      var amortMobilier = (prixRevient * 0.05) / 10;
+      var amortTotal = amortBien + amortMobilier;
+      var loyersAnnuels = loyer * 12;
+      var baseImposable = Math.max(0, loyersAnnuels - charges - amortTotal);
+      var impotEvite = (loyersAnnuels - baseImposable) * (tmi / 100);
+      var rendementBrut = (loyersAnnuels / prixRevient) * 100;
+      var rendementNet = ((loyersAnnuels - charges) / prixRevient) * 100;
+
+      // Display results
+      document.getElementById('lmnp-res-total').textContent = fmt(impotEvite);
+      document.getElementById('lmnp-res-revient').textContent = fmt(prixRevient);
+      document.getElementById('lmnp-res-amort').textContent = fmt(amortTotal) + '/an';
+      document.getElementById('lmnp-res-base').textContent = fmt(baseImposable);
+      document.getElementById('lmnp-res-brut').textContent = pct(rendementBrut);
+      document.getElementById('lmnp-res-net').textContent = pct(rendementNet);
+    }
+
+    /* ============================================
+       TAB 3: DENORMANDIE
+       ============================================ */
+    var DN_TAUX = {
+      'Abis': { 6: 0.29, 9: 0.32, 12: 0.34 },
+      'A':    { 6: 0.23, 9: 0.26, 12: 0.28 },
+      'B1':   { 6: 0.17, 9: 0.20, 12: 0.23 }
+    };
+
+    function calcDenormandie() {
+      var prix = parseInt(document.getElementById('dn-prix').value);
+      var travaux = parseInt(document.getElementById('dn-travaux').value);
+      var zone = document.getElementById('dn-zone').value;
+      var duree = getRadioVal('dn-duree');
+      var tmi = parseInt(document.getElementById('dn-tmi').value);
+
+      // Update displays
+      document.getElementById('dn-prix-display').textContent = fmt(prix);
+      document.getElementById('dn-travaux-display').textContent = fmt(travaux);
+
+      // Check 25% minimum
+      var minTravaux = prix * 0.25;
+      var warning = document.getElementById('dn-warning');
+      if (travaux < minTravaux) {
+        warning.style.display = 'block';
+      } else {
+        warning.style.display = 'none';
+      }
+
+      // Calculation
+      var assiette = Math.min(prix + travaux, 300000);
+      var taux = DN_TAUX[zone][duree];
+      var economie = assiette * taux;
+      var economieAnnuelle = economie / duree;
+
+      // Display results
+      document.getElementById('dn-res-total').textContent = fmt(economie);
+      document.getElementById('dn-res-assiette').textContent = fmt(assiette);
+      document.getElementById('dn-res-annual').textContent = fmt(economieAnnuelle) + '/an';
+      document.getElementById('dn-res-taux').textContent = pct(taux * 100);
+    }
+
+    /* ============================================
+       TAB 4: BILAN PATRIMONIAL
+       ============================================ */
+    function calcBilan() {
+      var revenus = parseInt(document.getElementById('bp-revenus').value);
+      var immo = parseInt(document.getElementById('bp-immo').value);
+      var financier = parseInt(document.getElementById('bp-financier').value);
+      var credits = parseInt(document.getElementById('bp-credits').value);
+      var objectif = document.getElementById('bp-objectif').value;
+      var age = parseInt(document.getElementById('bp-age').value);
+
+      // Update displays
+      document.getElementById('bp-revenus-display').textContent = fmt(revenus);
+      document.getElementById('bp-immo-display').textContent = fmt(immo);
+      document.getElementById('bp-financier-display').textContent = fmt(financier);
+      document.getElementById('bp-credits-display').textContent = fmt(credits);
+      document.getElementById('bp-age-display').textContent = age + ' ans';
+
+      // Calculations
+      var patrimoineNet = immo + financier - credits;
+      var tauxEndettement = revenus > 0 ? (credits / revenus * 100) : 0;
+      var capaciteEpargne = Math.max(0, revenus * 0.15); // estimate 15% savings
+      var tmi = getTMI(revenus);
+
+      // Profil investisseur
+      var profil = 'Prudent';
+      if (patrimoineNet > 500000 && revenus > 80000) profil = 'Dynamique';
+      else if (patrimoineNet > 200000 || revenus > 50000) profil = 'Equilibre';
+
+      // Display
+      document.getElementById('bp-res-patrimoine').textContent = fmt(patrimoineNet);
+      document.getElementById('bp-res-endettement').textContent = pct(tauxEndettement);
+      document.getElementById('bp-res-epargne').textContent = fmt(capaciteEpargne) + '/an';
+      document.getElementById('bp-res-tmi').textContent = tmi + '%';
+      document.getElementById('bp-res-profil').textContent = profil;
+
+      // Recommendation
+      var recoTitre = '';
+      var recoTexte = '';
+
+      if (objectif === 'defiscaliser') {
+        if (tmi >= 30) {
+          recoTitre = 'Recommandation : Jeanbrun Social';
+          recoTexte = 'Selon votre profil, le dispositif Jeanbrun Social semble le plus adapte. Avec une TMI a ' + tmi + '%, vous pouvez beneficier d\'une reduction d\'impot significative sur un investissement dans le neuf en zone tendue.';
+        } else {
+          recoTitre = 'Recommandation : LMNP';
+          recoTexte = 'Avec une TMI a ' + tmi + '%, le regime LMNP avec amortissement permet de generer des revenus locatifs faiblement imposes, tout en constituant un patrimoine immobilier.';
+        }
+      } else if (objectif === 'revenus') {
+        recoTitre = 'Recommandation : LMNP';
+        recoTexte = 'Pour generer des revenus complementaires, le LMNP en meuble offre les meilleurs rendements locatifs avec une fiscalite optimisee grace au mecanisme d\'amortissement.';
+      } else if (objectif === 'retraite') {
+        if (age < 45) {
+          recoTitre = 'Recommandation : Jeanbrun Social + SCPI';
+          recoTexte = 'A ' + age + ' ans, vous avez le temps de construire un patrimoine diversifie. Combinez un investissement Jeanbrun pour la defiscalisation et des SCPI pour des revenus automatiques a la retraite.';
+        } else {
+          recoTitre = 'Recommandation : SCPI de rendement';
+          recoTexte = 'A ' + age + ' ans, privilegiez les SCPI qui offrent des revenus reguliers sans gestion et une liquidite superieure a l\'immobilier direct. Completet avec du LMNP pour l\'optimisation fiscale.';
+        }
+      } else if (objectif === 'transmission') {
+        recoTitre = 'Recommandation : SCI + Demembrement';
+        recoTexte = 'Pour optimiser la transmission de votre patrimoine, la creation d\'une SCI avec demembrement de propriete permet de transmettre progressivement a vos heritiers tout en conservant l\'usufruit.';
+      }
+
+      document.getElementById('bp-reco-titre').textContent = recoTitre;
+      document.getElementById('bp-reco-texte').textContent = recoTexte;
+    }
+
+    /* ============================================
+       SAVE SIMULATION
+       ============================================ */
+    function saveSimulation(type) {
+      var data = { type: type, date: new Date().toISOString() };
+
+      if (type === 'jeanbrun') {
+        data.montant = document.getElementById('jb-montant').value;
+        data.zone = document.getElementById('jb-zone').value;
+        data.duree = getRadioVal('jb-duree');
+        data.tmi = document.getElementById('jb-tmi').value;
+        data.partSociale = document.getElementById('jb-social').value;
+        data.loyer = document.getElementById('jb-loyer').value;
+        data.credit = document.getElementById('jb-credit').value;
+        data.resultat = document.getElementById('jb-res-total').textContent;
+      } else if (type === 'lmnp') {
+        data.prix = document.getElementById('lmnp-prix').value;
+        data.type_bien = document.getElementById('lmnp-type').value;
+        data.loyer = document.getElementById('lmnp-loyer').value;
+        data.charges = document.getElementById('lmnp-charges').value;
+        data.tmi = document.getElementById('lmnp-tmi').value;
+        data.resultat = document.getElementById('lmnp-res-total').textContent;
+      } else if (type === 'denormandie') {
+        data.prix = document.getElementById('dn-prix').value;
+        data.travaux = document.getElementById('dn-travaux').value;
+        data.zone = document.getElementById('dn-zone').value;
+        data.duree = getRadioVal('dn-duree');
+        data.tmi = document.getElementById('dn-tmi').value;
+        data.resultat = document.getElementById('dn-res-total').textContent;
+      } else if (type === 'bilan') {
+        data.revenus = document.getElementById('bp-revenus').value;
+        data.immo = document.getElementById('bp-immo').value;
+        data.financier = document.getElementById('bp-financier').value;
+        data.credits = document.getElementById('bp-credits').value;
+        data.objectif = document.getElementById('bp-objectif').value;
+        data.age = document.getElementById('bp-age').value;
+        data.resultat = document.getElementById('bp-res-patrimoine').textContent;
+      }
+
+      // Save to localStorage
+      var sims = JSON.parse(localStorage.getItem('stratege_simulations') || '[]');
+      sims.push(data);
+      localStorage.setItem('stratege_simulations', JSON.stringify(sims));
+
+      // Try saving to KV if JWT available
+      var token = localStorage.getItem('stratege_jwt');
+      if (token) {
+        fetch('/api/simulations', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify(data)
+        }).catch(function() {});
+      }
+
+      if (typeof showToast === 'function') {
+        showToast('Simulation sauvegardee !', 'success');
+      } else {
+        alert('Simulation sauvegardee !');
+      }
+    }
+
+    /* ---- Initialize all tabs ---- */
+    calcJeanbrun();
+    calcLMNP();
+    calcDenormandie();
+    calcBilan();
+  </script>
+
+</body>
+</html>
