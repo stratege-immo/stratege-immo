@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Comparateur de programmes immobiliers — Stratege</title>
+  <meta name="description" content="Comparez jusqu'a 3 programmes immobiliers cote a cote : prix, rendement, surface, ville, dispositif fiscal, DPE." />
+  <link rel="canonical" href="https://stratege-immo.fr/comparer" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css?v=124" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#4ECDC4">
+  <style>
+    .compare-container { max-width:1100px;margin:0 auto;padding:40px 20px }
+    .compare-table { width:100%;border-collapse:separate;border-spacing:0;background:var(--surface-1);border-radius:16px;overflow:hidden;border:1px solid var(--neutral-200) }
+    .compare-table th, .compare-table td { padding:14px 18px;text-align:left;border-bottom:1px solid var(--neutral-100);font-size:14px }
+    .compare-table th { background:var(--neutral-50);font-weight:600;color:var(--neutral-600);font-size:13px;text-transform:uppercase;letter-spacing:.5px }
+    .compare-table td:first-child { font-weight:500;color:var(--neutral-700);background:var(--neutral-50);min-width:140px }
+    .compare-table td.best { background:rgba(78,205,196,.12) }
+    .compare-table tr:last-child td { border-bottom:none }
+    .compare-header-cell { text-align:center }
+    .compare-header-cell img { width:100%;height:120px;object-fit:cover;border-radius:8px;margin-bottom:8px }
+    .compare-header-cell h3 { font-family:var(--font-display);font-size:15px;margin:0 0 4px }
+    .compare-header-cell .badge-src { display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;margin-bottom:8px }
+    .compare-actions { display:flex;gap:8px;justify-content:center;margin-top:8px }
+    .compare-actions a { padding:8px 14px;border-radius:999px;font-size:13px;font-weight:600;text-decoration:none;transition:opacity .2s }
+    .compare-actions .btn-sim { background:#4ECDC4;color:#1B2A4A }
+    .compare-actions .btn-res { background:var(--neutral-800);color:white }
+    .compare-actions a:hover { opacity:.85 }
+
+    .selector-container { max-width:700px;margin:0 auto }
+    .selector-grid { display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:20px }
+    .selector-col select { width:100%;padding:10px 12px;border:1px solid var(--neutral-200);border-radius:var(--radius-sm);font-size:14px;background:white }
+    .selector-col { display:flex;flex-direction:column;gap:8px }
+    .selector-col label { font-size:13px;font-weight:500;color:var(--neutral-600) }
+    .share-bar { display:flex;justify-content:center;gap:12px;margin-top:24px }
+    .share-bar button { padding:10px 20px;border-radius:999px;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:opacity .2s }
+    .share-bar button:hover { opacity:.85 }
+    .share-btn { background:#4ECDC4;color:#1B2A4A }
+    .reset-btn { background:var(--neutral-200);color:var(--neutral-700) }
+
+    @media(max-width:768px) {
+      .compare-table { display:block;overflow-x:auto }
+      .selector-grid { grid-template-columns:1fr }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar"></nav>
+
+  <main style="padding-top:100px;padding-bottom:60px">
+    <div class="compare-container">
+      <div style="text-align:center;margin-bottom:8px">
+        <span class="badge badge-teal" style="display:inline-block;margin-bottom:12px">Comparateur</span>
+        <h1 style="font-family:var(--font-display)">Comparer des programmes</h1>
+        <p style="color:var(--neutral-500);max-width:600px;margin:12px auto 0">
+          Comparez jusqu'a 3 programmes immobiliers cote a cote pour faire le meilleur choix d'investissement.
+        </p>
+      </div>
+
+      <!-- Selector (shown when no IDs in URL) -->
+      <div id="selector-section" class="selector-container" style="display:none">
+        <div class="card" style="padding:24px">
+          <h3 style="font-size:16px;margin-bottom:4px;text-align:center">Selectionnez les programmes a comparer</h3>
+          <p style="font-size:13px;color:var(--neutral-500);text-align:center;margin-bottom:16px">Choisissez entre 2 et 3 programmes</p>
+          <div class="selector-grid">
+            <div class="selector-col">
+              <label>Programme 1</label>
+              <select id="sel-1"><option value="">-- Choisir --</option></select>
+            </div>
+            <div class="selector-col">
+              <label>Programme 2</label>
+              <select id="sel-2"><option value="">-- Choisir --</option></select>
+            </div>
+            <div class="selector-col">
+              <label>Programme 3 (optionnel)</label>
+              <select id="sel-3"><option value="">-- Aucun --</option></select>
+            </div>
+          </div>
+          <div style="text-align:center;margin-top:20px">
+            <button onclick="launchCompare()" class="btn-primary" style="padding:12px 32px;font-size:15px">Comparer</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comparison table (shown when IDs present) -->
+      <div id="compare-section" style="display:none">
+        <table class="compare-table" id="compare-table">
+          <!-- Built by JS -->
+        </table>
+        <div class="share-bar">
+          <button class="share-btn" onclick="shareCompare()">Copier le lien de comparaison</button>
+          <button class="reset-btn" onclick="resetCompare()">Nouvelle comparaison</button>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div id="compare-loading" style="text-align:center;padding:60px 0;display:none">
+        <div style="font-size:18px;color:var(--neutral-500)">Chargement des programmes...</div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer"></footer>
+
+  <script src="assets/shared.js?v=124"></script>
+  <script>
+    renderNavbar();
+    renderFooter();
+
+    var BIENS_DATA = [
+      { id:'bien_001', titre:'Appartement T2 — Toulouse Capitole', ville:'Toulouse', surface:42, prix:189000, rendement:5.8, dispositif:'Jeanbrun Social', dpe:'B', effort_reel:248, loyer_estime:750, etage:'3eme sur 5', disponible:true, source:'stratege', image:'', tags:['Investissement','Jeanbrun','Centre-ville'] },
+      { id:'bien_002', titre:'Studio meuble — Lyon Part-Dieu', ville:'Lyon', surface:28, prix:145000, rendement:6.1, dispositif:'LMNP', dpe:'C', effort_reel:180, loyer_estime:620, etage:'5eme sur 8', disponible:true, source:'stratege', image:'', tags:['LMNP','Meuble','Rentabilite'] },
+      { id:'bien_003', titre:'T3 familial — Bordeaux Chartrons', ville:'Bordeaux', surface:68, prix:312000, rendement:4.9, dispositif:'Residence principale', dpe:'A', effort_reel:1380, loyer_estime:1100, etage:'2eme sur 4', disponible:true, source:'stratege', image:'', tags:['Residence principale','Famille'] },
+      { id:'bien_004', titre:'T2 neuf — Montpellier Antigone', ville:'Montpellier', surface:45, prix:198000, rendement:5.6, dispositif:'Jeanbrun Social', dpe:'A', effort_reel:290, loyer_estime:780, etage:'4eme sur 6', disponible:true, source:'stratege', image:'', tags:['Neuf','Jeanbrun'] },
+      { id:'bien_005', titre:'Studio — Nantes Centre', ville:'Nantes', surface:25, prix:125000, rendement:6.4, dispositif:'LMNP', dpe:'C', effort_reel:155, loyer_estime:550, etage:'1er sur 3', disponible:false, source:'stratege', image:'', tags:['LMNP','Etudiant'] },
+      { id:'bien_006', titre:'T4 standing — Paris 11eme', ville:'Paris', surface:85, prix:890000, rendement:3.8, dispositif:'Deficit foncier', dpe:'D', effort_reel:1500, loyer_estime:2800, etage:'6eme sur 7', disponible:true, source:'stratege', image:'', tags:['Paris','Deficit foncier'] },
+      { id:'bien_007', titre:'T2 neuf — Rennes Beaulieu', ville:'Rennes', surface:40, prix:175000, rendement:5.5, dispositif:'Jeanbrun Social', dpe:'A', effort_reel:220, loyer_estime:680, etage:'2eme sur 5', disponible:true, source:'stratege', image:'', tags:['Neuf','Jeanbrun'] },
+      { id:'bien_008', titre:'T3 Denormandie — Marseille Joliette', ville:'Marseille', surface:62, prix:220000, rendement:5.9, dispositif:'Denormandie', dpe:'C', effort_reel:280, loyer_estime:900, etage:'3eme sur 6', disponible:true, source:'stratege', image:'', tags:['Ancien renove','Denormandie'] },
+      { id:'bien_009', titre:'Studio meuble — Lille Wazemmes', ville:'Lille', surface:22, prix:112000, rendement:6.7, dispositif:'LMNP', dpe:'B', effort_reel:130, loyer_estime:520, etage:'4eme sur 5', disponible:true, source:'stratege', image:'', tags:['LMNP','Meuble'] },
+      { id:'bien_010', titre:'T2 neuf — Strasbourg Neudorf', ville:'Strasbourg', surface:44, prix:205000, rendement:5.4, dispositif:'Jeanbrun Social', dpe:'A', effort_reel:300, loyer_estime:790, etage:'1er sur 4', disponible:true, source:'stratege', image:'', tags:['Neuf','Jeanbrun'] },
+      { id:'bien_011', titre:'T3 residence seniors — Nice Cimiez', ville:'Nice', surface:58, prix:285000, rendement:5.2, dispositif:'LMNP', dpe:'B', effort_reel:380, loyer_estime:1050, etage:'2eme sur 5', disponible:true, source:'stratege', image:'', tags:['LMNP','Seniors'] },
+      { id:'bien_012', titre:'T2 — Villeurbanne Campus', ville:'Villeurbanne', surface:38, prix:168000, rendement:5.7, dispositif:'Jeanbrun Social', dpe:'A', effort_reel:210, loyer_estime:660, etage:'3eme sur 7', disponible:true, source:'stratege', image:'', tags:['Neuf','Jeanbrun'] }
+    ];
+
+    var allProgrammes = [];
+    var selectedIds = [];
+
+    function fmt(n) { return n ? Math.round(n).toLocaleString('fr-FR') : '-'; }
+
+    async function init() {
+      // Load senioriales
+      var senData = { programmes: [] };
+      try {
+        var resp = await fetch('/api/senioriales/programmes');
+        if (resp.ok) senData = await resp.json();
+      } catch(e) {}
+
+      var senBiens = (senData.programmes || []).map(function(p) {
+        return {
+          id: p.id,
+          titre: p.titre || 'Programme Senioriales',
+          ville: p.ville || '',
+          surface: null,
+          prix: p.prix_min || 0,
+          rendement: null,
+          dispositif: p.dispositif || 'residence-senior',
+          dpe: null,
+          effort_reel: null,
+          loyer_estime: null,
+          disponible: true,
+          source: 'senioriales',
+          image: p.image || '',
+          tags: [p.types || 'Residence Senior'],
+          lots: p.lots_count || null,
+          description: p.description || ''
+        };
+      });
+
+      allProgrammes = BIENS_DATA.concat(senBiens);
+
+      // Check URL params
+      var params = new URLSearchParams(window.location.search);
+      var idsParam = params.get('ids');
+
+      if (idsParam) {
+        selectedIds = idsParam.split(',').filter(Boolean).slice(0, 3);
+        if (selectedIds.length >= 2) {
+          showComparison();
+          return;
+        }
+      }
+
+      // Show selector
+      showSelector();
+    }
+
+    function showSelector() {
+      document.getElementById('selector-section').style.display = 'block';
+      document.getElementById('compare-section').style.display = 'none';
+      document.getElementById('compare-loading').style.display = 'none';
+
+      var selects = [document.getElementById('sel-1'), document.getElementById('sel-2'), document.getElementById('sel-3')];
+      selects.forEach(function(sel) {
+        var firstOpt = sel.options[0];
+        sel.innerHTML = '';
+        sel.appendChild(firstOpt);
+        allProgrammes.forEach(function(p) {
+          var label = p.titre + ' — ' + (p.prix ? fmt(p.prix) + ' EUR' : 'Prix sur demande') + (p.source === 'senioriales' ? ' (Senioriales)' : '');
+          sel.add(new Option(label, p.id));
+        });
+      });
+
+      // Pre-select if IDs in URL
+      if (selectedIds.length >= 1) document.getElementById('sel-1').value = selectedIds[0];
+      if (selectedIds.length >= 2) document.getElementById('sel-2').value = selectedIds[1];
+      if (selectedIds.length >= 3) document.getElementById('sel-3').value = selectedIds[2];
+    }
+
+    function launchCompare() {
+      var ids = [];
+      var s1 = document.getElementById('sel-1').value;
+      var s2 = document.getElementById('sel-2').value;
+      var s3 = document.getElementById('sel-3').value;
+      if (s1) ids.push(s1);
+      if (s2) ids.push(s2);
+      if (s3) ids.push(s3);
+
+      if (ids.length < 2) {
+        if (typeof showToast === 'function') showToast('Selectionnez au moins 2 programmes', 'error');
+        else alert('Selectionnez au moins 2 programmes');
+        return;
+      }
+
+      selectedIds = ids;
+      var url = new URL(window.location);
+      url.searchParams.set('ids', ids.join(','));
+      history.replaceState(null, '', url.toString());
+      showComparison();
+    }
+
+    function showComparison() {
+      document.getElementById('selector-section').style.display = 'none';
+      document.getElementById('compare-loading').style.display = 'block';
+
+      var programmes = selectedIds.map(function(id) {
+        return allProgrammes.find(function(p) { return p.id === id; });
+      }).filter(Boolean);
+
+      if (programmes.length < 2) {
+        showSelector();
+        return;
+      }
+
+      document.getElementById('compare-loading').style.display = 'none';
+      document.getElementById('compare-section').style.display = 'block';
+      buildTable(programmes);
+    }
+
+    function bestValue(programmes, key, mode) {
+      // mode: 'max' for higher is better, 'min' for lower is better
+      var vals = programmes.map(function(p) { return p[key]; }).filter(function(v) { return v !== null && v !== undefined && v !== 0; });
+      if (!vals.length) return null;
+      return mode === 'min' ? Math.min.apply(null, vals) : Math.max.apply(null, vals);
+    }
+
+    function cellClass(val, best) {
+      if (val === null || val === undefined || val === 0 || best === null) return '';
+      return val === best ? 'best' : '';
+    }
+
+    function buildTable(programmes) {
+      var cols = programmes.length;
+
+      var rows = [
+        { label: 'Prix', key: 'prix', format: function(v) { return v ? fmt(v) + ' EUR' : 'Sur demande'; }, best: 'min' },
+        { label: 'Rendement', key: 'rendement', format: function(v) { return v ? v + ' %' : '-'; }, best: 'max' },
+        { label: 'Surface', key: 'surface', format: function(v) { return v ? v + ' m2' : '-'; }, best: 'max' },
+        { label: 'Ville', key: 'ville', format: function(v) { return v || '-'; }, best: null },
+        { label: 'Dispositif', key: 'dispositif', format: function(v) { return v || '-'; }, best: null },
+        { label: 'DPE', key: 'dpe', format: function(v) { return v || '-'; }, best: null },
+        { label: 'Loyer estime', key: 'loyer_estime', format: function(v) { return v ? fmt(v) + ' EUR/mois' : '-'; }, best: 'max' },
+        { label: 'Effort reel', key: 'effort_reel', format: function(v) { return v ? fmt(v) + ' EUR/mois' : '-'; }, best: 'min' },
+        { label: 'Source', key: 'source', format: function(v) { return v === 'senioriales' ? 'Senioriales' : 'Stratege'; }, best: null },
+        { label: 'Disponible', key: 'disponible', format: function(v) { return v ? 'Oui' : 'Non'; }, best: null }
+      ];
+
+      var html = '<thead><tr><th></th>';
+      programmes.forEach(function(p) {
+        var imgHtml = '';
+        if (p.image) {
+          imgHtml = '<img src="' + p.image + '" alt="' + p.titre + '" onerror="this.style.display=\'none\'" />';
+        }
+        var srcBadge = p.source === 'senioriales'
+          ? '<span class="badge-src" style="background:#00897b;color:white">Senioriales</span>'
+          : '<span class="badge-src" style="background:#4ECDC4;color:#1B2A4A">Stratege</span>';
+        html += '<th class="compare-header-cell">' + imgHtml + srcBadge + '<h3>' + p.titre + '</h3></th>';
+      });
+      html += '</tr></thead><tbody>';
+
+      rows.forEach(function(row) {
+        var bestVal = row.best ? bestValue(programmes, row.key, row.best) : null;
+        html += '<tr><td>' + row.label + '</td>';
+        programmes.forEach(function(p) {
+          var val = p[row.key];
+          var cls = row.best ? cellClass(val, bestVal) : '';
+          html += '<td class="' + cls + '">' + row.format(val) + '</td>';
+        });
+        html += '</tr>';
+      });
+
+      // Action row
+      html += '<tr><td>Actions</td>';
+      programmes.forEach(function(p) {
+        html += '<td style="text-align:center"><div class="compare-actions">' +
+          (p.prix ? '<a href="simulation.html?montant=' + p.prix + '" class="btn-sim">Simuler</a>' : '') +
+          '<a href="bien-detail.html?id=' + p.id + '" class="btn-res">Voir</a>' +
+        '</div></td>';
+      });
+      html += '</tr>';
+
+      html += '</tbody>';
+      document.getElementById('compare-table').innerHTML = html;
+    }
+
+    function shareCompare() {
+      var url = window.location.href;
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(function() {
+          if (typeof showToast === 'function') showToast('Lien copie dans le presse-papier !', 'success');
+        });
+      }
+    }
+
+    function resetCompare() {
+      selectedIds = [];
+      var url = new URL(window.location);
+      url.searchParams.delete('ids');
+      history.replaceState(null, '', url.toString());
+      showSelector();
+    }
+
+    init();
+  </script>
+
+</body>
+</html>

@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/style.css?v=123" />
+  <link rel="stylesheet" href="assets/style.css?v=124" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#4ECDC4">
@@ -109,12 +109,117 @@
         </div>
 
       </div>
+
+      <!-- FAQ Section -->
+      <div class="faq-section" style="margin-top:64px">
+        <h2 style="font-family:var(--font-display);text-align:center;margin-bottom:32px;font-size:1.5rem">Questions frequentes</h2>
+
+        <div class="faq-item" style="border:1px solid var(--neutral-200);border-radius:12px;margin-bottom:12px;overflow:hidden">
+          <button class="faq-toggle" onclick="toggleFaq(this)" style="width:100%;padding:20px 24px;background:none;border:none;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:16px;font-weight:500;color:var(--neutral-800);text-align:left">
+            Comment fonctionne Stratege ?
+            <span style="font-size:20px;transition:transform .3s;color:var(--neutral-400)">+</span>
+          </button>
+          <div class="faq-content" style="max-height:0;overflow:hidden;transition:max-height .3s ease;padding:0 24px">
+            <p style="padding-bottom:20px;color:var(--neutral-600);line-height:1.7">Stratege est une plateforme digitale de conseil en investissement immobilier, adossee a une equipe de conseillers en gestion de patrimoine. Nous combinons la puissance d'outils numeriques (simulateurs, comparateurs, souscription en ligne) avec un accompagnement humain personnalise. Vous beneficiez du meilleur des deux mondes : la rapidite du digital et l'expertise d'un conseiller dedie.</p>
+          </div>
+        </div>
+
+        <div class="faq-item" style="border:1px solid var(--neutral-200);border-radius:12px;margin-bottom:12px;overflow:hidden">
+          <button class="faq-toggle" onclick="toggleFaq(this)" style="width:100%;padding:20px 24px;background:none;border:none;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:16px;font-weight:500;color:var(--neutral-800);text-align:left">
+            Quels sont les frais ?
+            <span style="font-size:20px;transition:transform .3s;color:var(--neutral-400)">+</span>
+          </button>
+          <div class="faq-content" style="max-height:0;overflow:hidden;transition:max-height .3s ease;padding:0 24px">
+            <p style="padding-bottom:20px;color:var(--neutral-600);line-height:1.7">Pas de frais caches chez Stratege. Nos services de conseil, simulation et accompagnement sont gratuits pour le client. Notre remuneration provient exclusivement des commissions versees par les promoteurs immobiliers et les societes de gestion de SCPI avec lesquels nous travaillons. Vous ne payez donc rien de plus que si vous alliez directement chez le promoteur.</p>
+          </div>
+        </div>
+
+        <div class="faq-item" style="border:1px solid var(--neutral-200);border-radius:12px;margin-bottom:12px;overflow:hidden">
+          <button class="faq-toggle" onclick="toggleFaq(this)" style="width:100%;padding:20px 24px;background:none;border:none;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:16px;font-weight:500;color:var(--neutral-800);text-align:left">
+            Comment prendre rendez-vous ?
+            <span style="font-size:20px;transition:transform .3s;color:var(--neutral-400)">+</span>
+          </button>
+          <div class="faq-content" style="max-height:0;overflow:hidden;transition:max-height .3s ease;padding:0 24px">
+            <p style="padding-bottom:20px;color:var(--neutral-600);line-height:1.7">Vous pouvez prendre rendez-vous directement en ligne sur notre <a href="/rdv.html" style="color:var(--primary-500)">page de prise de rendez-vous</a>. Choisissez le creneau qui vous convient parmi les disponibilites affichees. Le rendez-vous peut se tenir en visioconference ou par telephone, selon votre preference. Comptez environ 30 minutes pour un premier echange.</p>
+          </div>
+        </div>
+
+        <div class="faq-item" style="border:1px solid var(--neutral-200);border-radius:12px;margin-bottom:12px;overflow:hidden">
+          <button class="faq-toggle" onclick="toggleFaq(this)" style="width:100%;padding:20px 24px;background:none;border:none;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:16px;font-weight:500;color:var(--neutral-800);text-align:left">
+            La simulation est-elle gratuite ?
+            <span style="font-size:20px;transition:transform .3s;color:var(--neutral-400)">+</span>
+          </button>
+          <div class="faq-content" style="max-height:0;overflow:hidden;transition:max-height .3s ease;padding:0 24px">
+            <p style="padding-bottom:20px;color:var(--neutral-600);line-height:1.7">Oui, 100 % gratuite et sans engagement. Nos simulateurs (investissement immobilier, pret, defiscalisation, SCPI) sont accessibles librement et ne necessitent aucune inscription. Vous obtenez une estimation personnalisee en quelques minutes. Si vous souhaitez aller plus loin, un conseiller peut approfondir votre projet gratuitement.</p>
+          </div>
+        </div>
+
+        <div class="faq-item" style="border:1px solid var(--neutral-200);border-radius:12px;margin-bottom:12px;overflow:hidden">
+          <button class="faq-toggle" onclick="toggleFaq(this)" style="width:100%;padding:20px 24px;background:none;border:none;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:16px;font-weight:500;color:var(--neutral-800);text-align:left">
+            Etes-vous agree ?
+            <span style="font-size:20px;transition:transform .3s;color:var(--neutral-400)">+</span>
+          </button>
+          <div class="faq-content" style="max-height:0;overflow:hidden;transition:max-height .3s ease;padding:0 24px">
+            <p style="padding-bottom:20px;color:var(--neutral-600);line-height:1.7">Oui. JESPER SAS, societe editrice de la marque Stratege, est titulaire de la carte professionnelle CPI 7501 2025 000 000 012, delivree par la CCI Paris Ile-de-France. Nous sommes egalement immatricules a l'ORIAS en tant que Courtier en Operations de Banque et en Services de Paiement (COBSP). Ces agrements garantissent notre conformite reglementaire et la protection de nos clients.</p>
+          </div>
+        </div>
+      </div>
+
     </div>
   </main>
 
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Comment fonctionne Stratege ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Stratege est une plateforme digitale de conseil en investissement immobilier, adossee a une equipe de conseillers en gestion de patrimoine. Nous combinons la puissance d'outils numeriques avec un accompagnement humain personnalise."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Quels sont les frais ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Pas de frais caches chez Stratege. Nos services de conseil, simulation et accompagnement sont gratuits pour le client. Notre remuneration provient exclusivement des commissions versees par les promoteurs immobiliers et les societes de gestion de SCPI."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Comment prendre rendez-vous ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Vous pouvez prendre rendez-vous directement en ligne sur notre page de prise de rendez-vous. Choisissez le creneau qui vous convient parmi les disponibilites affichees. Le rendez-vous peut se tenir en visioconference ou par telephone."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "La simulation est-elle gratuite ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Oui, 100 % gratuite et sans engagement. Nos simulateurs sont accessibles librement et ne necessitent aucune inscription. Vous obtenez une estimation personnalisee en quelques minutes."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Etes-vous agree ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Oui. JESPER SAS, societe editrice de la marque Stratege, est titulaire de la carte professionnelle CPI 7501 2025 000 000 012, delivree par la CCI Paris Ile-de-France. Nous sommes egalement immatricules a l'ORIAS."
+        }
+      }
+    ]
+  }
+  </script>
+
   <footer class="footer"></footer>
 
-  <script src="assets/shared.js?v=123"></script>
+  <script src="assets/shared.js?v=124"></script>
   <script>
     renderNavbar('contact');
     renderFooter();
@@ -164,7 +269,25 @@
         grid-template-columns: 1fr !important;
       }
     }
+    .faq-toggle:hover { background:var(--neutral-50) !important }
+    .faq-item.active .faq-toggle span { transform:rotate(45deg) }
+    .faq-item.active { border-color:var(--primary-300) !important }
   </style>
+  <script>
+    function toggleFaq(btn) {
+      var item = btn.parentElement;
+      var content = item.querySelector('.faq-content');
+      var isActive = item.classList.contains('active');
+      document.querySelectorAll('.faq-item.active').forEach(function(el) {
+        el.classList.remove('active');
+        el.querySelector('.faq-content').style.maxHeight = '0';
+      });
+      if (!isActive) {
+        item.classList.add('active');
+        content.style.maxHeight = content.scrollHeight + 'px';
+      }
+    }
+  </script>
 
 </body>
 </html>

@@ -339,3 +339,22 @@ document.addEventListener('DOMContentLoaded', function() {
     observer.observe(el);
   });
 });
+
+// ── Global error tracking ─────────────────────────────────
+window.onerror = function(msg, src, line, col, err) {
+  try {
+    fetch('/api/log/error', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: msg,
+        source: src,
+        line: line,
+        column: col,
+        stack: err && err.stack ? err.stack.slice(0, 500) : '',
+        url: window.location.href,
+        timestamp: new Date().toISOString()
+      })
+    }).catch(function() {});
+  } catch(e) {}
+};

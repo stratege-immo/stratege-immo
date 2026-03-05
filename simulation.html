@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/style.css?v=123" />
+  <link rel="stylesheet" href="assets/style.css?v=124" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#4ECDC4">
@@ -195,6 +195,7 @@
 
             <div class="sim-actions">
               <button class="btn-sim btn-sim-primary" onclick="saveSimulation('jeanbrun')">Sauvegarder cette simulation</button>
+              <button class="btn-sim btn-sim-outline" onclick="shareSimulation('jeanbrun')">Partager cette simulation</button>
               <a href="rdv.html" class="btn-sim btn-sim-outline">Prendre RDV pour aller plus loin</a>
               <a href="catalogue.html" class="btn-sim btn-sim-outline">Voir les programmes eligibles</a>
             </div>
@@ -264,6 +265,7 @@
 
             <div class="sim-actions">
               <button class="btn-sim btn-sim-primary" onclick="saveSimulation('lmnp')">Sauvegarder cette simulation</button>
+              <button class="btn-sim btn-sim-outline" onclick="shareSimulation('lmnp')">Partager cette simulation</button>
               <a href="rdv.html" class="btn-sim btn-sim-outline">Prendre RDV pour aller plus loin</a>
               <a href="catalogue.html" class="btn-sim btn-sim-outline">Voir les programmes eligibles</a>
             </div>
@@ -337,6 +339,7 @@
 
             <div class="sim-actions">
               <button class="btn-sim btn-sim-primary" onclick="saveSimulation('denormandie')">Sauvegarder cette simulation</button>
+              <button class="btn-sim btn-sim-outline" onclick="shareSimulation('denormandie')">Partager cette simulation</button>
               <a href="rdv.html" class="btn-sim btn-sim-outline">Prendre RDV pour aller plus loin</a>
               <a href="catalogue.html" class="btn-sim btn-sim-outline">Voir les programmes eligibles</a>
             </div>
@@ -418,6 +421,7 @@
 
             <div class="sim-actions">
               <button class="btn-sim btn-sim-primary" onclick="saveSimulation('bilan')">Sauvegarder cette simulation</button>
+              <button class="btn-sim btn-sim-outline" onclick="shareSimulation('bilan')">Partager cette simulation</button>
               <button class="btn-sim btn-sim-outline" onclick="exportBilanPDF()">Telecharger le bilan PDF</button>
               <a href="rdv.html" class="btn-sim btn-sim-outline">Prendre RDV pour aller plus loin</a>
               <a href="catalogue.html" class="btn-sim btn-sim-outline">Voir les programmes eligibles</a>
@@ -431,11 +435,25 @@
         <strong>Avertissement :</strong> Ces simulations sont fournies a titre indicatif et ne constituent pas un conseil fiscal ou patrimonial. Les resultats dependent de votre situation personnelle. Les dispositifs fiscaux sont soumis a des conditions d'eligibilite specifiques. Consultez un conseiller en gestion de patrimoine pour une etude personnalisee.
       </div>
     </div>
+
+    <!-- Share modal -->
+    <div id="share-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);align-items:center;justify-content:center">
+      <div style="background:#fff;border-radius:16px;padding:32px;max-width:500px;width:90%;position:relative">
+        <button onclick="closeShareModal()" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:#868E96">&times;</button>
+        <h3 style="font-family:var(--font-display);font-size:20px;margin-bottom:8px">Partager cette simulation</h3>
+        <p style="font-size:14px;color:var(--neutral-500);margin-bottom:20px">Copiez le lien ci-dessous pour partager votre simulation avec un tiers.</p>
+        <div style="display:flex;gap:8px">
+          <input type="text" id="share-url" readonly style="flex:1;padding:12px 16px;border:1px solid var(--neutral-200);border-radius:8px;font-size:13px;font-family:'JetBrains Mono',monospace;background:var(--neutral-50);color:var(--neutral-700)" />
+          <button onclick="copyShareUrl()" class="btn-primary btn-small" id="share-copy-btn" style="white-space:nowrap">Copier</button>
+        </div>
+        <div id="share-msg" style="margin-top:8px;font-size:13px;color:var(--success-600);display:none">Lien copie dans le presse-papiers !</div>
+      </div>
+    </div>
   </main>
 
   <footer class="footer"></footer>
 
-  <script src="assets/shared.js?v=123"></script>
+  <script src="assets/shared.js?v=124"></script>
   <script>
     renderNavbar('simulation');
     renderFooter();
@@ -741,11 +759,162 @@
       }
     }
 
+    /* ---- Sharing ---- */
+    function getSimulationData(type) {
+      var data = { type: type, date: new Date().toISOString() };
+      if (type === 'jeanbrun') {
+        data.montant = document.getElementById('jb-montant').value;
+        data.zone = document.getElementById('jb-zone').value;
+        data.duree = getRadioVal('jb-duree');
+        data.tmi = document.getElementById('jb-tmi').value;
+        data.partSociale = document.getElementById('jb-social').value;
+        data.loyer = document.getElementById('jb-loyer').value;
+        data.credit = document.getElementById('jb-credit').value;
+        data.resultat = document.getElementById('jb-res-total').textContent;
+      } else if (type === 'lmnp') {
+        data.prix = document.getElementById('lmnp-prix').value;
+        data.type_bien = document.getElementById('lmnp-type').value;
+        data.loyer = document.getElementById('lmnp-loyer').value;
+        data.charges = document.getElementById('lmnp-charges').value;
+        data.tmi = document.getElementById('lmnp-tmi').value;
+        data.resultat = document.getElementById('lmnp-res-total').textContent;
+      } else if (type === 'denormandie') {
+        data.prix = document.getElementById('dn-prix').value;
+        data.travaux = document.getElementById('dn-travaux').value;
+        data.zone = document.getElementById('dn-zone').value;
+        data.duree = getRadioVal('dn-duree');
+        data.tmi = document.getElementById('dn-tmi').value;
+        data.resultat = document.getElementById('dn-res-total').textContent;
+      } else if (type === 'bilan') {
+        data.revenus = document.getElementById('bp-revenus').value;
+        data.immo = document.getElementById('bp-immo').value;
+        data.financier = document.getElementById('bp-financier').value;
+        data.credits = document.getElementById('bp-credits').value;
+        data.objectif = document.getElementById('bp-objectif').value;
+        data.age = document.getElementById('bp-age').value;
+        data.resultat = document.getElementById('bp-res-patrimoine').textContent;
+      }
+      return data;
+    }
+
+    async function shareSimulation(type) {
+      var data = getSimulationData(type);
+      try {
+        var res = await fetch('/api/simulations/share', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        var result = await res.json();
+        if (result.success) {
+          document.getElementById('share-url').value = result.url;
+          document.getElementById('share-modal').style.display = 'flex';
+          document.getElementById('share-msg').style.display = 'none';
+        } else {
+          if (typeof showToast === 'function') showToast('Erreur lors du partage', 'error');
+          else alert('Erreur lors du partage');
+        }
+      } catch (err) {
+        if (typeof showToast === 'function') showToast('Erreur reseau', 'error');
+        else alert('Erreur reseau');
+      }
+    }
+
+    function closeShareModal() {
+      document.getElementById('share-modal').style.display = 'none';
+    }
+
+    function copyShareUrl() {
+      var input = document.getElementById('share-url');
+      input.select();
+      input.setSelectionRange(0, 99999);
+      navigator.clipboard.writeText(input.value).then(function() {
+        document.getElementById('share-msg').style.display = 'block';
+        document.getElementById('share-copy-btn').textContent = 'Copie !';
+        setTimeout(function() {
+          document.getElementById('share-copy-btn').textContent = 'Copier';
+        }, 2000);
+      }).catch(function() {
+        document.execCommand('copy');
+        document.getElementById('share-msg').style.display = 'block';
+      });
+    }
+
+    // Close share modal on outside click
+    document.getElementById('share-modal').addEventListener('click', function(e) {
+      if (e.target === this) closeShareModal();
+    });
+
+    // Load shared simulation on page load
+    function loadSharedSimulation() {
+      var params = new URLSearchParams(window.location.search);
+      var sharedHash = params.get('shared');
+      if (!sharedHash) return;
+
+      fetch('/api/simulations/share?hash=' + encodeURIComponent(sharedHash))
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          if (!data.success || !data.simulation) return;
+          var sim = data.simulation;
+
+          // Switch to the right tab
+          if (sim.type) switchTab(sim.type);
+
+          // Populate fields
+          if (sim.type === 'jeanbrun') {
+            if (sim.montant) { document.getElementById('jb-montant').value = sim.montant; }
+            if (sim.zone) { document.getElementById('jb-zone').value = sim.zone; }
+            if (sim.duree) {
+              var radios = document.querySelectorAll('input[name="jb-duree"]');
+              radios.forEach(function(r) { r.checked = parseInt(r.value) === parseInt(sim.duree); });
+            }
+            if (sim.tmi) { document.getElementById('jb-tmi').value = sim.tmi; }
+            if (sim.partSociale) { document.getElementById('jb-social').value = sim.partSociale; }
+            if (sim.loyer) { document.getElementById('jb-loyer').value = sim.loyer; }
+            if (sim.credit) { document.getElementById('jb-credit').value = sim.credit; }
+            calcJeanbrun();
+          } else if (sim.type === 'lmnp') {
+            if (sim.prix) { document.getElementById('lmnp-prix').value = sim.prix; }
+            if (sim.type_bien) { document.getElementById('lmnp-type').value = sim.type_bien; }
+            if (sim.loyer) { document.getElementById('lmnp-loyer').value = sim.loyer; }
+            if (sim.charges) { document.getElementById('lmnp-charges').value = sim.charges; }
+            if (sim.tmi) { document.getElementById('lmnp-tmi').value = sim.tmi; }
+            calcLMNP();
+          } else if (sim.type === 'denormandie') {
+            if (sim.prix) { document.getElementById('dn-prix').value = sim.prix; }
+            if (sim.travaux) { document.getElementById('dn-travaux').value = sim.travaux; }
+            if (sim.zone) { document.getElementById('dn-zone').value = sim.zone; }
+            if (sim.duree) {
+              var radios = document.querySelectorAll('input[name="dn-duree"]');
+              radios.forEach(function(r) { r.checked = parseInt(r.value) === parseInt(sim.duree); });
+            }
+            if (sim.tmi) { document.getElementById('dn-tmi').value = sim.tmi; }
+            calcDenormandie();
+          } else if (sim.type === 'bilan') {
+            if (sim.revenus) { document.getElementById('bp-revenus').value = sim.revenus; }
+            if (sim.immo) { document.getElementById('bp-immo').value = sim.immo; }
+            if (sim.financier) { document.getElementById('bp-financier').value = sim.financier; }
+            if (sim.credits) { document.getElementById('bp-credits').value = sim.credits; }
+            if (sim.objectif) { document.getElementById('bp-objectif').value = sim.objectif; }
+            if (sim.age) { document.getElementById('bp-age').value = sim.age; }
+            calcBilan();
+          }
+
+          if (typeof showToast === 'function') {
+            showToast('Simulation partagee chargee', 'info');
+          }
+        })
+        .catch(function() {});
+    }
+
     /* ---- Initialize all tabs ---- */
     calcJeanbrun();
     calcLMNP();
     calcDenormandie();
     calcBilan();
+
+    // Load shared simulation after init
+    loadSharedSimulation();
 
     /* ---- PDF Export (Bilan Patrimonial) ---- */
     function exportBilanPDF() {

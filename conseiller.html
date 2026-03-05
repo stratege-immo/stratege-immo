@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Espace Conseiller — Stratege</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css?v=124" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#4ECDC4">
+  <style>
+    .admin-login { max-width:400px;margin:80px auto;padding:40px;background:var(--surface-1);border-radius:16px;border:1px solid var(--neutral-200); }
+    .admin-grid { display:grid;grid-template-columns:240px 1fr;min-height:100vh; }
+    .admin-sidebar { background:var(--neutral-800);color:#fff;padding:24px 0;position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column; }
+    .admin-sidebar h3 { padding:0 20px;font-size:14px;color:var(--primary-300);margin-bottom:20px;font-family:'Inter',sans-serif;letter-spacing:1px;text-transform:uppercase; }
+    .admin-sidebar .admin-nav a { display:flex;align-items:center;gap:10px;padding:10px 20px;color:var(--neutral-300);text-decoration:none;font-size:14px;transition:all .2s;position:relative;cursor:pointer; }
+    .admin-sidebar .admin-nav a:hover,.admin-sidebar .admin-nav a.active { background:rgba(78,205,196,.15);color:#fff; }
+    .admin-sidebar .admin-nav a.active { border-left:3px solid var(--primary-300); }
+    .admin-content { padding:32px;background:var(--surface-2);overflow-y:auto; }
+    .admin-header { display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px; }
+    .admin-header h1 { font-size:24px;font-weight:600; }
+    .stat-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:24px; }
+    .stat-card { background:var(--surface-1);padding:20px;border-radius:12px;border:1px solid var(--neutral-200); }
+    .stat-card .stat-value { font-size:28px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--primary-600); }
+    .stat-card .stat-label { font-size:13px;color:var(--neutral-500);margin-top:4px; }
+    .admin-table { width:100%;border-collapse:collapse;background:var(--surface-1);border-radius:12px;overflow:hidden; }
+    .admin-table th { background:var(--neutral-100);padding:12px 16px;text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--neutral-600); }
+    .admin-table td { padding:12px 16px;border-top:1px solid var(--neutral-100);font-size:14px; }
+    .admin-table tr:hover td { background:var(--neutral-50); }
+    .admin-card { background:var(--surface-1);border-radius:12px;border:1px solid var(--neutral-200);padding:24px;margin-bottom:20px; }
+    .admin-card h3 { font-size:16px;font-weight:600;margin-bottom:16px; }
+    .nav-badge { position:absolute;right:16px;top:50%;transform:translateY(-50%);background:#ef4444;color:#fff;font-size:11px;font-weight:700;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 5px; }
+    .admin-section { display:none; }
+    .admin-section.active { display:block; }
+    .status-dot { display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px; }
+    .status-dot.green { background:#22c55e; }
+    .status-dot.yellow { background:#eab308; }
+    .status-dot.red { background:#ef4444; }
+    .status-dot.blue { background:#3b82f6; }
+    .btn-sm { padding:6px 14px;font-size:13px;border-radius:8px;border:none;cursor:pointer;font-weight:500;transition:all .2s; }
+    .btn-teal { background:var(--primary-500);color:#fff; }
+    .btn-teal:hover { background:var(--primary-600); }
+    .btn-outline { background:transparent;border:1px solid var(--neutral-300);color:var(--neutral-600); }
+    .btn-outline:hover { border-color:var(--primary-500);color:var(--primary-600); }
+    .client-detail-panel { display:none; }
+    .client-detail-panel.open { display:block; }
+    .chat-container { border:1px solid var(--neutral-200);border-radius:12px;overflow:hidden;margin-top:12px; }
+    .chat-messages { height:250px;overflow-y:auto;padding:16px;background:var(--surface-2); }
+    .chat-msg { margin-bottom:12px;max-width:80%; }
+    .chat-msg.advisor { margin-left:auto;text-align:right; }
+    .chat-msg .bubble { display:inline-block;padding:8px 14px;border-radius:12px;font-size:14px;line-height:1.4; }
+    .chat-msg.advisor .bubble { background:var(--primary-500);color:#fff;border-bottom-right-radius:4px; }
+    .chat-msg.client .bubble { background:var(--neutral-100);color:var(--neutral-800);border-bottom-left-radius:4px; }
+    .chat-msg .meta { font-size:11px;color:var(--neutral-400);margin-top:2px; }
+    .chat-input-bar { display:flex;border-top:1px solid var(--neutral-200); }
+    .chat-input-bar input { flex:1;border:none;padding:12px 16px;font-size:14px;outline:none; }
+    .chat-input-bar button { padding:12px 20px;border:none;background:var(--primary-500);color:#fff;font-weight:600;cursor:pointer; }
+    .chat-input-bar button:hover { background:var(--primary-600); }
+    /* Modal overlay */
+    .modal-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;align-items:center;justify-content:center; }
+    .modal-overlay.open { display:flex; }
+    .modal-box { background:var(--surface-1);border-radius:16px;padding:32px;max-width:600px;width:90%;max-height:85vh;overflow-y:auto; }
+    .modal-box h2 { font-size:20px;margin-bottom:16px; }
+    .form-group { margin-bottom:16px; }
+    .form-group label { display:block;font-size:13px;font-weight:500;color:var(--neutral-600);margin-bottom:6px; }
+    .form-group input,.form-group textarea,.form-group select { width:100%;padding:10px 14px;border:1px solid var(--neutral-200);border-radius:8px;font-size:14px;font-family:inherit; }
+    .form-group textarea { resize:vertical;min-height:80px; }
+    @media(max-width:768px) {
+      .admin-grid { grid-template-columns:1fr; }
+      .admin-sidebar { display:none; }
+      .stat-grid { grid-template-columns:1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ======= LOGIN SCREEN ======= -->
+<div id="login-screen">
+  <div class="admin-login">
+    <div style="text-align:center;margin-bottom:24px">
+      <div style="font-size:32px;margin-bottom:8px">&#x1f464;</div>
+      <h2 style="font-size:20px">Espace Conseiller</h2>
+      <p style="color:var(--neutral-500);font-size:14px">Acces reserve aux conseillers Stratege</p>
+    </div>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="login-email" placeholder="conseiller@stratege-immo.fr" autocomplete="email" />
+    </div>
+    <div class="form-group">
+      <label>Mot de passe</label>
+      <input type="password" id="login-password" placeholder="Votre mot de passe" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()" />
+    </div>
+    <button class="btn-primary" style="width:100%;justify-content:center" onclick="doLogin()" id="login-btn">Connexion</button>
+    <p id="login-error" style="color:var(--error);font-size:13px;margin-top:12px;display:none"></p>
+  </div>
+</div>
+
+<!-- ======= DASHBOARD ======= -->
+<div id="dashboard" style="display:none">
+  <div class="admin-grid">
+
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <h3>Stratege Conseiller</h3>
+      <nav class="admin-nav">
+        <a href="#" class="active" onclick="showSection('clients',this)">&#x1f465; Mes clients</a>
+        <a href="#" onclick="showSection('rdv',this)">&#x1f4c5; RDV</a>
+        <a href="#" onclick="showSection('messages',this)">&#x1f4ac; Messages</a>
+        <a href="#" onclick="showSection('documents',this)">&#x1f4c4; Documents</a>
+        <a href="#" onclick="showSection('simulations',this)">&#x1f4ca; Simulations</a>
+        <a href="#" onclick="showSection('stats',this)">&#x1f4c8; Stats</a>
+      </nav>
+      <div style="padding:20px;margin-top:auto;border-top:1px solid rgba(255,255,255,.1)">
+        <div style="font-size:13px;color:var(--neutral-400)">Connecte en tant que</div>
+        <div id="sidebar-email" style="font-size:14px;font-weight:600;color:#fff;margin-top:4px"></div>
+        <div id="sidebar-role" style="font-size:11px;color:var(--primary-300);margin-top:2px;text-transform:uppercase;letter-spacing:.5px"></div>
+        <a href="#" onclick="doLogout()" style="font-size:12px;color:var(--primary-300);margin-top:8px;display:block">Deconnexion</a>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="admin-content">
+
+      <!-- ===== KPI BAR ===== -->
+      <div class="stat-grid" id="kpi-bar">
+        <div class="stat-card">
+          <div class="stat-value" id="kpi-clients">0</div>
+          <div class="stat-label">Clients actifs</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="kpi-rdv">0</div>
+          <div class="stat-label">RDV ce mois</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="kpi-dossiers">0</div>
+          <div class="stat-label">Dossiers en cours</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="kpi-messages">0</div>
+          <div class="stat-label">Messages non lus</div>
+        </div>
+      </div>
+
+      <!-- ===== CLIENTS SECTION ===== -->
+      <div id="section-clients" class="admin-section active">
+        <div class="admin-header">
+          <h1>Mes clients</h1>
+          <input type="text" id="client-search" placeholder="Rechercher un client..." style="padding:8px 16px;border:1px solid var(--neutral-200);border-radius:8px;font-size:14px;width:260px" oninput="filterClients()" />
+        </div>
+        <div class="admin-card" style="overflow-x:auto">
+          <table class="admin-table" id="clients-table">
+            <thead>
+              <tr>
+                <th>Nom</th>
+                <th>Email</th>
+                <th>Simulations</th>
+                <th>Dernier contact</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="clients-tbody"></tbody>
+          </table>
+        </div>
+
+        <!-- Client Detail Panel -->
+        <div id="client-detail" class="client-detail-panel">
+          <div class="admin-card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+              <h3 id="detail-name" style="margin:0">Client</h3>
+              <button class="btn-sm btn-outline" onclick="closeDetail()">Fermer</button>
+            </div>
+
+            <!-- Profile -->
+            <div class="admin-card" style="background:var(--surface-2)">
+              <h3>Profil</h3>
+              <div id="detail-profile" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:14px"></div>
+            </div>
+
+            <!-- Simulations -->
+            <div class="admin-card" style="background:var(--surface-2)">
+              <h3>Simulations</h3>
+              <div id="detail-simulations"></div>
+            </div>
+
+            <!-- Documents -->
+            <div class="admin-card" style="background:var(--surface-2)">
+              <h3>Documents</h3>
+              <div id="detail-documents"></div>
+            </div>
+
+            <!-- Chat -->
+            <div class="admin-card" style="background:var(--surface-2)">
+              <h3>Conversation</h3>
+              <div class="chat-container">
+                <div class="chat-messages" id="detail-chat"></div>
+                <div class="chat-input-bar">
+                  <input type="text" id="chat-input" placeholder="Ecrire un message..." onkeydown="if(event.key==='Enter')sendChatMessage()" />
+                  <button onclick="sendChatMessage()">Envoyer</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Notes privees -->
+            <div class="admin-card" style="background:var(--surface-2)">
+              <h3>Notes privees du conseiller</h3>
+              <div id="detail-notes" style="margin-bottom:12px"></div>
+              <textarea id="note-input" placeholder="Ajouter une note..." style="width:100%;padding:10px;border:1px solid var(--neutral-200);border-radius:8px;font-size:14px;min-height:60px;font-family:inherit;resize:vertical"></textarea>
+              <button class="btn-sm btn-teal" style="margin-top:8px" onclick="saveNote()">Enregistrer la note</button>
+            </div>
+
+            <!-- Quick actions -->
+            <div style="display:flex;gap:12px;flex-wrap:wrap">
+              <button class="btn-sm btn-teal" onclick="openEmailModal()">Envoyer un email</button>
+              <button class="btn-sm btn-outline" onclick="openRdvModal()">Planifier un RDV</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== RDV SECTION ===== -->
+      <div id="section-rdv" class="admin-section">
+        <div class="admin-header"><h1>Rendez-vous</h1></div>
+        <div class="admin-card" style="overflow-x:auto">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Heure</th>
+                <th>Client</th>
+                <th>Email</th>
+                <th>Type</th>
+                <th>Statut</th>
+              </tr>
+            </thead>
+            <tbody id="rdv-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== MESSAGES SECTION ===== -->
+      <div id="section-messages" class="admin-section">
+        <div class="admin-header"><h1>Messages</h1></div>
+        <div id="messages-list"></div>
+      </div>
+
+      <!-- ===== DOCUMENTS SECTION ===== -->
+      <div id="section-documents" class="admin-section">
+        <div class="admin-header"><h1>Documents</h1></div>
+        <div class="admin-card">
+          <p style="color:var(--neutral-500);font-size:14px">Les documents de vos clients sont accessibles depuis la fiche de chaque client.</p>
+          <div id="all-documents"></div>
+        </div>
+      </div>
+
+      <!-- ===== SIMULATIONS SECTION ===== -->
+      <div id="section-simulations" class="admin-section">
+        <div class="admin-header"><h1>Simulations</h1></div>
+        <div class="admin-card" style="overflow-x:auto">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Client</th>
+                <th>Type</th>
+                <th>Montant</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="simulations-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== STATS SECTION ===== -->
+      <div id="section-stats" class="admin-section">
+        <div class="admin-header"><h1>Statistiques</h1></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+          <div class="admin-card">
+            <h3>Repartition des clients</h3>
+            <div id="stats-clients-chart" style="height:200px;display:flex;align-items:center;justify-content:center;color:var(--neutral-400);font-size:14px">Chargement...</div>
+          </div>
+          <div class="admin-card">
+            <h3>RDV par mois</h3>
+            <div id="stats-rdv-chart" style="height:200px;display:flex;align-items:center;justify-content:center;color:var(--neutral-400);font-size:14px">Chargement...</div>
+          </div>
+          <div class="admin-card">
+            <h3>Top simulations</h3>
+            <div id="stats-sims"></div>
+          </div>
+          <div class="admin-card">
+            <h3>Activite recente</h3>
+            <div id="stats-activity"></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /admin-content -->
+  </div><!-- /admin-grid -->
+</div><!-- /dashboard -->
+
+<!-- ======= EMAIL MODAL ======= -->
+<div class="modal-overlay" id="email-modal">
+  <div class="modal-box">
+    <h2>Envoyer un email</h2>
+    <div class="form-group">
+      <label>Destinataire</label>
+      <input type="email" id="email-to" readonly />
+    </div>
+    <div class="form-group">
+      <label>Objet</label>
+      <input type="text" id="email-subject" placeholder="Objet de l'email" />
+    </div>
+    <div class="form-group">
+      <label>Contenu (HTML)</label>
+      <textarea id="email-body" rows="6" placeholder="Bonjour..."></textarea>
+    </div>
+    <div style="display:flex;gap:12px;justify-content:flex-end">
+      <button class="btn-sm btn-outline" onclick="closeEmailModal()">Annuler</button>
+      <button class="btn-sm btn-teal" onclick="sendEmail()">Envoyer</button>
+    </div>
+    <p id="email-status" style="font-size:13px;margin-top:12px;display:none"></p>
+  </div>
+</div>
+
+<!-- ======= RDV MODAL ======= -->
+<div class="modal-overlay" id="rdv-modal">
+  <div class="modal-box">
+    <h2>Planifier un rendez-vous</h2>
+    <div class="form-group">
+      <label>Client</label>
+      <input type="text" id="rdv-client" readonly />
+    </div>
+    <div class="form-group">
+      <label>Date</label>
+      <input type="date" id="rdv-date" />
+    </div>
+    <div class="form-group">
+      <label>Heure</label>
+      <input type="time" id="rdv-time" value="10:00" />
+    </div>
+    <div class="form-group">
+      <label>Type</label>
+      <select id="rdv-type">
+        <option>Bilan patrimonial</option>
+        <option>Suivi dossier</option>
+        <option>Presentation SCPI</option>
+        <option>Credit immobilier</option>
+        <option>Autre</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:12px;justify-content:flex-end">
+      <button class="btn-sm btn-outline" onclick="closeRdvModal()">Annuler</button>
+      <button class="btn-sm btn-teal" onclick="createRdv()">Creer le RDV</button>
+    </div>
+    <p id="rdv-status" style="font-size:13px;margin-top:12px;display:none"></p>
+  </div>
+</div>
+
+<script src="assets/shared.js?v=124"></script>
+<script>
+// ═══════════════════════════════════════════════════════════
+// STRATEGE — Advisor Portal JS
+// ═══════════════════════════════════════════════════════════
+
+const API = '/api/advisor';
+let TOKEN = localStorage.getItem('stratege_advisor_token');
+let USER = null;
+let allClients = [];
+let currentClientEmail = null;
+
+// ── Auth helpers ────────────────────────────────────────
+function authHeaders() {
+  return { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN };
+}
+
+async function apiFetch(path, opts = {}) {
+  const resp = await fetch(API + path, { headers: authHeaders(), ...opts });
+  return resp.json();
+}
+
+// ── Login ───────────────────────────────────────────────
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const errEl = document.getElementById('login-error');
+  errEl.style.display = 'none';
+
+  if (!email || !password) {
+    errEl.textContent = 'Email et mot de passe requis';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  try {
+    const resp = await fetch(API + '/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await resp.json();
+
+    if (data.success) {
+      TOKEN = data.token;
+      USER = data.user;
+      localStorage.setItem('stratege_advisor_token', TOKEN);
+      showDashboard();
+    } else {
+      errEl.textContent = data.error || 'Echec de connexion';
+      errEl.style.display = 'block';
+    }
+  } catch (e) {
+    errEl.textContent = 'Erreur reseau';
+    errEl.style.display = 'block';
+  }
+}
+
+function doLogout() {
+  TOKEN = null;
+  USER = null;
+  localStorage.removeItem('stratege_advisor_token');
+  document.getElementById('login-screen').style.display = 'block';
+  document.getElementById('dashboard').style.display = 'none';
+}
+
+// ── Show dashboard ──────────────────────────────────────
+async function showDashboard() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+
+  // Try to decode user from token
+  if (!USER && TOKEN) {
+    try {
+      const body = TOKEN.split('.')[1];
+      USER = JSON.parse(atob(body.replace(/-/g, '+').replace(/_/g, '/')));
+    } catch {}
+  }
+
+  if (USER) {
+    document.getElementById('sidebar-email').textContent = USER.email || '';
+    document.getElementById('sidebar-role').textContent = USER.role || '';
+  }
+
+  await loadAll();
+}
+
+// ── Load all data ───────────────────────────────────────
+async function loadAll() {
+  await Promise.all([loadClients(), loadRdv(), loadAllMessages()]);
+  updateKPIs();
+}
+
+// ── Navigation ──────────────────────────────────────────
+function showSection(name, el) {
+  if (el) {
+    el.closest('.admin-nav').querySelectorAll('a').forEach(a => a.classList.remove('active'));
+    el.classList.add('active');
+  }
+  document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+  const section = document.getElementById('section-' + name);
+  if (section) section.classList.add('active');
+  if (name === 'stats') loadStats();
+  return false;
+}
+
+// ═══════════════════════════════════════════════════════════
+// CLIENTS
+// ═══════════════════════════════════════════════════════════
+
+async function loadClients() {
+  const data = await apiFetch('/clients');
+  allClients = data.clients || [];
+  renderClients(allClients);
+}
+
+function renderClients(clients) {
+  const tbody = document.getElementById('clients-tbody');
+  if (!clients.length) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--neutral-400);padding:40px">Aucun client trouve</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = clients.map(c => {
+    const name = [c.prenom || c.firstName || '', c.nom || c.lastName || c.name || ''].filter(Boolean).join(' ') || c.email;
+    const lastContact = c.last_login || c.created_at || c.updated_at || '-';
+    const dateStr = lastContact !== '-' ? new Date(lastContact).toLocaleDateString('fr-FR') : '-';
+    return `<tr>
+      <td><strong>${esc(name)}</strong></td>
+      <td>${esc(c.email)}</td>
+      <td>${c.simulations_count || 0}</td>
+      <td>${dateStr}</td>
+      <td>
+        <button class="btn-sm btn-teal" onclick="openClient('${esc(c.email)}')">Voir fiche</button>
+        <button class="btn-sm btn-outline" onclick="quickEmail('${esc(c.email)}')">Email</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filterClients() {
+  const q = document.getElementById('client-search').value.toLowerCase();
+  const filtered = allClients.filter(c => {
+    const name = [c.prenom || '', c.nom || c.name || '', c.email || ''].join(' ').toLowerCase();
+    return name.includes(q);
+  });
+  renderClients(filtered);
+}
+
+// ── Client Detail ───────────────────────────────────────
+async function openClient(email) {
+  currentClientEmail = email;
+  const data = await apiFetch('/clients/' + encodeURIComponent(email));
+  const panel = document.getElementById('client-detail');
+  panel.classList.add('open');
+
+  const user = data.user || {};
+  const name = [user.prenom || user.firstName || '', user.nom || user.lastName || user.name || ''].filter(Boolean).join(' ') || email;
+  document.getElementById('detail-name').textContent = name;
+
+  // Profile
+  const profile = document.getElementById('detail-profile');
+  const fields = [
+    ['Email', user.email || email],
+    ['Telephone', user.phone || user.telephone || '-'],
+    ['Ville', user.city || user.ville || '-'],
+    ['Inscription', user.created_at ? new Date(user.created_at).toLocaleDateString('fr-FR') : '-'],
+    ['Statut', user.status || 'actif'],
+    ['Revenu', user.revenu || user.income || '-'],
+  ];
+  profile.innerHTML = fields.map(([k, v]) => `<div><strong style="color:var(--neutral-500)">${k}:</strong> ${esc(String(v))}</div>`).join('');
+
+  // Simulations
+  const simDiv = document.getElementById('detail-simulations');
+  if (data.simulations && data.simulations.length) {
+    simDiv.innerHTML = '<table class="admin-table"><thead><tr><th>Type</th><th>Montant</th><th>Date</th></tr></thead><tbody>' +
+      data.simulations.map(s => `<tr><td>${esc(s.type || s.key || '-')}</td><td>${s.montant || s.amount || '-'}</td><td>${s.created_at ? new Date(s.created_at).toLocaleDateString('fr-FR') : '-'}</td></tr>`).join('') +
+      '</tbody></table>';
+  } else {
+    simDiv.innerHTML = '<p style="color:var(--neutral-400);font-size:14px">Aucune simulation</p>';
+  }
+
+  // Documents
+  const docDiv = document.getElementById('detail-documents');
+  if (data.documents && data.documents.length) {
+    docDiv.innerHTML = data.documents.map(d => `<div style="padding:8px 0;border-bottom:1px solid var(--neutral-100);font-size:14px">${esc(d.name || d.key || 'Document')} <span style="color:var(--neutral-400)">${d.created_at ? new Date(d.created_at).toLocaleDateString('fr-FR') : ''}</span></div>`).join('');
+  } else {
+    docDiv.innerHTML = '<p style="color:var(--neutral-400);font-size:14px">Aucun document</p>';
+  }
+
+  // Chat
+  await loadChat(email);
+
+  // Notes
+  await loadNotes(email);
+
+  // Scroll to detail
+  panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function closeDetail() {
+  document.getElementById('client-detail').classList.remove('open');
+  currentClientEmail = null;
+}
+
+// ── Chat ────────────────────────────────────────────────
+async function loadChat(email) {
+  const data = await apiFetch('/messages/' + encodeURIComponent(email));
+  const chatDiv = document.getElementById('detail-chat');
+  const msgs = data.messages || [];
+
+  if (!msgs.length) {
+    chatDiv.innerHTML = '<p style="color:var(--neutral-400);font-size:14px;text-align:center;padding:40px">Aucun message</p>';
+    return;
+  }
+
+  chatDiv.innerHTML = msgs.map(m => {
+    const isAdvisor = m.from === 'advisor' || m.from === 'conseiller';
+    const time = m.timestamp ? new Date(m.timestamp).toLocaleString('fr-FR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }) : '';
+    return `<div class="chat-msg ${isAdvisor ? 'advisor' : 'client'}">
+      <div class="bubble">${esc(m.text)}</div>
+      <div class="meta">${time}</div>
+    </div>`;
+  }).join('');
+
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+async function sendChatMessage() {
+  if (!currentClientEmail) return;
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  await apiFetch('/messages/' + encodeURIComponent(currentClientEmail), {
+    method: 'POST',
+    body: JSON.stringify({ from: 'advisor', text })
+  });
+
+  input.value = '';
+  await loadChat(currentClientEmail);
+}
+
+// ── Notes ───────────────────────────────────────────────
+async function loadNotes(email) {
+  const data = await apiFetch('/clients/' + encodeURIComponent(email) + '/notes');
+  const notesDiv = document.getElementById('detail-notes');
+  const notes = data.notes || [];
+
+  if (!notes.length) {
+    notesDiv.innerHTML = '<p style="color:var(--neutral-400);font-size:14px">Aucune note</p>';
+    return;
+  }
+
+  notesDiv.innerHTML = notes.map(n => `<div style="padding:10px;margin-bottom:8px;background:var(--surface-1);border-radius:8px;border-left:3px solid var(--primary-500);font-size:14px">
+    <div>${esc(n.text)}</div>
+    <div style="font-size:11px;color:var(--neutral-400);margin-top:4px">${n.created_at ? new Date(n.created_at).toLocaleString('fr-FR') : ''} — ${esc(n.author || '')}</div>
+  </div>`).join('');
+}
+
+async function saveNote() {
+  if (!currentClientEmail) return;
+  const input = document.getElementById('note-input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  await apiFetch('/clients/' + encodeURIComponent(currentClientEmail) + '/notes', {
+    method: 'POST',
+    body: JSON.stringify({ text, author: USER ? USER.email : 'conseiller' })
+  });
+
+  input.value = '';
+  await loadNotes(currentClientEmail);
+}
+
+// ═══════════════════════════════════════════════════════════
+// RDV
+// ═══════════════════════════════════════════════════════════
+
+let allRdvs = [];
+
+async function loadRdv() {
+  const data = await apiFetch('/rdv');
+  allRdvs = data.rdvs || [];
+  renderRdv();
+}
+
+function renderRdv() {
+  const tbody = document.getElementById('rdv-tbody');
+  if (!allRdvs.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--neutral-400);padding:40px">Aucun rendez-vous</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = allRdvs.map(r => {
+    const date = r.date || '-';
+    const time = r.time || r.heure || '-';
+    const clientName = r.name || r.nom || r.client_name || '-';
+    const email = r.email || r.client_email || '-';
+    const type = r.type || r.motif || '-';
+    const status = r.status || 'confirme';
+    const dotClass = status === 'confirme' ? 'green' : status === 'annule' ? 'red' : 'yellow';
+    return `<tr>
+      <td>${esc(date)}</td>
+      <td>${esc(time)}</td>
+      <td>${esc(clientName)}</td>
+      <td>${esc(email)}</td>
+      <td>${esc(type)}</td>
+      <td><span class="status-dot ${dotClass}"></span>${esc(status)}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+// MESSAGES (overview)
+// ═══════════════════════════════════════════════════════════
+
+let allMessagesData = {};
+
+async function loadAllMessages() {
+  // Load messages for each known client
+  allMessagesData = {};
+  const container = document.getElementById('messages-list');
+  if (!allClients.length) {
+    container.innerHTML = '<div class="admin-card"><p style="color:var(--neutral-400);font-size:14px">Aucune conversation</p></div>';
+    return;
+  }
+
+  const promises = allClients.slice(0, 50).map(async c => {
+    const data = await apiFetch('/messages/' + encodeURIComponent(c.email));
+    if (data.messages && data.messages.length) {
+      allMessagesData[c.email] = data.messages;
+    }
+  });
+  await Promise.all(promises);
+
+  renderMessages();
+}
+
+function renderMessages() {
+  const container = document.getElementById('messages-list');
+  const emails = Object.keys(allMessagesData);
+  if (!emails.length) {
+    container.innerHTML = '<div class="admin-card"><p style="color:var(--neutral-400);font-size:14px">Aucune conversation</p></div>';
+    return;
+  }
+
+  // Sort by last message date
+  emails.sort((a, b) => {
+    const lastA = allMessagesData[a][allMessagesData[a].length - 1];
+    const lastB = allMessagesData[b][allMessagesData[b].length - 1];
+    return (lastB.timestamp || '').localeCompare(lastA.timestamp || '');
+  });
+
+  container.innerHTML = emails.map(email => {
+    const msgs = allMessagesData[email];
+    const last = msgs[msgs.length - 1];
+    const unread = msgs.filter(m => !m.read && m.from !== 'advisor').length;
+    const client = allClients.find(c => c.email === email) || {};
+    const name = [client.prenom || '', client.nom || client.name || ''].filter(Boolean).join(' ') || email;
+    const time = last.timestamp ? new Date(last.timestamp).toLocaleString('fr-FR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }) : '';
+    return `<div class="admin-card" style="cursor:pointer" onclick="showSection('clients');openClient('${esc(email)}')">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <strong>${esc(name)}</strong> <span style="color:var(--neutral-400);font-size:13px">${esc(email)}</span>
+          ${unread ? '<span style="background:#ef4444;color:#fff;font-size:11px;padding:2px 8px;border-radius:9px;margin-left:8px">' + unread + ' non lu(s)</span>' : ''}
+        </div>
+        <span style="font-size:12px;color:var(--neutral-400)">${time}</span>
+      </div>
+      <div style="font-size:14px;color:var(--neutral-500);margin-top:6px">${esc((last.text || '').slice(0, 100))}</div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+// KPIs
+// ═══════════════════════════════════════════════════════════
+
+function updateKPIs() {
+  document.getElementById('kpi-clients').textContent = allClients.length;
+
+  // RDV this month
+  const now = new Date();
+  const thisMonth = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+  const rdvThisMonth = allRdvs.filter(r => (r.date || '').startsWith(thisMonth)).length;
+  document.getElementById('kpi-rdv').textContent = rdvThisMonth;
+
+  // Dossiers (clients with simulations)
+  const dossiers = allClients.filter(c => (c.simulations_count || 0) > 0).length;
+  document.getElementById('kpi-dossiers').textContent = dossiers;
+
+  // Unread messages
+  let unread = 0;
+  Object.values(allMessagesData).forEach(msgs => {
+    unread += msgs.filter(m => !m.read && m.from !== 'advisor').length;
+  });
+  document.getElementById('kpi-messages').textContent = unread;
+}
+
+// ═══════════════════════════════════════════════════════════
+// STATS
+// ═══════════════════════════════════════════════════════════
+
+function loadStats() {
+  // Clients distribution
+  const withSims = allClients.filter(c => (c.simulations_count || 0) > 0).length;
+  const withoutSims = allClients.length - withSims;
+  document.getElementById('stats-clients-chart').innerHTML = `
+    <div style="text-align:center">
+      <div style="font-size:36px;font-weight:700;color:var(--primary-600)">${allClients.length}</div>
+      <div style="font-size:14px;color:var(--neutral-500)">clients au total</div>
+      <div style="margin-top:12px;font-size:14px">
+        <span style="color:#22c55e;font-weight:600">${withSims}</span> avec simulations |
+        <span style="color:var(--neutral-400)">${withoutSims}</span> sans simulation
+      </div>
+    </div>`;
+
+  // RDV per month
+  const rdvByMonth = {};
+  allRdvs.forEach(r => {
+    if (r.date) {
+      const m = r.date.slice(0, 7);
+      rdvByMonth[m] = (rdvByMonth[m] || 0) + 1;
+    }
+  });
+  const months = Object.entries(rdvByMonth).sort((a, b) => a[0].localeCompare(b[0])).slice(-6);
+  if (months.length) {
+    const maxVal = Math.max(...months.map(m => m[1]));
+    document.getElementById('stats-rdv-chart').innerHTML = '<div style="display:flex;align-items:flex-end;gap:12px;height:180px;padding:0 20px">' +
+      months.map(([m, c]) => {
+        const h = Math.max(20, (c / maxVal) * 160);
+        return `<div style="flex:1;text-align:center"><div style="height:${h}px;background:var(--primary-500);border-radius:6px 6px 0 0;margin-bottom:4px"></div><div style="font-size:12px;color:var(--neutral-500)">${m.slice(5)}</div><div style="font-size:13px;font-weight:600">${c}</div></div>`;
+      }).join('') + '</div>';
+  } else {
+    document.getElementById('stats-rdv-chart').innerHTML = '<p style="color:var(--neutral-400)">Pas de donnees</p>';
+  }
+
+  // Top simulations
+  const simClients = allClients.filter(c => (c.simulations_count || 0) > 0)
+    .sort((a, b) => (b.simulations_count || 0) - (a.simulations_count || 0)).slice(0, 5);
+  document.getElementById('stats-sims').innerHTML = simClients.length ?
+    simClients.map(c => `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--neutral-100);font-size:14px"><span>${esc(c.email)}</span><strong>${c.simulations_count}</strong></div>`).join('') :
+    '<p style="color:var(--neutral-400);font-size:14px">Aucune simulation</p>';
+
+  // Activity
+  const recentRdvs = allRdvs.slice(0, 5);
+  document.getElementById('stats-activity').innerHTML = recentRdvs.length ?
+    recentRdvs.map(r => `<div style="padding:8px 0;border-bottom:1px solid var(--neutral-100);font-size:14px">
+      <span class="status-dot green"></span>${esc(r.name || r.email || '-')} — ${esc(r.date || '')} ${esc(r.time || '')}
+    </div>`).join('') :
+    '<p style="color:var(--neutral-400);font-size:14px">Aucune activite</p>';
+}
+
+// ═══════════════════════════════════════════════════════════
+// EMAIL MODAL
+// ═══════════════════════════════════════════════════════════
+
+function openEmailModal() {
+  if (!currentClientEmail) return;
+  document.getElementById('email-to').value = currentClientEmail;
+  document.getElementById('email-subject').value = '';
+  document.getElementById('email-body').value = '';
+  document.getElementById('email-status').style.display = 'none';
+  document.getElementById('email-modal').classList.add('open');
+}
+
+function quickEmail(email) {
+  currentClientEmail = email;
+  openEmailModal();
+}
+
+function closeEmailModal() {
+  document.getElementById('email-modal').classList.remove('open');
+}
+
+async function sendEmail() {
+  const to = document.getElementById('email-to').value;
+  const subject = document.getElementById('email-subject').value;
+  const html = document.getElementById('email-body').value;
+  const status = document.getElementById('email-status');
+
+  if (!subject || !html) {
+    status.textContent = 'Objet et contenu requis';
+    status.style.color = 'var(--error)';
+    status.style.display = 'block';
+    return;
+  }
+
+  status.textContent = 'Envoi en cours...';
+  status.style.color = 'var(--neutral-500)';
+  status.style.display = 'block';
+
+  const data = await apiFetch('/email', {
+    method: 'POST',
+    body: JSON.stringify({ to, subject, html })
+  });
+
+  if (data.success) {
+    status.textContent = 'Email envoye avec succes';
+    status.style.color = '#22c55e';
+    setTimeout(closeEmailModal, 2000);
+  } else {
+    status.textContent = 'Erreur: ' + (data.error || 'echec envoi');
+    status.style.color = 'var(--error)';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// RDV MODAL
+// ═══════════════════════════════════════════════════════════
+
+function openRdvModal() {
+  if (!currentClientEmail) return;
+  const client = allClients.find(c => c.email === currentClientEmail) || {};
+  const name = [client.prenom || '', client.nom || client.name || ''].filter(Boolean).join(' ') || currentClientEmail;
+  document.getElementById('rdv-client').value = name + ' (' + currentClientEmail + ')';
+  document.getElementById('rdv-date').value = '';
+  document.getElementById('rdv-status') && (document.getElementById('rdv-status').style.display = 'none');
+  document.getElementById('rdv-modal').classList.add('open');
+}
+
+function closeRdvModal() {
+  document.getElementById('rdv-modal').classList.remove('open');
+}
+
+async function createRdv() {
+  const date = document.getElementById('rdv-date').value;
+  const time = document.getElementById('rdv-time').value;
+  const type = document.getElementById('rdv-type').value;
+  const status = document.getElementById('rdv-status');
+
+  if (!date) {
+    status.textContent = 'Date requise';
+    status.style.color = 'var(--error)';
+    status.style.display = 'block';
+    return;
+  }
+
+  // Create RDV via the existing RDV API
+  try {
+    const resp = await fetch('/api/rdv', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: currentClientEmail,
+        date,
+        time,
+        type,
+        name: document.getElementById('rdv-client').value.split('(')[0].trim(),
+        status: 'confirme',
+        created_by: USER ? USER.email : 'conseiller'
+      })
+    });
+    const data = await resp.json();
+
+    if (data.success || resp.ok) {
+      status.textContent = 'RDV cree avec succes';
+      status.style.color = '#22c55e';
+      status.style.display = 'block';
+      setTimeout(() => { closeRdvModal(); loadRdv(); updateKPIs(); }, 1500);
+    } else {
+      status.textContent = 'Erreur: ' + (data.error || 'echec');
+      status.style.color = 'var(--error)';
+      status.style.display = 'block';
+    }
+  } catch (e) {
+    status.textContent = 'Erreur reseau';
+    status.style.color = 'var(--error)';
+    status.style.display = 'block';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════════
+
+function esc(str) {
+  if (!str) return '';
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// ── Init ────────────────────────────────────────────────
+(async function init() {
+  if (TOKEN) {
+    // Verify token is still valid
+    try {
+      const resp = await fetch('/api/admin/auth?action=verify', {
+        headers: { 'Authorization': 'Bearer ' + TOKEN }
+      });
+      const data = await resp.json();
+      if (data.success && data.valid && (data.role === 'advisor' || data.role === 'admin')) {
+        USER = { email: data.email, role: data.role };
+        showDashboard();
+        return;
+      }
+    } catch {}
+    // Token invalid
+    TOKEN = null;
+    localStorage.removeItem('stratege_advisor_token');
+  }
+  document.getElementById('login-screen').style.display = 'block';
+})();
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => {
+    if (e.target === m) m.classList.remove('open');
+  });
+});
+</script>
+</body>
+</html>

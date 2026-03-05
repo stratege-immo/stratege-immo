@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/style.css?v=123" />
+  <link rel="stylesheet" href="assets/style.css?v=124" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#4ECDC4">
@@ -406,6 +406,11 @@
     .status-badge-doc.verifie { background: var(--success-50); color: var(--success-700); }
     .status-badge-doc.a_completer { background: var(--gold-50); color: var(--gold-700); }
 
+    /* Score categories responsive */
+    @media (max-width: 600px) {
+      #score-categories { grid-template-columns: 1fr !important; }
+    }
+
     /* Responsive */
     @media (max-width: 900px) {
       .conseiller-layout { grid-template-columns: 1fr; }
@@ -449,6 +454,9 @@
         </a>
         <a href="#conseiller" onclick="showSection('conseiller', this)">
           <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M14 11a2 2 0 01-2 2H5l-3 3V3a2 2 0 012-2h10a2 2 0 012 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></span> Mon conseiller
+        </a>
+        <a href="#score" onclick="showSection('score', this)">
+          <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1l2 3h3l-2.5 2.5L11.5 10 8 8l-3.5 2 1-3.5L3 4h3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></span> Score investisseur
         </a>
       </nav>
       <div class="sidebar-section-label">Compte</div>
@@ -761,6 +769,94 @@
         </div>
       </div>
 
+      <!-- SECTION: Score investisseur -->
+      <div id="section-score" class="dash-section-content" style="display:none">
+        <div class="dash-main-header">
+          <h1>Votre profil investisseur</h1>
+          <p>Analyse de votre potentiel d'investissement immobilier</p>
+        </div>
+
+        <div class="dash-grid-2">
+          <!-- Score gauge card -->
+          <div class="dash-card" style="text-align:center;padding:32px">
+            <svg viewBox="0 0 200 120" width="200" style="margin:0 auto;display:block">
+              <path d="M20 100 A80 80 0 0 1 180 100" fill="none" stroke="#E9ECEF" stroke-width="12" stroke-linecap="round"/>
+              <path id="score-arc" d="M20 100 A80 80 0 0 1 180 100" fill="none" stroke="#4ECDC4" stroke-width="12" stroke-linecap="round" stroke-dasharray="0 251"/>
+              <text x="100" y="85" text-anchor="middle" font-size="36" font-weight="700" font-family="JetBrains Mono" fill="#1B2A4A" id="score-value">0</text>
+              <text x="100" y="105" text-anchor="middle" font-size="12" fill="#868E96">/100</text>
+            </svg>
+            <div id="score-profil-label" style="margin-top:12px;font-size:18px;font-weight:700;color:var(--primary-600);font-family:var(--font-display)">--</div>
+            <div style="font-size:13px;color:var(--neutral-500);margin-top:4px">Profil investisseur</div>
+          </div>
+
+          <!-- Recommendation card -->
+          <div class="dash-card" id="score-reco-card" style="padding:28px">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+              <div style="width:40px;height:40px;background:rgba(78,205,196,0.12);border-radius:10px;display:flex;align-items:center;justify-content:center">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary-600)" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+              </div>
+              <h3 style="font-size:16px;font-weight:700;color:var(--neutral-800)">Recommandation</h3>
+            </div>
+            <div id="score-reco-text" style="font-size:14px;line-height:1.7;color:var(--neutral-600)">
+              Completez votre onboarding pour obtenir votre score investisseur personnalise.
+            </div>
+            <div style="margin-top:20px">
+              <a href="rdv.html" class="btn-primary btn-small">Prendre RDV avec un conseiller</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Score categories -->
+        <div class="dash-card" style="margin-top:24px">
+          <div class="dash-card-header"><h3>Detail du score</h3></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:16px" id="score-categories">
+            <div class="score-category">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                <span style="font-size:14px;font-weight:600;color:var(--neutral-700)">Capacite d'investissement</span>
+                <span class="mono" style="font-size:14px;font-weight:700;color:var(--primary-600)" id="cat-capacite-val">0/25</span>
+              </div>
+              <div class="progress-bar-wrap" style="height:8px;margin:0">
+                <div class="progress-bar-fill" id="cat-capacite-bar" style="width:0%"></div>
+              </div>
+            </div>
+            <div class="score-category">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                <span style="font-size:14px;font-weight:600;color:var(--neutral-700)">Stabilite professionnelle</span>
+                <span class="mono" style="font-size:14px;font-weight:700;color:var(--primary-600)" id="cat-stabilite-val">0/25</span>
+              </div>
+              <div class="progress-bar-wrap" style="height:8px;margin:0">
+                <div class="progress-bar-fill" id="cat-stabilite-bar" style="width:0%"></div>
+              </div>
+            </div>
+            <div class="score-category">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                <span style="font-size:14px;font-weight:600;color:var(--neutral-700)">Appetence au risque</span>
+                <span class="mono" style="font-size:14px;font-weight:700;color:var(--primary-600)" id="cat-risque-val">0/25</span>
+              </div>
+              <div class="progress-bar-wrap" style="height:8px;margin:0">
+                <div class="progress-bar-fill" id="cat-risque-bar" style="width:0%"></div>
+              </div>
+            </div>
+            <div class="score-category">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                <span style="font-size:14px;font-weight:600;color:var(--neutral-700)">Optimisation fiscale</span>
+                <span class="mono" style="font-size:14px;font-weight:700;color:var(--primary-600)" id="cat-fiscal-val">0/25</span>
+              </div>
+              <div class="progress-bar-wrap" style="height:8px;margin:0">
+                <div class="progress-bar-fill" id="cat-fiscal-bar" style="width:0%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- No onboarding notice -->
+        <div id="score-no-onboarding" style="display:none;margin-top:24px;padding:24px;background:var(--neutral-50);border-radius:12px;text-align:center">
+          <p style="font-size:15px;color:var(--neutral-600);margin-bottom:12px">Vous n'avez pas encore complete votre profil investisseur.</p>
+          <p style="font-size:13px;color:var(--neutral-400);margin-bottom:16px">Repondez a quelques questions pour obtenir votre score personnalise et des recommandations adaptees.</p>
+          <button class="btn-primary btn-small" onclick="localStorage.removeItem('stratege_onboarded'); location.reload();">Completer mon profil</button>
+        </div>
+      </div>
+
       <!-- SECTION: Profil -->
       <div id="section-profil" class="dash-section-content" style="display:none">
         <div class="dash-main-header">
@@ -789,7 +885,7 @@
     </main>
   </div>
 
-  <script src="assets/shared.js?v=123"></script>
+  <script src="assets/shared.js?v=124"></script>
   <script>
     renderNavbar();
 
@@ -1380,6 +1476,138 @@
       div.textContent = str;
       return div.innerHTML;
     }
+
+    // ── Score Investisseur ──────────────────────────────
+    function calculateInvestorScore() {
+      var user = getUser();
+      if (!user || !user.onboarding) return null;
+
+      var score = { capacite: 0, stabilite: 0, risque: 0, fiscal: 0 };
+      var ob = user.onboarding;
+
+      // Capacite (max 25)
+      if (ob.budget === '350k+') score.capacite = 25;
+      else if (ob.budget === '350k') score.capacite = 20;
+      else if (ob.budget === '200k') score.capacite = 15;
+      else score.capacite = 8;
+
+      // Stabilite (max 25)
+      if (ob.situation === 'fonctionnaire') score.stabilite = 25;
+      else if (ob.situation === 'cdi') score.stabilite = 22;
+      else if (ob.situation === 'retraite') score.stabilite = 18;
+      else score.stabilite = 10;
+
+      // Risque (max 25)
+      if (ob.objectif === 'tout') score.risque = 25;
+      else if (ob.objectif === 'defiscaliser') score.risque = 20;
+      else if (ob.objectif === 'retraite') score.risque = 15;
+      else score.risque = 12;
+
+      // Fiscal (max 25)
+      if (ob.objectif === 'defiscaliser' || ob.objectif === 'tout') score.fiscal = 22;
+      else if (ob.objectif === 'retraite') score.fiscal = 15;
+      else score.fiscal = 8;
+
+      score.total = score.capacite + score.stabilite + score.risque + score.fiscal;
+
+      // Recommendation
+      if (score.total >= 80) score.profil = 'Excellence';
+      else if (score.total >= 60) score.profil = 'Dynamique';
+      else if (score.total >= 40) score.profil = 'Prudent';
+      else score.profil = 'Debutant';
+
+      return score;
+    }
+
+    function renderInvestorScore() {
+      var score = calculateInvestorScore();
+
+      if (!score) {
+        document.getElementById('score-no-onboarding').style.display = 'block';
+        return;
+      }
+
+      // Animate arc: total arc length is ~251 (pi * 80)
+      var arcLen = (score.total / 100) * 251;
+      var arc = document.getElementById('score-arc');
+      var scoreText = document.getElementById('score-value');
+
+      // Color based on score
+      var color = '#4ECDC4';
+      if (score.total >= 80) color = '#22c55e';
+      else if (score.total >= 60) color = '#4ECDC4';
+      else if (score.total >= 40) color = '#f59e0b';
+      else color = '#ef4444';
+
+      arc.setAttribute('stroke', color);
+
+      // Animate
+      var current = 0;
+      var target = score.total;
+      var duration = 1200;
+      var start = null;
+
+      function animateScore(ts) {
+        if (!start) start = ts;
+        var progress = Math.min((ts - start) / duration, 1);
+        var eased = 1 - Math.pow(1 - progress, 3); // ease out cubic
+        current = Math.round(eased * target);
+        var currentArc = eased * arcLen;
+
+        arc.setAttribute('stroke-dasharray', currentArc + ' 251');
+        scoreText.textContent = current;
+
+        if (progress < 1) {
+          requestAnimationFrame(animateScore);
+        }
+      }
+
+      // Trigger animation when section becomes visible
+      setTimeout(function() {
+        requestAnimationFrame(animateScore);
+      }, 200);
+
+      // Profil label
+      document.getElementById('score-profil-label').textContent = score.profil;
+      document.getElementById('score-profil-label').style.color = color;
+
+      // Categories
+      var cats = [
+        { key: 'capacite', val: score.capacite },
+        { key: 'stabilite', val: score.stabilite },
+        { key: 'risque', val: score.risque },
+        { key: 'fiscal', val: score.fiscal }
+      ];
+      cats.forEach(function(c) {
+        document.getElementById('cat-' + c.key + '-val').textContent = c.val + '/25';
+        document.getElementById('cat-' + c.key + '-bar').style.width = (c.val / 25 * 100) + '%';
+      });
+
+      // Recommendation text
+      var recoText = '';
+      if (score.total >= 80) {
+        recoText = 'Tous dispositifs accessibles. Jeanbrun Zone A et SCPI performantes recommandes. Votre profil vous permet d\'acceder aux meilleures opportunites du marche.';
+      } else if (score.total >= 60) {
+        recoText = 'Jeanbrun Zone B1 et LMNP recommandes. Diversifiez avec 1-2 SCPI pour optimiser votre patrimoine et reduire votre exposition au risque.';
+      } else if (score.total >= 40) {
+        recoText = 'SCPI et residence principale recommandes. Commencez petit et diversifiez progressivement votre portefeuille immobilier.';
+      } else {
+        recoText = 'Commencez par une consultation gratuite. Un conseiller Stratege vous guidera vers les meilleures options adaptees a votre situation.';
+      }
+      document.getElementById('score-reco-text').textContent = recoText;
+    }
+
+    // Run score on load
+    renderInvestorScore();
+
+    // Re-animate when switching to score tab
+    var origShowSection = showSection;
+    showSection = function(name, el) {
+      origShowSection(name, el);
+      if (name === 'score') {
+        renderInvestorScore();
+      }
+    };
   </script>
 
 </body>

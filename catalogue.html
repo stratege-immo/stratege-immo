@@ -9,11 +9,23 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/style.css?v=123" />
+  <link rel="stylesheet" href="assets/style.css?v=124" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#4ECDC4">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    .compare-check { position:absolute;top:10px;right:10px;z-index:2;display:flex;align-items:center;gap:4px;background:rgba(255,255,255,.92);padding:4px 10px;border-radius:999px;font-size:12px;font-weight:600;color:var(--neutral-700);cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.12);transition:background .2s }
+    .compare-check:hover { background:rgba(78,205,196,.15) }
+    .compare-check input { accent-color:#4ECDC4;width:16px;height:16px;cursor:pointer }
+    .compare-check.checked { background:rgba(78,205,196,.2);color:#1B2A4A }
+    .compare-float { position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1B2A4A;color:white;padding:14px 28px;border-radius:999px;font-size:15px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.25);z-index:1000;display:none;align-items:center;gap:12px;animation:floatIn .3s ease }
+    .compare-float a { background:#4ECDC4;color:#1B2A4A;padding:8px 18px;border-radius:999px;text-decoration:none;font-weight:700;font-size:14px;transition:opacity .2s }
+    .compare-float a:hover { opacity:.85 }
+    .compare-float .close-float { background:none;border:none;color:rgba(255,255,255,.6);cursor:pointer;font-size:18px;padding:0 4px }
+    @keyframes floatIn { from { transform:translateX(-50%) translateY(20px);opacity:0 } to { transform:translateX(-50%) translateY(0);opacity:1 } }
+    .catalogue-card { position:relative }
+  </style>
 </head>
 <body>
 
@@ -103,10 +115,17 @@
     </div>
   </main>
 
+  <!-- Compare floating badge -->
+  <div class="compare-float" id="compare-float">
+    <span id="compare-float-text">2 biens</span>
+    <a href="#" id="compare-float-link">Comparer</a>
+    <button class="close-float" onclick="clearCompare()" title="Annuler">&times;</button>
+  </div>
+
   <footer class="footer"></footer>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="assets/shared.js?v=123"></script>
+  <script src="assets/shared.js?v=124"></script>
   <script>
     renderNavbar('catalogue');
     renderFooter();
@@ -135,6 +154,7 @@
     var markers = [];
     var allBiens = [];
     var viewMode = 'grid';
+    var compareSet = [];
 
     function setView(mode) {
       viewMode = mode;
@@ -296,7 +316,12 @@
             '<span style="color:var(--neutral-400);font-size:13px">Effort : ' + b.effort_reel + ' &euro;/mois</span>';
         }
 
-        return '<a href="bien-detail.html?id=' + b.id + '" class="card catalogue-card" style="display:block;padding:20px;margin-bottom:12px;transition:box-shadow 0.2s">' +
+        var isChecked = compareSet.indexOf(b.id) !== -1;
+        var checkHtml = '<label class="compare-check' + (isChecked ? ' checked' : '') + '" onclick="event.preventDefault();event.stopPropagation();toggleCompare(\'' + b.id + '\',this)">' +
+          '<input type="checkbox"' + (isChecked ? ' checked' : '') + ' onclick="event.stopPropagation()" /> Comparer</label>';
+
+        return '<a href="bien-detail.html?id=' + b.id + '" class="card catalogue-card" style="display:block;padding:20px;margin-bottom:12px;transition:box-shadow 0.2s;position:relative">' +
+          checkHtml +
           imageHtml +
           '<div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px">' +
             '<h3 style="font-family:var(--font-display);font-size:16px;margin:0;flex:1">' + b.titre + '</h3>' +
@@ -380,6 +405,39 @@
     }
     window.addEventListener('resize', handleResize);
     handleResize();
+
+    function toggleCompare(id, labelEl) {
+      var idx = compareSet.indexOf(id);
+      if (idx !== -1) {
+        compareSet.splice(idx, 1);
+        if (labelEl) { labelEl.classList.remove('checked'); var cb = labelEl.querySelector('input'); if(cb) cb.checked = false; }
+      } else {
+        if (compareSet.length >= 3) {
+          if (typeof showToast === 'function') showToast('Maximum 3 biens a comparer', 'error');
+          return;
+        }
+        compareSet.push(id);
+        if (labelEl) { labelEl.classList.add('checked'); var cb = labelEl.querySelector('input'); if(cb) cb.checked = true; }
+      }
+      updateCompareFloat();
+    }
+
+    function updateCompareFloat() {
+      var el = document.getElementById('compare-float');
+      if (compareSet.length >= 2) {
+        el.style.display = 'flex';
+        document.getElementById('compare-float-text').textContent = compareSet.length + ' bien' + (compareSet.length > 1 ? 's' : '');
+        document.getElementById('compare-float-link').href = '/comparer.html?ids=' + compareSet.join(',');
+      } else {
+        el.style.display = 'none';
+      }
+    }
+
+    function clearCompare() {
+      compareSet = [];
+      updateCompareFloat();
+      renderResults(allBiens);
+    }
 
     // Init
     loadBiens();
