@@ -110,18 +110,36 @@ async function getSignatureKey(key, dateStamp, region, service) {
   return await hmacSha256(kService, 'aws4_request');
 }
 
+function uriEncode(str, encodeSlash) {
+  let result = '';
+  for (let i = 0; i < str.length; i++) {
+    const ch = str[i];
+    if ((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9') || ch === '_' || ch === '-' || ch === '~' || ch === '.') {
+      result += ch;
+    } else if (ch === '/' && !encodeSlash) {
+      result += ch;
+    } else {
+      const hex = ch.charCodeAt(0).toString(16).toUpperCase();
+      result += '%' + (hex.length === 1 ? '0' + hex : hex);
+    }
+  }
+  return result;
+}
+
 async function signBedrockRequest(accessKey, secretKey, region, model, body) {
   const now = new Date();
   const amzDate = now.toISOString().replace(/[:-]|\.\d{3}/g, '');
   const dateStamp = amzDate.slice(0, 8);
   const host = `bedrock-runtime.${region}.amazonaws.com`;
-  const path = `/model/${encodeURIComponent(model)}/invoke`;
+  const requestPath = `/model/${encodeURIComponent(model)}/invoke`;
+  // SigV4: canonical URI = URI-encode the already-encoded path (double-encode special chars)
+  const canonicalURI = uriEncode(requestPath, false);
   const service = 'bedrock';
 
   const payloadHash = await sha256(body);
   const canonicalHeaders = `content-type:application/json\nhost:${host}\nx-amz-date:${amzDate}\n`;
   const signedHeaders = 'content-type;host;x-amz-date';
-  const canonicalRequest = `POST\n${path}\n\n${canonicalHeaders}\n${signedHeaders}\n${payloadHash}`;
+  const canonicalRequest = `POST\n${canonicalURI}\n\n${canonicalHeaders}\n${signedHeaders}\n${payloadHash}`;
 
   const credentialScope = `${dateStamp}/${region}/${service}/aws4_request`;
   const stringToSign = `AWS4-HMAC-SHA256\n${amzDate}\n${credentialScope}\n${await sha256(canonicalRequest)}`;
@@ -131,7 +149,7 @@ async function signBedrockRequest(accessKey, secretKey, region, model, body) {
   const signature = Array.from(signatureBytes).map(b => b.toString(16).padStart(2, '0')).join('');
 
   return {
-    url: `https://${host}${path}`,
+    url: `https://${host}${requestPath}`,
     headers: {
       'Content-Type': 'application/json',
       'X-Amz-Date': amzDate,

@@ -12,6 +12,409 @@
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#4ECDC4">
+  <style>
+    /* ── Dashboard enrichment styles ───────────────────── */
+
+    /* Progress bar */
+    .progress-card { margin-bottom: 24px; }
+    .progress-bar-wrap {
+      background: var(--neutral-100);
+      border-radius: var(--radius-pill);
+      height: 12px;
+      overflow: hidden;
+      margin: 12px 0 8px;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: var(--radius-pill);
+      background: linear-gradient(90deg, var(--primary-300), var(--primary-600));
+      transition: width 0.6s ease;
+    }
+    .progress-pct {
+      font-weight: 700;
+      color: var(--primary-600);
+      font-size: 24px;
+      font-family: var(--font-mono);
+    }
+    .progress-missing {
+      font-size: 13px;
+      color: var(--neutral-400);
+      margin-top: 4px;
+    }
+
+    /* Next RDV card */
+    .rdv-card {
+      background: linear-gradient(135deg, var(--neutral-800), var(--secondary-700));
+      color: #fff;
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .rdv-card-icon {
+      width: 56px;
+      height: 56px;
+      background: rgba(78,205,196,0.15);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+    .rdv-card-info h4 { color: #fff; font-size: 16px; margin-bottom: 4px; font-family: var(--font-body); font-weight: 600; }
+    .rdv-card-info p { color: var(--neutral-300); font-size: 13px; margin: 0; }
+    .rdv-card-action { margin-left: auto; }
+
+    /* Favoris cards */
+    .favoris-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    .fav-card {
+      background: var(--surface-0);
+      border: 1px solid var(--neutral-100);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      transition: all 0.2s;
+      position: relative;
+    }
+    .fav-card:hover {
+      border-color: var(--primary-200);
+      box-shadow: var(--shadow-md);
+    }
+    .fav-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+    .fav-card h4 {
+      font-size: 15px;
+      font-family: var(--font-body);
+      font-weight: 600;
+      color: var(--neutral-800);
+      line-height: 1.3;
+    }
+    .fav-card .fav-remove {
+      background: none;
+      border: none;
+      font-size: 18px;
+      color: var(--neutral-400);
+      cursor: pointer;
+      padding: 4px;
+      border-radius: var(--radius-sm);
+      transition: all 0.2s;
+    }
+    .fav-card .fav-remove:hover {
+      background: var(--error-50);
+      color: var(--error-500);
+    }
+    .fav-card-details {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .fav-card-details .detail-label {
+      font-size: 11px;
+      color: var(--neutral-400);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .fav-card-details .detail-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--neutral-800);
+    }
+    .fav-card-actions { display: flex; gap: 8px; }
+
+    /* Conseiller section */
+    .conseiller-layout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 24px;
+    }
+    .conseiller-card {
+      background: var(--surface-0);
+      border: 1px solid var(--neutral-100);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      text-align: center;
+    }
+    .conseiller-avatar {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, var(--neutral-800), var(--secondary-700));
+      border-radius: 50%;
+      margin: 0 auto 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .conseiller-avatar svg { width: 40px; height: 40px; }
+    .conseiller-name {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--neutral-800);
+      font-family: var(--font-display);
+    }
+    .conseiller-role {
+      font-size: 13px;
+      color: var(--neutral-500);
+      margin: 4px 0 16px;
+    }
+    .conseiller-contact {
+      text-align: left;
+      border-top: 1px solid var(--neutral-100);
+      padding-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .conseiller-contact-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--neutral-600);
+    }
+    .conseiller-contact-row svg { width: 16px; height: 16px; color: var(--primary-500); flex-shrink: 0; }
+    .conseiller-contact-row a { color: var(--primary-600); font-weight: 500; }
+    .conseiller-contact-row a:hover { text-decoration: underline; }
+    .conseiller-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 20px;
+    }
+    .conseiller-actions .btn-action {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: var(--radius-pill);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1.5px solid var(--neutral-200);
+      background: var(--surface-0);
+      color: var(--neutral-700);
+    }
+    .conseiller-actions .btn-action:hover {
+      border-color: var(--primary-300);
+      color: var(--primary-600);
+      background: var(--primary-50);
+    }
+    .conseiller-actions .btn-action.primary-action {
+      background: var(--primary-300);
+      color: #fff;
+      border-color: var(--primary-300);
+    }
+    .conseiller-actions .btn-action.primary-action:hover { background: var(--primary-400); }
+
+    /* Chat interface */
+    .chat-wrap {
+      background: var(--surface-0);
+      border: 1px solid var(--neutral-100);
+      border-radius: var(--radius-lg);
+      display: flex;
+      flex-direction: column;
+      height: 500px;
+    }
+    .chat-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--neutral-100);
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--neutral-800);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .chat-header .dot-online {
+      width: 8px;
+      height: 8px;
+      background: var(--success-500);
+      border-radius: 50%;
+    }
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .chat-msg {
+      max-width: 80%;
+      padding: 12px 16px;
+      border-radius: var(--radius-lg);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .chat-msg.user {
+      align-self: flex-end;
+      background: var(--primary-300);
+      color: #fff;
+      border-bottom-right-radius: 4px;
+    }
+    .chat-msg.system {
+      align-self: flex-start;
+      background: var(--neutral-50);
+      color: var(--neutral-700);
+      border-bottom-left-radius: 4px;
+    }
+    .chat-msg .msg-time {
+      font-size: 11px;
+      opacity: 0.7;
+      margin-top: 4px;
+    }
+    .chat-empty {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--neutral-400);
+      font-size: 14px;
+      text-align: center;
+      padding: 40px;
+    }
+    .chat-input-wrap {
+      border-top: 1px solid var(--neutral-100);
+      padding: 12px 16px;
+      display: flex;
+      gap: 8px;
+    }
+    .chat-input-wrap input {
+      flex: 1;
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-pill);
+      padding: 10px 16px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .chat-input-wrap input:focus { border-color: var(--primary-300); }
+    .chat-input-wrap button {
+      background: var(--primary-300);
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+    .chat-input-wrap button:hover { background: var(--primary-400); }
+
+    /* Document upload zone */
+    .upload-zone {
+      border: 2px dashed var(--neutral-200);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 16px;
+      background: var(--neutral-0);
+    }
+    .upload-zone:hover,
+    .upload-zone.dragover {
+      border-color: var(--primary-300);
+      background: var(--primary-50);
+    }
+    .upload-zone-icon { margin-bottom: 8px; color: var(--neutral-400); }
+    .upload-zone p { font-size: 14px; color: var(--neutral-500); margin: 4px 0; }
+    .upload-zone .upload-formats { font-size: 12px; color: var(--neutral-400); }
+    .upload-form-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .upload-form-row select {
+      padding: 10px 16px;
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-pill);
+      font-size: 14px;
+      background: var(--surface-0);
+      color: var(--neutral-700);
+      outline: none;
+    }
+    .upload-form-row select:focus { border-color: var(--primary-300); }
+    .upload-file-name {
+      font-size: 13px;
+      color: var(--neutral-600);
+      font-weight: 500;
+    }
+
+    /* Uploaded documents list */
+    .uploaded-docs-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .uploaded-doc-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      background: var(--surface-0);
+      border: 1px solid var(--neutral-100);
+      border-radius: var(--radius-md);
+      transition: all 0.2s;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .uploaded-doc-item:hover { border-color: var(--primary-200); }
+    .uploaded-doc-meta { display: flex; align-items: center; gap: 12px; }
+    .uploaded-doc-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--neutral-50);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+    .uploaded-doc-name { font-size: 14px; font-weight: 600; color: var(--neutral-800); }
+    .uploaded-doc-cat { font-size: 12px; color: var(--neutral-400); margin-top: 2px; }
+    .uploaded-doc-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+    .status-badge-doc {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 12px;
+      border-radius: var(--radius-full);
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .status-badge-doc.en_attente { background: var(--warning-50); color: var(--warning-700); }
+    .status-badge-doc.verifie { background: var(--success-50); color: var(--success-700); }
+    .status-badge-doc.a_completer { background: var(--gold-50); color: var(--gold-700); }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .conseiller-layout { grid-template-columns: 1fr; }
+      .favoris-grid { grid-template-columns: 1fr; }
+      .chat-wrap { height: 400px; }
+      .rdv-card { flex-direction: column; text-align: center; }
+      .rdv-card-action { margin-left: 0; margin-top: 12px; }
+    }
+  </style>
 </head>
 <body>
 
@@ -27,34 +430,42 @@
       <div class="sidebar-section-label">Navigation</div>
       <nav class="sidebar-nav">
         <a href="#overview" class="active" onclick="showSection('overview', this)">
-          <span class="nav-icon">📊</span> Vue d'ensemble
+          <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/></svg></span> Vue d'ensemble
         </a>
         <a href="#simulations" onclick="showSection('simulations', this)">
-          <span class="nav-icon">🧮</span> Mes simulations
+          <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M5 8h6M8 5v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span> Mes simulations
         </a>
         <a href="#investissements" onclick="showSection('investissements', this)">
-          <span class="nav-icon">🏠</span> Mes investissements
+          <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 14V7l3-2v9M7 14V5l3-3v12M12 14V8l2-1v7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Mes investissements
         </a>
         <a href="#documents" onclick="showSection('documents', this)">
-          <span class="nav-icon">📄</span> Documents
+          <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 1h5l4 4v9a1 1 0 01-1 1H4a1 1 0 01-1-1V2a1 1 0 011-1z" stroke="currentColor" stroke-width="1.5"/><path d="M9 1v4h4" stroke="currentColor" stroke-width="1.5"/></svg></span> Documents
         </a>
         <a href="#banque" onclick="showSection('banque', this)">
-          <span class="nav-icon">🏦</span> Banque
+          <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 6l6-4 6 4M3 7v6M7 7v6M9 7v6M13 7v6M1 13h14M1 6h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Banque
+        </a>
+        <a href="#favoris" onclick="showSection('favoris', this)">
+          <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 14s-5.5-3.5-5.5-7A3.5 3.5 0 018 4a3.5 3.5 0 015.5 3c0 3.5-5.5 7-5.5 7z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></span> Favoris
+        </a>
+        <a href="#conseiller" onclick="showSection('conseiller', this)">
+          <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M14 11a2 2 0 01-2 2H5l-3 3V3a2 2 0 012-2h10a2 2 0 012 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></span> Mon conseiller
         </a>
       </nav>
       <div class="sidebar-section-label">Compte</div>
       <nav class="sidebar-nav">
         <a href="#profil" onclick="showSection('profil', this)">
-          <span class="nav-icon">👤</span> Profil & Facturation
+          <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M2 14c0-3 3-5 6-5s6 2 6 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span> Profil & Facturation
         </a>
         <a href="#" onclick="logout(); return false;">
-          <span class="nav-icon">🚪</span> Déconnexion
+          <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 14H3a1 1 0 01-1-1V3a1 1 0 011-1h3M11 11l3-3-3-3M14 8H6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Déconnexion
         </a>
       </nav>
     </aside>
 
     <!-- Mobile sidebar toggle -->
-    <button class="sidebar-toggle" id="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+    <button class="sidebar-toggle" id="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+    </button>
 
     <!-- Main content -->
     <main class="dash-main">
@@ -66,25 +477,48 @@
           <p>Votre tableau de bord investisseur</p>
         </div>
 
+        <!-- Profile completion progress -->
+        <div class="dash-card progress-card">
+          <div class="dash-card-header">
+            <h3 style="font-size:18px">Complétude du profil</h3>
+            <span class="progress-pct" id="profile-pct">0%</span>
+          </div>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar-fill" id="profile-bar" style="width:0%"></div>
+          </div>
+          <div class="progress-missing" id="profile-missing"></div>
+        </div>
+
+        <!-- Next RDV (hidden by default) -->
+        <div id="next-rdv-wrap" style="display:none"></div>
+
         <!-- KPI Cards -->
         <div class="kpi-grid">
           <div class="kpi-card">
-            <div class="kpi-icon teal">💰</div>
+            <div class="kpi-icon teal">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" stroke="var(--primary-600)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
             <div class="kpi-value mono" id="kpi-patrimoine">—</div>
             <div class="kpi-label">Patrimoine total</div>
           </div>
           <div class="kpi-card">
-            <div class="kpi-icon gold">📈</div>
+            <div class="kpi-icon gold">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18" stroke="var(--gold-600)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="17 6 23 6 23 12" stroke="var(--gold-600)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
             <div class="kpi-value mono" id="kpi-rendement">—</div>
             <div class="kpi-label">Rendement moyen</div>
           </div>
           <div class="kpi-card">
-            <div class="kpi-icon green">💸</div>
+            <div class="kpi-icon green">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="1" y="4" width="22" height="16" rx="2" stroke="var(--success-600)" stroke-width="2"/><path d="M1 10h22" stroke="var(--success-600)" stroke-width="2"/></svg>
+            </div>
             <div class="kpi-value mono" id="kpi-effort">—</div>
             <div class="kpi-label">Effort mensuel</div>
           </div>
           <div class="kpi-card">
-            <div class="kpi-icon blue">🏛️</div>
+            <div class="kpi-icon blue">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3 21V7l9-5 9 5v14M9 21V11h6v10" stroke="var(--secondary-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
             <div class="kpi-value mono" id="kpi-fiscal">—</div>
             <div class="kpi-label">Économie fiscale/an</div>
           </div>
@@ -149,16 +583,59 @@
         <div id="invest-list" style="display:none"></div>
       </div>
 
-      <!-- SECTION: Documents -->
+      <!-- SECTION: Documents (improved with upload) -->
       <div id="section-documents" class="dash-section-content" style="display:none">
         <div class="dash-main-header">
           <h1>Documents</h1>
-          <p>Vos contrats et documents signés</p>
+          <p>Vos contrats, documents signés et pièces justificatives</p>
         </div>
-        <div id="docs-empty" class="dash-empty">
-          <p>Aucun document pour le moment.</p>
+
+        <!-- Upload zone -->
+        <div class="dash-card" style="margin-bottom:24px">
+          <div class="dash-card-header"><h3>Envoyer un document</h3></div>
+          <div class="upload-zone" id="upload-zone" onclick="document.getElementById('upload-input').click()">
+            <div class="upload-zone-icon">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            </div>
+            <p><strong>Cliquez ou glissez-déposez</strong> un fichier ici</p>
+            <p class="upload-formats">PDF, JPG, PNG — 10 Mo max</p>
+          </div>
+          <input type="file" id="upload-input" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleFileSelect(this)" />
+          <div id="upload-form" style="display:none">
+            <div class="upload-form-row">
+              <span class="upload-file-name" id="upload-file-name"></span>
+              <select id="upload-category">
+                <option value="">-- Catégorie --</option>
+                <option value="Piece d'identite">Pièce d'identité</option>
+                <option value="Justificatif domicile">Justificatif domicile</option>
+                <option value="Avis d'imposition">Avis d'imposition</option>
+                <option value="Bulletins de salaire">Bulletins de salaire</option>
+                <option value="RIB">RIB</option>
+                <option value="Autre">Autre</option>
+              </select>
+              <button class="btn-primary btn-small" id="upload-btn" onclick="uploadDocument()">Envoyer</button>
+              <button class="btn-ghost btn-small" onclick="cancelUpload()">Annuler</button>
+            </div>
+          </div>
         </div>
-        <div class="doc-list" id="doc-list" style="display:none"></div>
+
+        <!-- Uploaded documents -->
+        <div class="dash-card" id="uploaded-docs-wrap">
+          <div class="dash-card-header"><h3>Mes documents</h3></div>
+          <div id="uploaded-docs-loading" style="text-align:center;padding:24px;color:var(--neutral-400)">Chargement…</div>
+          <div id="uploaded-docs-empty" class="dash-empty" style="display:none">
+            <p>Aucun document téléchargé.</p>
+          </div>
+          <div class="uploaded-docs-list" id="uploaded-docs-list" style="display:none"></div>
+        </div>
+
+        <!-- Existing signed docs -->
+        <div style="margin-top:24px">
+          <div id="docs-empty" class="dash-empty">
+            <p>Aucun document signé pour le moment.</p>
+          </div>
+          <div class="doc-list" id="doc-list" style="display:none"></div>
+        </div>
       </div>
 
       <!-- SECTION: Banque -->
@@ -192,6 +669,94 @@
           <div class="dash-card">
             <div class="dash-card-header"><h3>Comptes</h3></div>
             <div class="bank-accounts" id="bank-accounts"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION: Favoris -->
+      <div id="section-favoris" class="dash-section-content" style="display:none">
+        <div class="dash-main-header">
+          <h1>Mes favoris</h1>
+          <p>Les biens que vous avez mis en favori</p>
+        </div>
+        <div id="fav-loading" style="text-align:center;padding:40px;color:var(--neutral-400)">Chargement…</div>
+        <div id="fav-empty" class="dash-empty" style="display:none">
+          <p>Aucun favori. Explorez notre catalogue pour ajouter des biens.</p>
+          <a href="catalogue.html" class="btn-primary btn-small">Voir le catalogue</a>
+        </div>
+        <div class="favoris-grid" id="fav-grid" style="display:none"></div>
+        <div style="margin-top:24px; text-align:center" id="fav-cta">
+          <a href="catalogue.html" class="btn-secondary btn-small">Voir le catalogue</a>
+        </div>
+      </div>
+
+      <!-- SECTION: Mon conseiller -->
+      <div id="section-conseiller" class="dash-section-content" style="display:none">
+        <div class="dash-main-header">
+          <h1>Mon conseiller</h1>
+          <p>Échangez directement avec votre conseiller en gestion de patrimoine</p>
+        </div>
+        <div class="conseiller-layout">
+          <!-- Advisor card -->
+          <div>
+            <div class="conseiller-card">
+              <div class="conseiller-avatar">
+                <svg viewBox="0 0 40 40" fill="none">
+                  <circle cx="20" cy="14" r="8" fill="rgba(78,205,196,0.3)"/>
+                  <path d="M6 36c0-7 6-12 14-12s14 5 14 12" fill="rgba(78,205,196,0.2)"/>
+                  <circle cx="20" cy="14" r="7" stroke="#4ECDC4" stroke-width="1.5" fill="none"/>
+                  <path d="M7 35c0-6.5 5.5-11.5 13-11.5S33 28.5 33 35" stroke="#4ECDC4" stroke-width="1.5" fill="none"/>
+                </svg>
+              </div>
+              <div class="conseiller-name">Équipe Stratège</div>
+              <div class="conseiller-role">Conseiller en gestion de patrimoine</div>
+              <div class="conseiller-contact">
+                <div class="conseiller-contact-row">
+                  <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M2 5l6 4 6-4" stroke="currentColor" stroke-width="1.2"/></svg>
+                  <a href="mailto:contact@stratege-immo.fr">contact@stratege-immo.fr</a>
+                </div>
+                <div class="conseiller-contact-row">
+                  <svg viewBox="0 0 16 16" fill="none"><path d="M14.5 11.3v1.9a1.3 1.3 0 01-1.4 1.3A12.8 12.8 0 011.5 2.9 1.3 1.3 0 012.8 1.5h1.9a1.3 1.3 0 011.3 1 8 8 0 00.4 1.8 1.3 1.3 0 01-.3 1.4l-.8.8a10.3 10.3 0 004.6 4.6l.8-.8a1.3 1.3 0 011.4-.3 8 8 0 001.8.4 1.3 1.3 0 011 1.3z" stroke="currentColor" stroke-width="1.2"/></svg>
+                  <a href="tel:+33695275152">+33 6 95 27 51 52</a>
+                </div>
+              </div>
+              <div class="conseiller-actions">
+                <a href="rdv.html" class="btn-action primary-action">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="11" rx="1" stroke="currentColor" stroke-width="1.3"/><path d="M2 7h12M5 1v4M11 1v4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                  Prendre un RDV
+                </a>
+                <button class="btn-action" onclick="startVisio()">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="4" width="10" height="8" rx="1" stroke="currentColor" stroke-width="1.3"/><path d="M11 7l4-2v6l-4-2" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+                  Démarrer la visio
+                </button>
+                <button class="btn-action" onclick="showSection('documents', document.querySelector('a[href=\'#documents\']'))">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 1h5l4 4v9a1 1 0 01-1 1H4a1 1 0 01-1-1V2a1 1 0 011-1z" stroke="currentColor" stroke-width="1.3"/><path d="M9 1v4h4" stroke="currentColor" stroke-width="1.3"/></svg>
+                  Envoyer un document
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Chat -->
+          <div class="chat-wrap">
+            <div class="chat-header">
+              <div class="dot-online"></div>
+              Messagerie
+            </div>
+            <div class="chat-messages" id="chat-messages">
+              <div class="chat-empty" id="chat-empty">
+                <div>
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--neutral-300)" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                  <p style="margin-top:12px">Envoyez un message à votre conseiller.<br>Il vous répondra sous 24h.</p>
+                </div>
+              </div>
+            </div>
+            <div class="chat-input-wrap">
+              <input type="text" id="chat-input" placeholder="Votre message…" onkeydown="if(event.key==='Enter')sendMessage()" />
+              <button onclick="sendMessage()" aria-label="Envoyer">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -232,6 +797,7 @@
 
     var user = getUser();
     var token = getToken();
+    var profileData = null;
 
     if (user) {
       document.getElementById('dash-welcome').textContent = 'Bonjour ' + user.prenom;
@@ -239,10 +805,11 @@
       document.getElementById('sidebar-email').textContent = user.email;
     }
 
-    // Section routing
+    // ── Section routing ────────────────────────────────
     function showSection(name, el) {
       document.querySelectorAll('.dash-section-content').forEach(function(s) { s.style.display = 'none'; });
-      document.getElementById('section-' + name).style.display = 'block';
+      var sec = document.getElementById('section-' + name);
+      if (sec) sec.style.display = 'block';
       document.querySelectorAll('.sidebar-nav a').forEach(function(a) { a.classList.remove('active'); });
       if (el) el.classList.add('active');
       document.getElementById('sidebar').classList.remove('open');
@@ -255,11 +822,15 @@
       showSection(hash, link);
     }
 
-    // Load data
+    // ── Load all data ──────────────────────────────────
     loadSimulations();
     loadProfile();
     loadDocuments();
+    loadFavoris();
+    loadChatMessages();
+    loadUploadedDocuments();
 
+    // ── Simulations ────────────────────────────────────
     async function loadSimulations() {
       try {
         var res = await fetch('/api/simulations', {
@@ -316,6 +887,8 @@
           timeline.appendChild(item);
         });
 
+        updateProfileCompletion();
+
       } catch (err) {
         document.getElementById('sim-loading').textContent = 'Erreur de chargement.';
       }
@@ -346,6 +919,7 @@
       }
     }
 
+    // ── Profile ────────────────────────────────────────
     async function loadProfile() {
       try {
         var res = await fetch('/api/auth?action=me', {
@@ -354,6 +928,7 @@
         var data = await res.json();
         if (!data.success) return;
         var u = data.user;
+        profileData = u;
 
         document.getElementById('profile-info').innerHTML =
           '<div style="display:flex;flex-direction:column;gap:12px">' +
@@ -364,9 +939,9 @@
 
         document.getElementById('profile-verification').innerHTML =
           '<div style="display:flex;flex-direction:column;gap:12px">' +
-          '<div style="display:flex;align-items:center;gap:8px"><span style="font-size:18px">' + (u.email_verified ? '✅' : '⏳') + '</span><span>Email ' + (u.email_verified ? 'vérifié' : 'non vérifié') + '</span></div>' +
-          '<div style="display:flex;align-items:center;gap:8px"><span style="font-size:18px">' + (u.phone_verified ? '✅' : '⏳') + '</span><span>Téléphone ' + (u.phone_verified ? 'vérifié' : 'non vérifié') + '</span></div>' +
-          '<div style="display:flex;align-items:center;gap:8px"><span style="font-size:18px">' + (u.kyc_complete ? '✅' : '⏳') + '</span><span>Profil investisseur ' + (u.kyc_complete ? 'complété' : 'à compléter') + '</span></div>' +
+          '<div style="display:flex;align-items:center;gap:8px"><span style="width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px;' + (u.email_verified ? 'background:var(--success-50);color:var(--success-600)' : 'background:var(--warning-50);color:var(--warning-600)') + '">' + (u.email_verified ? '\u2713' : '\u2022') + '</span><span>Email ' + (u.email_verified ? 'vérifié' : 'non vérifié') + '</span></div>' +
+          '<div style="display:flex;align-items:center;gap:8px"><span style="width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px;' + (u.phone_verified ? 'background:var(--success-50);color:var(--success-600)' : 'background:var(--warning-50);color:var(--warning-600)') + '">' + (u.phone_verified ? '\u2713' : '\u2022') + '</span><span>Téléphone ' + (u.phone_verified ? 'vérifié' : 'non vérifié') + '</span></div>' +
+          '<div style="display:flex;align-items:center;gap:8px"><span style="width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px;' + (u.kyc_complete ? 'background:var(--success-50);color:var(--success-600)' : 'background:var(--warning-50);color:var(--warning-600)') + '">' + (u.kyc_complete ? '\u2713' : '\u2022') + '</span><span>Profil investisseur ' + (u.kyc_complete ? 'complété' : 'à compléter') + '</span></div>' +
           '</div>';
 
         if (u.profile) {
@@ -380,9 +955,42 @@
         } else {
           document.getElementById('profile-kyc').innerHTML = '<p style="color:var(--neutral-400)">Profil investisseur non complété. <a href="register.html" style="color:var(--primary-500)">Compléter</a></p>';
         }
+
+        updateProfileCompletion();
+
       } catch (err) {}
     }
 
+    // ── Profile completion progress ────────────────────
+    function updateProfileCompletion() {
+      if (!profileData) return;
+      var pct = 0;
+      var missing = [];
+
+      if (profileData.email_verified) { pct += 20; }
+      else { missing.push('Vérifier email'); }
+
+      if (profileData.phone_verified) { pct += 20; }
+      else { missing.push('Vérifier téléphone'); }
+
+      if (profileData.profile && profileData.profile.revenus_annuels > 0) { pct += 30; }
+      else { missing.push('Renseigner revenus'); }
+
+      var simTbody = document.getElementById('sim-tbody');
+      if (simTbody && simTbody.children.length > 0) { pct += 30; }
+      else { missing.push('Effectuer une simulation'); }
+
+      document.getElementById('profile-pct').textContent = pct + '%';
+      document.getElementById('profile-bar').style.width = pct + '%';
+
+      if (missing.length > 0) {
+        document.getElementById('profile-missing').textContent = 'Restant : ' + missing.join(', ');
+      } else {
+        document.getElementById('profile-missing').innerHTML = '<span style="color:var(--success-600)">Profil complet !</span>';
+      }
+    }
+
+    // ── Signed documents ───────────────────────────────
     async function loadDocuments() {
       if (!user) return;
       try {
@@ -397,7 +1005,7 @@
             var item = document.createElement('div');
             item.className = 'doc-item';
             item.innerHTML =
-              '<div class="doc-info"><div class="doc-icon ' + (sig.status === 'signed' ? 'signed' : '') + '">' + (sig.status === 'signed' ? '✅' : '📄') + '</div>' +
+              '<div class="doc-info"><div class="doc-icon ' + (sig.status === 'signed' ? 'signed' : '') + '">' + (sig.status === 'signed' ? '\u2705' : '\uD83D\uDCC4') + '</div>' +
               '<div><div class="doc-name">Réservation ' + (sig.bien_id || '') + '</div><div class="doc-date">' + new Date(sig.created_at).toLocaleDateString('fr-FR') + ' — ' +
               '<span class="status-badge ' + sig.status + '">' + sig.status + '</span></div></div></div>' +
               (sig.status === 'signed' ? '<a href="/api/signature?action=download&id=' + sig.id + '" class="doc-download">Télécharger</a>' : '');
@@ -407,6 +1015,180 @@
       } catch (err) {}
     }
 
+    // ── Upload documents ───────────────────────────────
+    var pendingFile = null;
+
+    // Drag & drop
+    var uploadZone = document.getElementById('upload-zone');
+    uploadZone.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      uploadZone.classList.add('dragover');
+    });
+    uploadZone.addEventListener('dragleave', function(e) {
+      e.preventDefault();
+      uploadZone.classList.remove('dragover');
+    });
+    uploadZone.addEventListener('drop', function(e) {
+      e.preventDefault();
+      uploadZone.classList.remove('dragover');
+      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        processFile(e.dataTransfer.files[0]);
+      }
+    });
+
+    function handleFileSelect(input) {
+      if (input.files && input.files[0]) {
+        processFile(input.files[0]);
+      }
+    }
+
+    function processFile(file) {
+      var validTypes = ['application/pdf', 'image/jpeg', 'image/png'];
+      if (!validTypes.includes(file.type)) {
+        showToast('Format non supporté. Utilisez PDF, JPG ou PNG.', 'error');
+        return;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        showToast('Fichier trop volumineux (max 10 Mo)', 'error');
+        return;
+      }
+      pendingFile = file;
+      document.getElementById('upload-file-name').textContent = file.name + ' (' + (file.size / 1024 / 1024).toFixed(1) + ' Mo)';
+      document.getElementById('upload-form').style.display = 'block';
+      uploadZone.style.display = 'none';
+    }
+
+    function cancelUpload() {
+      pendingFile = null;
+      document.getElementById('upload-form').style.display = 'none';
+      uploadZone.style.display = 'block';
+      document.getElementById('upload-input').value = '';
+    }
+
+    async function uploadDocument() {
+      if (!pendingFile) return;
+      var category = document.getElementById('upload-category').value;
+      if (!category) {
+        showToast('Sélectionnez une catégorie', 'warning');
+        return;
+      }
+
+      var btn = document.getElementById('upload-btn');
+      btn.disabled = true;
+      btn.textContent = 'Envoi…';
+
+      try {
+        var base64 = await fileToBase64(pendingFile);
+        var res = await fetch('/api/documents', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+          },
+          body: JSON.stringify({
+            name: pendingFile.name,
+            category: category,
+            data: base64,
+            type: pendingFile.type
+          })
+        });
+        var data = await res.json();
+        if (data.success) {
+          showToast('Document envoyé avec succès', 'success');
+          cancelUpload();
+          loadUploadedDocuments();
+        } else {
+          showToast(data.error || 'Erreur envoi', 'error');
+        }
+      } catch (err) {
+        showToast('Erreur réseau', 'error');
+      }
+
+      btn.disabled = false;
+      btn.textContent = 'Envoyer';
+    }
+
+    function fileToBase64(file) {
+      return new Promise(function(resolve, reject) {
+        var reader = new FileReader();
+        reader.onload = function() { resolve(reader.result.split(',')[1]); };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function loadUploadedDocuments() {
+      try {
+        var res = await fetch('/api/documents', {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        var data = await res.json();
+        document.getElementById('uploaded-docs-loading').style.display = 'none';
+
+        if (!data.success || !data.documents || data.documents.length === 0) {
+          document.getElementById('uploaded-docs-empty').style.display = 'block';
+          document.getElementById('uploaded-docs-list').style.display = 'none';
+          return;
+        }
+
+        document.getElementById('uploaded-docs-empty').style.display = 'none';
+        var list = document.getElementById('uploaded-docs-list');
+        list.style.display = 'flex';
+        list.innerHTML = '';
+
+        data.documents.sort(function(a, b) { return new Date(b.uploaded_at) - new Date(a.uploaded_at); });
+
+        data.documents.forEach(function(doc) {
+          var statusLabel = doc.status === 'en_attente' ? 'En attente' :
+                            doc.status === 'verifie' ? 'Vérifié' : 'À compléter';
+          var statusClass = doc.status || 'en_attente';
+
+          var item = document.createElement('div');
+          item.className = 'uploaded-doc-item';
+          item.innerHTML =
+            '<div class="uploaded-doc-meta">' +
+              '<div class="uploaded-doc-icon">' +
+                '<svg width="20" height="20" viewBox="0 0 16 16" fill="none"><path d="M4 1h5l4 4v9a1 1 0 01-1 1H4a1 1 0 01-1-1V2a1 1 0 011-1z" stroke="var(--neutral-500)" stroke-width="1.3"/><path d="M9 1v4h4" stroke="var(--neutral-500)" stroke-width="1.3"/></svg>' +
+              '</div>' +
+              '<div>' +
+                '<div class="uploaded-doc-name">' + escHtml(doc.name) + '</div>' +
+                '<div class="uploaded-doc-cat">' + escHtml(doc.category) + ' — ' + new Date(doc.uploaded_at).toLocaleDateString('fr-FR') + '</div>' +
+              '</div>' +
+            '</div>' +
+            '<div class="uploaded-doc-right">' +
+              '<span class="status-badge-doc ' + statusClass + '">' + statusLabel + '</span>' +
+              '<button class="btn-ghost btn-small" onclick="deleteDocument(\'' + doc.id + '\', this)" style="padding:6px 12px;font-size:12px">Supprimer</button>' +
+            '</div>';
+          list.appendChild(item);
+        });
+      } catch (err) {
+        document.getElementById('uploaded-docs-loading').textContent = 'Erreur de chargement.';
+      }
+    }
+
+    async function deleteDocument(id, btn) {
+      if (!confirm('Supprimer ce document ?')) return;
+      btn.disabled = true;
+      try {
+        var res = await fetch('/api/documents?id=' + encodeURIComponent(id), {
+          method: 'DELETE',
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        var data = await res.json();
+        if (data.success) {
+          showToast('Document supprimé', 'success');
+          loadUploadedDocuments();
+        } else {
+          showToast(data.error || 'Erreur', 'error');
+          btn.disabled = false;
+        }
+      } catch (err) {
+        showToast('Erreur réseau', 'error');
+        btn.disabled = false;
+      }
+    }
+
+    // ── Banque ──────────────────────────────────────────
     async function connectBank() {
       if (!user) return;
       try {
@@ -426,8 +1208,177 @@
       }
     }
 
+    // ── Favoris ─────────────────────────────────────────
+    var allBiens = [];
+
+    async function loadFavoris() {
+      var favIds = [];
+      try { favIds = JSON.parse(localStorage.getItem('stratege_favoris')) || []; } catch (e) { favIds = []; }
+
+      if (!favIds || favIds.length === 0) {
+        document.getElementById('fav-loading').style.display = 'none';
+        document.getElementById('fav-empty').style.display = 'block';
+        return;
+      }
+
+      try {
+        var res = await fetch('/api/biens');
+        var data = await res.json();
+        if (data.success && data.biens) {
+          allBiens = data.biens;
+        } else if (Array.isArray(data)) {
+          allBiens = data;
+        }
+
+        document.getElementById('fav-loading').style.display = 'none';
+
+        var favBiens = allBiens.filter(function(b) { return favIds.includes(b.id); });
+
+        if (favBiens.length === 0) {
+          document.getElementById('fav-empty').style.display = 'block';
+          return;
+        }
+
+        var grid = document.getElementById('fav-grid');
+        grid.style.display = 'grid';
+        grid.innerHTML = '';
+
+        favBiens.forEach(function(bien) {
+          var card = document.createElement('div');
+          card.className = 'fav-card';
+          card.id = 'fav-' + bien.id;
+          card.innerHTML =
+            '<div class="fav-card-header">' +
+              '<h4>' + escHtml(bien.titre) + '</h4>' +
+              '<button class="fav-remove" onclick="removeFavori(\'' + bien.id + '\')" title="Retirer des favoris">\u00D7</button>' +
+            '</div>' +
+            '<div class="fav-card-details">' +
+              '<div><div class="detail-label">Prix</div><div class="detail-value mono">' + fmt(bien.prix) + ' \u20ac</div></div>' +
+              '<div><div class="detail-label">Rendement</div><div class="detail-value mono" style="color:var(--primary-600)">' + (bien.rendement || '—') + '%</div></div>' +
+              '<div><div class="detail-label">Surface</div><div class="detail-value">' + (bien.surface || '—') + ' m\u00B2</div></div>' +
+              '<div><div class="detail-label">Dispositif</div><div class="detail-value">' + (bien.dispositif || '—') + '</div></div>' +
+            '</div>' +
+            '<div class="fav-card-actions">' +
+              '<a href="catalogue.html?bien=' + bien.id + '" class="btn-primary btn-small" style="font-size:12px;padding:8px 16px">Voir le bien</a>' +
+              '<button class="btn-ghost btn-small" style="font-size:12px;padding:8px 16px" onclick="removeFavori(\'' + bien.id + '\')">Retirer</button>' +
+            '</div>';
+          grid.appendChild(card);
+        });
+
+      } catch (err) {
+        document.getElementById('fav-loading').textContent = 'Erreur de chargement.';
+      }
+    }
+
+    function removeFavori(bienId) {
+      var favIds = [];
+      try { favIds = JSON.parse(localStorage.getItem('stratege_favoris')) || []; } catch (e) { favIds = []; }
+      favIds = favIds.filter(function(id) { return id !== bienId; });
+      localStorage.setItem('stratege_favoris', JSON.stringify(favIds));
+
+      var card = document.getElementById('fav-' + bienId);
+      if (card) card.remove();
+
+      if (favIds.length === 0) {
+        document.getElementById('fav-grid').style.display = 'none';
+        document.getElementById('fav-empty').style.display = 'block';
+      }
+
+      showToast('Bien retiré des favoris', 'success');
+    }
+
+    // ── Chat / Messagerie ──────────────────────────────
+    function loadChatMessages() {
+      var messages = [];
+      try { messages = JSON.parse(localStorage.getItem('stratege_messages')) || []; } catch (e) { messages = []; }
+
+      if (messages.length === 0) return;
+
+      var emptyEl = document.getElementById('chat-empty');
+      if (emptyEl) emptyEl.style.display = 'none';
+
+      var container = document.getElementById('chat-messages');
+
+      messages.forEach(function(msg) {
+        appendChatBubble(msg.text, msg.type || 'user', msg.time);
+      });
+
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function appendChatBubble(text, type, time) {
+      var container = document.getElementById('chat-messages');
+      var bubble = document.createElement('div');
+      bubble.className = 'chat-msg ' + type;
+      bubble.innerHTML = escHtml(text) + '<div class="msg-time">' + (time || new Date().toLocaleString('fr-FR')) + '</div>';
+      container.appendChild(bubble);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    async function sendMessage() {
+      var input = document.getElementById('chat-input');
+      var text = input.value.trim();
+      if (!text) return;
+
+      input.value = '';
+      var time = new Date().toLocaleString('fr-FR');
+
+      // Save to localStorage
+      var messages = [];
+      try { messages = JSON.parse(localStorage.getItem('stratege_messages')) || []; } catch (e) { messages = []; }
+      messages.push({ text: text, type: 'user', time: time });
+      localStorage.setItem('stratege_messages', JSON.stringify(messages));
+
+      // Hide empty
+      var emptyEl = document.getElementById('chat-empty');
+      if (emptyEl) emptyEl.style.display = 'none';
+
+      // Show bubble
+      appendChatBubble(text, 'user', time);
+
+      // Send to /api/contact
+      try {
+        await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            nom: (user ? user.prenom + ' ' + (user.nom || '') : 'Client'),
+            email: user ? user.email : '',
+            telephone: user ? (user.phone || 'N/A') : 'N/A',
+            message: text,
+            type: 'message'
+          })
+        });
+      } catch (err) { /* silent */ }
+
+      // Auto-reply after a short delay
+      setTimeout(function() {
+        var reply = 'Merci pour votre message. Un conseiller vous répondra sous 24h. Pour un échange immédiat, n\'hésitez pas à prendre un RDV ou démarrer une visio.';
+        var replyTime = new Date().toLocaleString('fr-FR');
+        messages.push({ text: reply, type: 'system', time: replyTime });
+        localStorage.setItem('stratege_messages', JSON.stringify(messages));
+        appendChatBubble(reply, 'system', replyTime);
+      }, 1000);
+    }
+
+    // ── Visio ───────────────────────────────────────────
+    function startVisio() {
+      var userId = user ? user.id.slice(0, 8) : 'client';
+      var ts = Date.now();
+      var url = 'https://meet.jit.si/stratege-' + userId + '-' + ts;
+      window.open(url, '_blank');
+    }
+
+    // ── Helpers ─────────────────────────────────────────
     function fmt(n) {
       return Number(n).toLocaleString('fr-FR', { maximumFractionDigits: 0 });
+    }
+
+    function escHtml(str) {
+      if (!str) return '';
+      var div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
     }
   </script>
 
