@@ -27,48 +27,13 @@ var LOGO_SVG = '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/20
   '<path d="M26 2.5C26 2.5 27 5.5 24 6.5C24 6.5 27 7.5 26 10.5C26 10.5 27 7.5 30 6.5C30 6.5 27 5.5 26 2.5Z" fill="#95E8DF"/>' +
   '</svg>';
 
-// ── Theme toggle (dark mode) ────────────────────────────
-function getTheme() {
-  return localStorage.getItem('stratege_theme') || 'auto';
-}
-function setTheme(theme) {
-  localStorage.setItem('stratege_theme', theme);
-  applyTheme(theme);
-}
-function applyTheme(theme) {
-  if (theme === 'dark') {
-    document.documentElement.setAttribute('data-theme', 'dark');
-  } else if (theme === 'light') {
-    document.documentElement.setAttribute('data-theme', 'light');
-  } else {
-    document.documentElement.removeAttribute('data-theme');
-  }
-  // Update toggle icon
-  var btn = document.getElementById('theme-toggle-btn');
-  if (btn) {
-    var isDark = theme === 'dark' || (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-    btn.innerHTML = isDark ? '&#9728;' : '&#9790;';
-  }
-}
-function toggleTheme() {
-  var current = getTheme();
-  if (current === 'dark') setTheme('light');
-  else setTheme('dark');
-}
-// Apply saved theme immediately
-(function() {
-  var t = getTheme();
-  if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
-  else if (t === 'light') document.documentElement.setAttribute('data-theme', 'light');
-})();
-
 // ── Render Navbar ───────────────────────────────────────
 function renderNavbar(activePage) {
   var loggedIn = isLoggedIn();
 
   var authHTML = loggedIn
     ? '<div class="nav-notifs" style="position:relative;margin-right:8px">' +
-        '<button class="theme-toggle" onclick="toggleNotifs()" aria-label="Notifications" id="notif-bell" style="position:relative">' +
+        '<button class="notif-btn" onclick="toggleNotifs()" aria-label="Notifications" id="notif-bell" style="position:relative;background:none;border:1px solid var(--neutral-300);border-radius:50px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer">' +
           '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>' +
           '<span class="notif-badge" id="notif-badge" style="display:none;position:absolute;top:-4px;right:-4px;background:#ef4444;color:#fff;font-size:10px;font-weight:700;min-width:16px;height:16px;border-radius:8px;align-items:center;justify-content:center;padding:0 4px">0</span>' +
         '</button>' +
@@ -108,9 +73,6 @@ function renderNavbar(activePage) {
         '<li><a href="rdv.html"' + isActive('rdv') + ' style="color:var(--primary-500);font-weight:600">Prendre RDV</a></li>' +
         (loggedIn ? '<li><a href="dashboard.html"' + isActive('dashboard') + '>Dashboard</a></li>' : '') +
       '</ul>' +
-      '<button class="theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()" aria-label="Theme">' +
-      (getTheme() === 'dark' || (getTheme() === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) ? '&#9728;' : '&#9790;') +
-      '</button>' +
       authHTML +
       '<button class="nav-hamburger" onclick="toggleMenu()" aria-label="Menu">' +
         '<span></span><span></span><span></span>' +
