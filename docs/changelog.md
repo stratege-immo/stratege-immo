@@ -1,5 +1,37 @@
 # Changelog Stratege
 
+## [1.4.0] — 5 mars 2026 (Session nuit - Part 2)
+
+### Nouvelles features
+- **Simulation Hub** (`simulation.html`) — Page 4 onglets : Jeanbrun Social, LMNP, Denormandie, Bilan patrimonial avec calculs temps reel, graphiques SVG, sauvegarde KV
+- **Dark mode** — Toggle navbar (soleil/lune), persistence localStorage, @media prefers-color-scheme, variables CSS completes
+- **Notifications in-app** — Cloche dans navbar avec badge non lus, dropdown, API `/api/notifs` (GET/PUT/POST)
+- **Onboarding premiere connexion** — Modal 4 etapes (objectif, budget, situation, recommandation) sur dashboard.html
+- **Tunnel souscription SCPI** — API `/api/scpi/subscribe` avec emails Mailchannels (confirmation client + notification conseiller), reference unique SCPI-2026-XXXXX
+- **Sequences nurturing** — API `/api/admin/sequences` : welcome (4 steps J+0/1/3/7), post_rdv (3 steps), scpi_subscriber (3 steps), relance inactifs. Templates email brandes Stratege
+- **Page A propos enrichie** — Histoire JESPER SAS, equipe avec bios detaillees, certifications CPI/INPI, partenaires (Senioriales/Corum/Iroko/Sofidy/Perial), chiffres cles
+- **Bilan patrimonial PDF** — Export jsPDF avec logo, donnees patrimoniales, resultats analyse, recommandation personnalisee, mentions legales
+
+### Ameliorations
+- Navigation: lien Simulation pointe vers simulation.html (hub complet)
+- Admin marketing: onglet sequences automatiques avec boutons lancement
+- Cache-bust: v122 -> v123
+
+## [1.3.0] — 5 mars 2026 (Session nuit - Part 1)
+
+### Nouvelles features
+- **Chatbot IA Bedrock** — Claude Haiku 4.5 via AWS Bedrock (SigV4 signing Web Crypto), remplace le chatbot rule-based
+- **Admin JWT auth** — PBKDF2 + HMAC-SHA256, rate limiting IP, suppression code en dur
+- **Calculateur defiscalisation** (`calculateur.html`) — 4 dispositifs, baremes IR 2026, partage Web Share API
+- **Admin enrichi** — Dossiers credit scoring, sync Senioriales progress bar, notifications badges
+- **Dashboard client enrichi** — Favoris, conseiller chat Jitsi, documents drag&drop, progression profil
+- **Catalogue Senioriales** — Integration 38 programmes, filtre source, badge Partenaire
+- **Blog enrichi** — 3 articles (Jeanbrun guide complet, LMNP 2026, residences seniors)
+- **Landing premium** — Stats count-up animation, profils investisseurs, process steps, trust indicators
+- **PWA** — manifest.json, theme-color, icones
+- **Documents API** — Upload/download documents client via KV
+- **Marketing API** — Campagnes email segmentees via Mailchannels
+
 ## [1.2.0] — 5 mars 2026
 
 ### Analyse staging Galadrim + parite fonctionnelle

@@ -418,6 +418,7 @@
 
             <div class="sim-actions">
               <button class="btn-sim btn-sim-primary" onclick="saveSimulation('bilan')">Sauvegarder cette simulation</button>
+              <button class="btn-sim btn-sim-outline" onclick="exportBilanPDF()">Telecharger le bilan PDF</button>
               <a href="rdv.html" class="btn-sim btn-sim-outline">Prendre RDV pour aller plus loin</a>
               <a href="catalogue.html" class="btn-sim btn-sim-outline">Voir les programmes eligibles</a>
             </div>
@@ -745,6 +746,129 @@
     calcLMNP();
     calcDenormandie();
     calcBilan();
+
+    /* ---- PDF Export (Bilan Patrimonial) ---- */
+    function exportBilanPDF() {
+      var script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+      script.onload = function() { generatePDF(); };
+      document.head.appendChild(script);
+    }
+
+    function generatePDF() {
+      var jsPDF = window.jspdf.jsPDF;
+      var doc = new jsPDF({ unit: 'mm', format: 'a4' });
+      var w = doc.internal.pageSize.getWidth();
+      var y = 20;
+
+      // Header
+      doc.setFillColor(27, 42, 74);
+      doc.rect(0, 0, w, 40, 'F');
+      doc.setTextColor(78, 205, 196);
+      doc.setFontSize(24);
+      doc.text('Stratege', 20, 18);
+      doc.setFontSize(10);
+      doc.setTextColor(200, 210, 220);
+      doc.text('Bilan Patrimonial Personnalise', 20, 28);
+      doc.text('Genere le ' + new Date().toLocaleDateString('fr-FR'), 20, 35);
+
+      y = 52;
+      doc.setTextColor(27, 42, 74);
+
+      // User info
+      var user = getUser();
+      if (user) {
+        doc.setFontSize(14);
+        doc.text('Profil investisseur', 20, y);
+        y += 8;
+        doc.setFontSize(11);
+        doc.setTextColor(80, 80, 80);
+        doc.text('Nom : ' + (user.prenom || '') + ' ' + (user.nom || ''), 20, y); y += 6;
+      }
+
+      // Bilan data
+      var revenus = parseInt(document.getElementById('bp-revenus').value);
+      var immo = parseInt(document.getElementById('bp-immo').value);
+      var financier = parseInt(document.getElementById('bp-financier').value);
+      var credits = parseInt(document.getElementById('bp-credits').value);
+      var objectif = document.getElementById('bp-objectif').value;
+      var age = parseInt(document.getElementById('bp-age').value);
+      var patrimoineNet = immo + financier - credits;
+
+      doc.setTextColor(27, 42, 74);
+      doc.setFontSize(14);
+      doc.text('Situation patrimoniale', 20, y); y += 10;
+
+      doc.setFontSize(11);
+      doc.setTextColor(80, 80, 80);
+      var items = [
+        ['Revenus annuels', revenus.toLocaleString('fr-FR') + ' EUR'],
+        ['Patrimoine immobilier', immo.toLocaleString('fr-FR') + ' EUR'],
+        ['Patrimoine financier', financier.toLocaleString('fr-FR') + ' EUR'],
+        ['Credits en cours', credits.toLocaleString('fr-FR') + ' EUR'],
+        ['Patrimoine net', patrimoineNet.toLocaleString('fr-FR') + ' EUR'],
+        ['Age', age + ' ans'],
+        ['Objectif', objectif],
+      ];
+
+      items.forEach(function(item) {
+        doc.setTextColor(120, 120, 120);
+        doc.text(item[0], 25, y);
+        doc.setTextColor(27, 42, 74);
+        doc.text(item[1], 120, y);
+        y += 7;
+      });
+      y += 5;
+
+      // Results
+      doc.setFillColor(78, 205, 196);
+      doc.rect(20, y, w - 40, 0.5, 'F');
+      y += 8;
+
+      doc.setTextColor(27, 42, 74);
+      doc.setFontSize(14);
+      doc.text('Resultats de l\'analyse', 20, y); y += 10;
+
+      doc.setFontSize(11);
+      var resultItems = document.querySelectorAll('#panel-bilan .calc-detail');
+      resultItems.forEach(function(el) {
+        var label = el.querySelector('span:first-child');
+        var val = el.querySelector('.val');
+        if (label && val) {
+          doc.setTextColor(120, 120, 120);
+          doc.text(label.textContent, 25, y);
+          doc.setTextColor(27, 42, 74);
+          doc.text(val.textContent, 120, y);
+          y += 7;
+        }
+      });
+      y += 5;
+
+      // Recommendation
+      var recoTitre = document.getElementById('bp-reco-titre').textContent;
+      var recoTexte = document.getElementById('bp-reco-texte').textContent;
+      if (recoTitre && recoTitre !== '-') {
+        doc.setFillColor(240, 255, 254);
+        doc.roundedRect(20, y, w - 40, 30, 3, 3, 'F');
+        doc.setTextColor(26, 133, 127);
+        doc.setFontSize(12);
+        doc.text('Recommandation : ' + recoTitre, 25, y + 8);
+        doc.setFontSize(10);
+        doc.setTextColor(80, 80, 80);
+        var lines = doc.splitTextToSize(recoTexte, w - 50);
+        doc.text(lines, 25, y + 16);
+        y += 35;
+      }
+
+      // Footer disclaimer
+      y = 270;
+      doc.setFontSize(8);
+      doc.setTextColor(150, 150, 150);
+      doc.text('Ce document est fourni a titre indicatif et ne constitue pas un conseil en investissement.', 20, y);
+      doc.text('JESPER SAS — Marque Stratege deposee INPI N FR5029558. CPI 7501 2025 000 000 012.', 20, y + 4);
+
+      doc.save('bilan-patrimonial-stratege.pdf');
+    }
   </script>
 
 </body>
