@@ -3,14 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Catalogue immobilier — Stratège</title>
+  <title>Programmes immobiliers neufs — Résidences seniors | Stratège</title>
   <meta name="description" content="Explorez notre catalogue de biens immobiliers : appartements, studios, programmes neufs. Filtres par ville, budget, dispositif fiscal." />
   <link rel="canonical" href="https://stratege-immo.fr/catalogue" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/style.css?v=121" />
+  <link rel="stylesheet" href="assets/style.css?v=122" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#4ECDC4">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
 <body>
@@ -62,6 +64,14 @@
               <option value="true" selected>Disponibles uniquement</option>
             </select>
           </div>
+          <div style="flex:1;min-width:120px">
+            <label style="display:block;font-size:13px;font-weight:500;margin-bottom:4px;color:var(--neutral-600)">Source</label>
+            <select id="filter-source" style="width:100%;padding:10px 12px;border:1px solid var(--neutral-200);border-radius:var(--radius-sm);font-size:14px;background:white">
+              <option value="">Toutes les sources</option>
+              <option value="stratege">Stratège</option>
+              <option value="senioriales">Senioriales</option>
+            </select>
+          </div>
           <button onclick="applyFilters()" class="btn-primary btn-small" style="height:42px">Rechercher</button>
         </div>
       </div>
@@ -96,7 +106,7 @@
   <footer class="footer"></footer>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="assets/shared.js?v=121"></script>
+  <script src="assets/shared.js?v=122"></script>
   <script>
     renderNavbar('catalogue');
     renderFooter();
@@ -139,19 +149,77 @@
         var ville = document.getElementById('filter-ville').value;
         var dispositif = document.getElementById('filter-dispositif').value;
         var budget = document.getElementById('filter-budget').value;
+        var sourceFilter = document.getElementById('filter-source').value;
 
         if (ville) params.set('ville', ville);
         if (dispositif) params.set('dispositif', dispositif);
         if (budget) params.set('prix_max', budget);
 
-        var res = await fetch('/api/biens?' + params.toString());
-        var data = await res.json();
-        allBiens = data.biens || [];
+        // Fetch both sources in parallel
+        var biensPromise = fetch('/api/biens?' + params.toString()).then(function(r) { return r.json(); });
+        var senPromise = fetch('/api/senioriales/programmes').then(function(r) { return r.ok ? r.json() : { programmes: [] }; }).catch(function() { return { programmes: [] }; });
+
+        var results = await Promise.all([biensPromise, senPromise]);
+        var data = results[0];
+        var senData = results[1];
+
+        var strategeBiens = (data.biens || []).map(function(b) { b.source = b.source || 'stratege'; return b; });
+        var senBiens = (senData.programmes || []).map(function(p) {
+          return {
+            id: p.id,
+            titre: p.titre || 'Programme Senioriales',
+            ville: p.ville || '',
+            surface: null,
+            dpe: null,
+            etage: null,
+            prix: p.prix_min || 0,
+            rendement: null,
+            effort_reel: null,
+            loyer_estime: null,
+            mensualite: null,
+            disponible: true,
+            dispositif: p.dispositif || 'residence-senior',
+            tags: [p.types || 'Residence Senior', p.livraison ? 'Livraison ' + p.livraison : ''].filter(Boolean),
+            source: 'senioriales',
+            image: p.image || '',
+            images: p.images || [],
+            description: p.description || '',
+            promoteur: 'Senioriales',
+            region: p.region || '',
+            badge: 'Partenaire Senioriales'
+          };
+        });
+
+        // Apply source filter
+        if (sourceFilter === 'stratege') {
+          allBiens = strategeBiens;
+        } else if (sourceFilter === 'senioriales') {
+          allBiens = senBiens;
+        } else {
+          allBiens = strategeBiens.concat(senBiens);
+        }
+
+        // Apply budget filter to senioriales
+        if (budget) {
+          var maxBudget = parseInt(budget);
+          allBiens = allBiens.filter(function(b) {
+            if (b.source === 'senioriales') return !b.prix || b.prix <= maxBudget;
+            return true; // stratege biens already filtered server-side
+          });
+        }
+
+        // Apply ville filter to senioriales
+        if (ville) {
+          allBiens = allBiens.filter(function(b) {
+            if (b.source === 'senioriales') return b.ville && b.ville.toLowerCase().indexOf(ville.toLowerCase()) !== -1;
+            return true;
+          });
+        }
 
         var dispo = document.getElementById('filter-dispo').value;
         if (dispo === 'true') allBiens = allBiens.filter(function(b) { return b.disponible; });
 
-        populateFilters(data.biens || []);
+        populateFilters(strategeBiens.concat(senBiens));
         renderResults(allBiens);
         renderMap(allBiens);
       } catch (e) {
@@ -190,24 +258,58 @@
       }
 
       grid.innerHTML = biens.map(function(b) {
+        var isSen = b.source === 'senioriales';
+        var imageHtml = '';
+        var imgUrl = b.image || (b.images && b.images.length ? b.images[0] : '');
+        if (imgUrl) {
+          imageHtml = '<div style="margin:-20px -20px 16px -20px;height:160px;overflow:hidden;border-radius:var(--radius-md) var(--radius-md) 0 0;background:var(--surface-2)">' +
+            '<img src="' + imgUrl + '" alt="' + (b.titre || '') + '" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML=\'<div style=padding:40px;text-align:center;font-size:48px;color:var(--neutral-300)>&#127968;</div>\'" />' +
+          '</div>';
+        } else if (isSen) {
+          imageHtml = '<div style="margin:-20px -20px 16px -20px;height:160px;overflow:hidden;border-radius:var(--radius-md) var(--radius-md) 0 0;background:linear-gradient(135deg,#e0f2f1,#b2dfdb);display:flex;align-items:center;justify-content:center;font-size:48px;color:#00897b">&#127968;</div>';
+        }
+
+        var badgeHtml = '';
+        if (isSen) {
+          badgeHtml = '<span style="display:inline-block;background:#00897b;color:white;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:600;margin-left:8px;white-space:nowrap">Partenaire Senioriales</span>';
+        } else {
+          badgeHtml = '<span class="badge ' + (b.disponible ? 'badge-teal' : 'badge-neutral') + '" style="margin-left:8px;white-space:nowrap">' + (b.disponible ? 'Disponible' : 'R&eacute;serv&eacute;') + '</span>';
+        }
+
+        var metaHtml = '';
+        if (isSen) {
+          var metaParts = [];
+          if (b.ville) metaParts.push('<span>' + b.ville + '</span>');
+          if (b.region) metaParts.push('<span>' + b.region + '</span>');
+          if (b.tags && b.tags.length) metaParts.push('<span>' + b.tags[0] + '</span>');
+          metaHtml = metaParts.join('');
+        } else {
+          metaHtml = '<span>' + b.surface + ' m&sup2;</span><span>' + b.ville + '</span><span>DPE ' + b.dpe + '</span><span>' + b.etage + '</span>';
+        }
+
+        var priceHtml = '';
+        if (isSen) {
+          priceHtml = b.prix ? '<span style="font-size:20px;font-weight:700;color:var(--neutral-800)">A partir de ' + b.prix.toLocaleString('fr-FR') + ' &euro;</span>' : '<span style="font-size:16px;font-weight:600;color:var(--neutral-500)">Prix sur demande</span>';
+        } else {
+          priceHtml = '<span style="font-size:20px;font-weight:700;color:var(--neutral-800)">' + b.prix.toLocaleString('fr-FR') + ' &euro;</span>' +
+            '<span style="color:var(--primary-500);font-weight:500">' + b.rendement + '% rendement</span>' +
+            '<span style="color:var(--neutral-400);font-size:13px">Effort : ' + b.effort_reel + ' &euro;/mois</span>';
+        }
+
         return '<a href="bien-detail.html?id=' + b.id + '" class="card catalogue-card" style="display:block;padding:20px;margin-bottom:12px;transition:box-shadow 0.2s">' +
+          imageHtml +
           '<div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px">' +
             '<h3 style="font-family:var(--font-display);font-size:16px;margin:0;flex:1">' + b.titre + '</h3>' +
-            '<span class="badge ' + (b.disponible ? 'badge-teal' : 'badge-neutral') + '" style="margin-left:8px;white-space:nowrap">' + (b.disponible ? 'Disponible' : 'Réservé') + '</span>' +
+            badgeHtml +
           '</div>' +
           '<div style="display:flex;flex-wrap:wrap;gap:16px;font-size:14px;color:var(--neutral-500);margin-bottom:8px">' +
-            '<span>' + b.surface + ' m&sup2;</span>' +
-            '<span>' + b.ville + '</span>' +
-            '<span>DPE ' + b.dpe + '</span>' +
-            '<span>' + b.etage + '</span>' +
+            metaHtml +
           '</div>' +
           '<div style="display:flex;flex-wrap:wrap;gap:16px;align-items:baseline">' +
-            '<span style="font-size:20px;font-weight:700;color:var(--neutral-800)">' + b.prix.toLocaleString('fr-FR') + ' &euro;</span>' +
-            '<span style="color:var(--primary-500);font-weight:500">' + b.rendement + '% rendement</span>' +
-            '<span style="color:var(--neutral-400);font-size:13px">Effort : ' + b.effort_reel + ' &euro;/mois</span>' +
+            priceHtml +
           '</div>' +
           '<div style="margin-top:8px">' +
-            b.tags.map(function(t) { return '<span class="badge badge-outline" style="margin-right:4px;font-size:12px">' + t + '</span>'; }).join('') +
+            (b.tags || []).map(function(t) { return '<span class="badge badge-outline" style="margin-right:4px;font-size:12px">' + t + '</span>'; }).join('') +
           '</div>' +
         '</a>';
       }).join('');
@@ -219,26 +321,45 @@
 
       var bounds = [];
       biens.forEach(function(b) {
-        var coords = CITY_COORDS[b.ville];
+        var coords = null;
+        if (b.lat && b.lng) {
+          coords = [b.lat, b.lng];
+        } else {
+          coords = CITY_COORDS[b.ville];
+        }
         if (!coords) return;
         var jitter = [(Math.random() - 0.5) * 0.01, (Math.random() - 0.5) * 0.01];
         var latlng = [coords[0] + jitter[0], coords[1] + jitter[1]];
 
+        var isSen = b.source === 'senioriales';
+        var markerColor = isSen ? '#00897b' : (b.disponible ? 'var(--primary-300)' : 'var(--neutral-400)');
+        var priceLabel = b.prix ? (b.prix/1000).toFixed(0) + 'k&euro;' : '?';
+
         var icon = L.divIcon({
           className: 'map-price-marker',
-          html: '<div style="background:' + (b.disponible ? 'var(--primary-300)' : 'var(--neutral-400)') + ';color:white;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,0.2)">' + (b.prix/1000).toFixed(0) + 'k&euro;</div>',
+          html: '<div style="background:' + markerColor + ';color:white;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,0.2)">' + priceLabel + '</div>',
           iconSize: null
         });
 
-        var marker = L.marker(latlng, { icon: icon }).addTo(map);
-        marker.bindPopup(
-          '<div style="font-family:Inter,sans-serif">' +
+        var popupContent = '';
+        if (isSen) {
+          popupContent = '<div style="font-family:Inter,sans-serif">' +
+            '<strong>' + b.titre + '</strong><br>' +
+            (b.ville ? b.ville + '<br>' : '') +
+            (b.prix ? '<strong>A partir de ' + b.prix.toLocaleString('fr-FR') + ' &euro;</strong><br>' : '') +
+            '<a href="bien-detail.html?id=' + b.id + '" style="color:#00897b">Voir le programme &rarr;</a>' +
+          '</div>';
+        } else {
+          popupContent = '<div style="font-family:Inter,sans-serif">' +
             '<strong>' + b.titre + '</strong><br>' +
             b.surface + ' m&sup2; — ' + b.rendement + '% rendement<br>' +
             '<strong>' + b.prix.toLocaleString('fr-FR') + ' &euro;</strong><br>' +
             '<a href="bien-detail.html?id=' + b.id + '" style="color:#4ECDC4">Voir le bien &rarr;</a>' +
-          '</div>'
-        );
+          '</div>';
+        }
+
+        var marker = L.marker(latlng, { icon: icon }).addTo(map);
+        marker.bindPopup(popupContent);
         markers.push(marker);
         bounds.push(latlng);
       });

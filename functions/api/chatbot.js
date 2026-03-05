@@ -1,30 +1,33 @@
 /* ═══════════════════════════════════════════════════════════
-   STRATEGE — Chatbot IA (rule-based, no external API)
+   STRATEGE — Chatbot IA powered by AWS Bedrock (Claude Haiku 4.5)
    POST /api/chatbot  { message, history, sessionId }
    Returns { response, suggestions }
    ═══════════════════════════════════════════════════════════ */
 
+const BEDROCK_MODEL = 'us.anthropic.claude-haiku-4-5-20251001-v1:0';
+const BEDROCK_REGION = 'us-east-1';
+
 const BIENS = [
   { id:'bien_001', titre:'Appartement T2 — Toulouse Capitole', ville:'Toulouse', surface:42, pieces:2, prix:189000, loyer:750, rendement:5.8, dispositif:'Jeanbrun Social', effort:248 },
-  { id:'bien_002', titre:'Studio meublé — Lyon Part-Dieu', ville:'Lyon', surface:28, pieces:1, prix:145000, loyer:620, rendement:6.1, dispositif:'LMNP', effort:180 },
-  { id:'bien_003', titre:'T3 familial — Bordeaux Chartrons', ville:'Bordeaux', surface:68, pieces:3, prix:312000, loyer:1100, rendement:4.9, dispositif:'Résidence principale', effort:1380 },
+  { id:'bien_002', titre:'Studio meuble — Lyon Part-Dieu', ville:'Lyon', surface:28, pieces:1, prix:145000, loyer:620, rendement:6.1, dispositif:'LMNP', effort:180 },
+  { id:'bien_003', titre:'T3 familial — Bordeaux Chartrons', ville:'Bordeaux', surface:68, pieces:3, prix:312000, loyer:1100, rendement:4.9, dispositif:'Residence principale', effort:1380 },
   { id:'bien_004', titre:'T2 neuf — Montpellier Antigone', ville:'Montpellier', surface:45, pieces:2, prix:198000, loyer:780, rendement:5.6, dispositif:'Jeanbrun Social', effort:290 },
   { id:'bien_005', titre:'Studio — Nantes Centre', ville:'Nantes', surface:25, pieces:1, prix:125000, loyer:550, rendement:6.4, dispositif:'LMNP', effort:155 },
-  { id:'bien_006', titre:'T4 standing — Paris 11ème', ville:'Paris', surface:85, pieces:4, prix:890000, loyer:2800, rendement:3.8, dispositif:'Déficit foncier', effort:1500 },
+  { id:'bien_006', titre:'T4 standing — Paris 11eme', ville:'Paris', surface:85, pieces:4, prix:890000, loyer:2800, rendement:3.8, dispositif:'Deficit foncier', effort:1500 },
   { id:'bien_007', titre:'T2 neuf — Rennes Beaulieu', ville:'Rennes', surface:40, pieces:2, prix:175000, loyer:680, rendement:5.5, dispositif:'Jeanbrun Social', effort:220 },
   { id:'bien_008', titre:'T3 Denormandie — Marseille Joliette', ville:'Marseille', surface:62, pieces:3, prix:220000, loyer:900, rendement:5.9, dispositif:'Denormandie', effort:280 },
-  { id:'bien_009', titre:'Studio meublé — Lille Wazemmes', ville:'Lille', surface:22, pieces:1, prix:112000, loyer:520, rendement:6.7, dispositif:'LMNP', effort:130 },
+  { id:'bien_009', titre:'Studio meuble — Lille Wazemmes', ville:'Lille', surface:22, pieces:1, prix:112000, loyer:520, rendement:6.7, dispositif:'LMNP', effort:130 },
   { id:'bien_010', titre:'T2 neuf — Strasbourg Neudorf', ville:'Strasbourg', surface:44, pieces:2, prix:205000, loyer:790, rendement:5.4, dispositif:'Jeanbrun Social', effort:300 },
-  { id:'bien_011', titre:'T3 résidence seniors — Nice Cimiez', ville:'Nice', surface:58, pieces:3, prix:285000, loyer:1050, rendement:5.2, dispositif:'LMNP', effort:380 },
+  { id:'bien_011', titre:'T3 residence seniors — Nice Cimiez', ville:'Nice', surface:58, pieces:3, prix:285000, loyer:1050, rendement:5.2, dispositif:'LMNP', effort:380 },
   { id:'bien_012', titre:'T2 — Villeurbanne Campus', ville:'Villeurbanne', surface:38, pieces:2, prix:168000, loyer:660, rendement:5.7, dispositif:'Jeanbrun Social', effort:210 }
 ];
 
 const SCPI_DATA = [
-  { nom:'Transitions Europe', rendement:8.16, gestionnaire:'Arkea REIM', type:'Diversifiée Europe' },
-  { nom:'Remake Live', rendement:7.79, gestionnaire:'Remake', type:'Diversifiée' },
-  { nom:'Iroko Zen', rendement:7.12, gestionnaire:'Iroko', type:'Diversifiée sans frais' },
+  { nom:'Transitions Europe', rendement:8.16, gestionnaire:'Arkea REIM', type:'Diversifiee Europe' },
+  { nom:'Remake Live', rendement:7.79, gestionnaire:'Remake', type:'Diversifiee' },
+  { nom:'Iroko Zen', rendement:7.12, gestionnaire:'Iroko', type:'Diversifiee sans frais' },
   { nom:'Novaxia Neo', rendement:6.51, gestionnaire:'Novaxia', type:'Bureau transformation' },
-  { nom:'Corum Origin', rendement:6.06, gestionnaire:'Corum', type:'Diversifiée Europe' }
+  { nom:'Corum Origin', rendement:6.06, gestionnaire:'Corum', type:'Diversifiee Europe' }
 ];
 
 const TAUX_PRET = [
@@ -35,288 +38,206 @@ const TAUX_PRET = [
   { duree:25, taux:3.40 }
 ];
 
-function normalize(text) {
-  return text.toLowerCase()
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9\s]/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
+const SYSTEM_PROMPT = `Tu es le conseiller IA de **Stratege**, cabinet de gestion de patrimoine (CGP) base a Lyon.
+Societe JESPER SAS — Marque Stratege deposee INPI.
+CPI 7501 2025 000 000 012 — Transaction.
+Adresse : 51 bis rue de Miromesnil, 75008 Paris.
+Site : stratege-immo.fr
+
+Tu reponds en francais, de maniere professionnelle mais accessible. Tu tutoies le client.
+Tu es expert en investissement immobilier, SCPI, defiscalisation et credit immobilier.
+Tes reponses sont concises (2-4 paragraphes max) et orientees action.
+Utilise **gras** pour les points importants. N'utilise pas d'emojis.
+
+=== CATALOGUE DE BIENS (${BIENS.length} biens disponibles) ===
+${BIENS.map(b => `- ${b.titre} : ${b.prix.toLocaleString('fr-FR')}EUR, ${b.surface}m2, ${b.pieces}p, loyer ${b.loyer}EUR/mois, rendement ${b.rendement}%, dispositif ${b.dispositif}, effort reel ${b.effort}EUR/mois`).join('\n')}
+
+=== TOP SCPI 2026 ===
+${SCPI_DATA.map(s => `- ${s.nom} : rendement ${s.rendement}%, gestionnaire ${s.gestionnaire}, type ${s.type}`).join('\n')}
+
+=== TAUX CREDIT IMMOBILIER MARS 2026 ===
+${TAUX_PRET.map(t => `- ${t.duree} ans : ${t.taux}%`).join('\n')}
+
+=== DISPOSITIFS FISCAUX EN VIGUEUR 2026 ===
+- **Jeanbrun Social** (remplacant Pinel depuis 2025) : Reduction d'impot 14% sur 6 ans, 17.5% sur 9 ans, 21% sur 12 ans. Zones tendues, plafonds de loyers.
+- **Denormandie** : Ancien renove, 245 villes moyennes. Travaux >= 25% du cout total. Memes taux que Jeanbrun.
+- **LMNP** (Loueur Meuble Non Professionnel) : Amortissement du bien, revenus locatifs peu imposes pendant 15-20 ans.
+- **Deficit Foncier** : Deduction jusqu'a 10 700 EUR/an de travaux des revenus fonciers.
+- **Loi Malraux** : Reduction pour renovation d'immeubles historiques en secteur sauvegarde.
+- Le dispositif Pinel a pris fin au 31/12/2024.
+
+=== EFFORT REEL D'EPARGNE ===
+Formule : Mensualite credit - Loyer percu - Avantage fiscal mensualise = Effort reel
+Exemple : T2 Toulouse 189k => mensualite 820EUR - loyer 750EUR - avantage Jeanbrun 178EUR = effort reel 248EUR/mois.
+
+=== PARTENARIAT SENIORIALES ===
+38 residences seniors non-medicalisees en France. Rendements 5-6%. LMNP. Gestion deleguee.
+
+=== PAGES DU SITE ===
+- catalogue.html : Catalogue des biens
+- scpi.html : Comparatif SCPI et souscription
+- pret.html : Simulateur de credit
+- rdv.html / contact.html : Prendre rendez-vous
+- souscrire-scpi.html : Souscrire en SCPI
+- blog.html : Articles defiscalisation
+
+Ne reponds JAMAIS a des questions sans rapport avec l'immobilier ou la gestion de patrimoine.
+Si hors sujet, ramene poliment vers tes domaines d'expertise.`;
+
+// ── AWS SigV4 Signing for Bedrock ────────────────────────
+
+async function hmacSha256(key, data) {
+  const cryptoKey = await crypto.subtle.importKey(
+    'raw',
+    typeof key === 'string' ? new TextEncoder().encode(key) : key,
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+  return new Uint8Array(await crypto.subtle.sign('HMAC', cryptoKey, new TextEncoder().encode(data)));
 }
 
-function matchKeywords(text, keywords) {
-  const n = normalize(text);
-  return keywords.some(k => n.includes(k));
+async function sha256(data) {
+  const encoded = new TextEncoder().encode(data);
+  return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', encoded)))
+    .map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-function formatPrice(n) {
-  return n.toLocaleString('fr-FR') + ' \u20AC';
+async function getSignatureKey(key, dateStamp, region, service) {
+  const kDate = await hmacSha256('AWS4' + key, dateStamp);
+  const kRegion = await hmacSha256(kDate, region);
+  const kService = await hmacSha256(kRegion, service);
+  return await hmacSha256(kService, 'aws4_request');
 }
 
-function processMessage(message, history) {
-  const msg = normalize(message);
+async function signBedrockRequest(accessKey, secretKey, region, model, body) {
+  const now = new Date();
+  const amzDate = now.toISOString().replace(/[:-]|\.\d{3}/g, '');
+  const dateStamp = amzDate.slice(0, 8);
+  const host = `bedrock-runtime.${region}.amazonaws.com`;
+  const path = `/model/${encodeURIComponent(model)}/invoke`;
+  const service = 'bedrock';
 
-  // ── Greeting ──
-  if (matchKeywords(message, ['bonjour','bonsoir','salut','hello','coucou','hey','yo','bj','bjr'])) {
-    return {
-      response: 'Bonjour ! Ravi de vous accueillir chez Stratege. Je peux vous aider sur l\'investissement immobilier, les SCPI, le credit, ou vous presenter notre catalogue de biens. Que souhaitez-vous explorer ?',
-      suggestions: [
-        { label: 'Voir le catalogue', action: 'catalogue' },
-        { label: 'Top SCPI 2026', action: 'scpi' },
-        { label: 'Simuler un credit', action: 'pret' },
-        { label: 'Prendre RDV', action: 'rdv' }
-      ]
-    };
-  }
+  const payloadHash = await sha256(body);
+  const canonicalHeaders = `content-type:application/json\nhost:${host}\nx-amz-date:${amzDate}\n`;
+  const signedHeaders = 'content-type;host;x-amz-date';
+  const canonicalRequest = `POST\n${path}\n\n${canonicalHeaders}\n${signedHeaders}\n${payloadHash}`;
 
-  // ── SCPI ──
-  if (matchKeywords(message, ['scpi','pierre papier','epargne immobiliere','placement immobilier','rendement scpi'])) {
-    const top = SCPI_DATA.map((s, i) => `${i + 1}. **${s.nom}** — ${s.rendement}% (${s.type})`).join('\n');
-    return {
-      response: `Voici le **Top 5 SCPI 2026** par rendement :\n\n${top}\n\nLes SCPI permettent d'investir dans l'immobilier des 1 000 \u20AC, sans gestion locative. Le rendement moyen du marche est autour de 4.5%, nos selections surperforment nettement.\n\nSouhaitez-vous en savoir plus sur une SCPI en particulier ?`,
-      suggestions: [
-        { label: 'Comparer les SCPI', action: 'link', url: 'scpi.html' },
-        { label: 'Investir en SCPI', action: 'rdv' },
-        { label: 'Voir le catalogue immobilier', action: 'catalogue' }
-      ]
-    };
-  }
+  const credentialScope = `${dateStamp}/${region}/${service}/aws4_request`;
+  const stringToSign = `AWS4-HMAC-SHA256\n${amzDate}\n${credentialScope}\n${await sha256(canonicalRequest)}`;
 
-  // ── Specific SCPI names ──
-  for (const scpi of SCPI_DATA) {
-    if (normalize(message).includes(normalize(scpi.nom))) {
-      return {
-        response: `**${scpi.nom}** — Rendement 2025 : ${scpi.rendement}%\n\nGestionnaire : ${scpi.gestionnaire}\nType : ${scpi.type}\n\nC'est ${scpi.rendement >= 7 ? 'une SCPI particulierement performante, bien au-dessus de la moyenne du marche' : 'une SCPI solide avec un track-record reconnu'}. Je vous recommande de diversifier sur 2-3 SCPI pour lisser le risque.`,
-        suggestions: [
-          { label: 'Voir toutes les SCPI', action: 'link', url: 'scpi.html' },
-          { label: 'Prendre RDV avec un conseiller', action: 'rdv' }
-        ]
-      };
-    }
-  }
+  const signingKey = await getSignatureKey(secretKey, dateStamp, region, service);
+  const signatureBytes = await hmacSha256(signingKey, stringToSign);
+  const signature = Array.from(signatureBytes).map(b => b.toString(16).padStart(2, '0')).join('');
 
-  // ── Credit / Pret immobilier ──
-  if (matchKeywords(message, ['credit','pret','taux','emprunt','emprunter','mensualite','banque','financement','simuler','simulation credit'])) {
-    const tauxStr = TAUX_PRET.map(t => `- **${t.duree} ans** : ${t.taux}%`).join('\n');
-
-    // Try to extract an amount
-    const montantMatch = message.match(/(\d[\d\s]*\d)\s*(euros?|€|eur|k)?/i) || message.match(/(\d+)/);
-    let simText = '';
-    if (montantMatch) {
-      let montant = parseInt(montantMatch[1].replace(/\s/g, ''));
-      if (montantMatch[2] && montantMatch[2].toLowerCase() === 'k') montant *= 1000;
-      if (montant >= 10000 && montant <= 2000000) {
-        const taux20 = 3.25 / 100 / 12;
-        const n = 20 * 12;
-        const mensualite = Math.round(montant * taux20 / (1 - Math.pow(1 + taux20, -n)));
-        simText = `\n\n**Simulation rapide** pour ${formatPrice(montant)} sur 20 ans a 3.25% :\nMensualite estimee : **${formatPrice(mensualite)}/mois**\nCout total du credit : ${formatPrice(mensualite * n - montant)}`;
-      }
-    }
-
-    return {
-      response: `Voici les **taux immobiliers de mars 2026** (moyens constates) :\n\n${tauxStr}${simText}\n\nCes taux sont indicatifs et dependent de votre profil (apport, revenus, endettement). Nous travaillons avec 30+ banques partenaires pour obtenir les meilleures conditions.`,
-      suggestions: [
-        { label: 'Simuler mon pret', action: 'link', url: 'pret.html' },
-        { label: 'Contacter un courtier', action: 'rdv' },
-        { label: 'Voir les biens disponibles', action: 'catalogue' }
-      ]
-    };
-  }
-
-  // ── Catalogue / Biens / Investir ──
-  if (matchKeywords(message, ['catalogue','bien','biens','appartement','studio','investir','immobilier','acheter','achat','logement','maison'])) {
-    // Check for city filter
-    const villes = [...new Set(BIENS.map(b => b.ville.toLowerCase()))];
-    const villeMatch = villes.find(v => normalize(message).includes(normalize(v)));
-
-    // Check for budget
-    const budgetMatch = message.match(/(\d[\d\s]*\d)\s*(euros?|€|k)?/i) || message.match(/(\d{3,})/);
-    let budget = null;
-    if (budgetMatch) {
-      budget = parseInt(budgetMatch[1].replace(/\s/g, ''));
-      if (budgetMatch[2] && budgetMatch[2].toLowerCase() === 'k') budget *= 1000;
-    }
-
-    let filtered = BIENS.filter(b => b.id !== 'bien_005' || b.disponible !== false); // exclude sold
-    if (villeMatch) filtered = filtered.filter(b => b.ville.toLowerCase() === villeMatch);
-    if (budget && budget >= 50000) filtered = filtered.filter(b => b.prix <= budget);
-
-    if (filtered.length === 0) {
-      return {
-        response: 'Je n\'ai pas trouve de bien correspondant exactement a vos criteres dans notre catalogue actuel. Nos conseillers ont acces a des biens hors-marche — je vous invite a prendre rendez-vous pour une recherche personnalisee.',
-        suggestions: [
-          { label: 'Voir tout le catalogue', action: 'catalogue' },
-          { label: 'Prendre RDV', action: 'rdv' },
-          { label: 'Investir en SCPI', action: 'link', url: 'scpi.html' }
-        ]
-      };
-    }
-
-    const selection = filtered.slice(0, 3);
-    const biensText = selection.map(b =>
-      `- **${b.titre}** — ${formatPrice(b.prix)} | ${b.rendement}% | Effort reel: ${formatPrice(b.effort)}/mois (${b.dispositif})`
-    ).join('\n');
-
-    const intro = villeMatch
-      ? `Voici nos biens disponibles a **${villeMatch.charAt(0).toUpperCase() + villeMatch.slice(1)}** :`
-      : budget
-        ? `Voici nos biens dans votre budget (< ${formatPrice(budget)}) :`
-        : `Nous avons **${filtered.length} biens** disponibles dans notre catalogue. En voici une selection :`;
-
-    return {
-      response: `${intro}\n\n${biensText}\n\n${filtered.length > 3 ? `Et ${filtered.length - 3} autres biens disponibles sur notre catalogue complet.` : ''}\n\nL'**effort reel** represente ce que vous payez reellement chaque mois apres loyers et avantages fiscaux.`,
-      suggestions: [
-        { label: 'Voir le catalogue complet', action: 'link', url: 'catalogue.html' },
-        { label: 'Filtrer par ville', action: 'ask_ville' },
-        { label: 'Simuler un financement', action: 'pret' }
-      ]
-    };
-  }
-
-  // ── Specific city search ──
-  for (const ville of [...new Set(BIENS.map(b => b.ville))]) {
-    if (normalize(message).includes(normalize(ville))) {
-      const found = BIENS.filter(b => b.ville === ville);
-      if (found.length > 0) {
-        const biensText = found.map(b =>
-          `- **${b.titre}** — ${formatPrice(b.prix)} | ${b.rendement}% | ${b.dispositif}`
-        ).join('\n');
-        return {
-          response: `Nos biens disponibles a **${ville}** :\n\n${biensText}`,
-          suggestions: [
-            { label: 'Voir le catalogue', action: 'link', url: 'catalogue.html' },
-            { label: 'Prendre RDV', action: 'rdv' }
-          ]
-        };
-      }
-    }
-  }
-
-  // ── Defiscalisation ──
-  if (matchKeywords(message, ['defiscal','fiscal','impot','impots','pinel','denormandie','lmnp','deficit foncier','jeanbrun','reduction','avantage fiscal','dispositif'])) {
-    return {
-      response: `Voici les principaux **dispositifs de defiscalisation immobiliere** en 2026 :\n\n- **Jeanbrun Social** (remplacant Pinel depuis 2025) : Reduction d'impot jusqu'a 14% sur 6 ans, 17.5% sur 9 ans, 21% sur 12 ans. Reserve aux zones tendues, plafonds de loyers.\n\n- **Denormandie** : Comme le Pinel mais pour l'ancien renove. Fonctionne dans 245 villes moyennes. Travaux ≥ 25% du cout total.\n\n- **LMNP** (Loueur Meuble Non Professionnel) : Amortissement du bien, peu ou pas d'impots sur les revenus locatifs pendant 15-20 ans. Ideal pour les studios etudiants ou residences seniors.\n\n- **Deficit Foncier** : Deduisez jusqu'a 10 700 \u20AC/an de travaux de vos revenus fonciers. Pour l'ancien a renover.\n\n*Note : Le dispositif Pinel a pris fin au 31/12/2024.*`,
-      suggestions: [
-        { label: 'Biens Jeanbrun', action: 'link', url: 'catalogue.html?dispositif=jeanbrun' },
-        { label: 'Biens LMNP', action: 'link', url: 'catalogue.html?dispositif=lmnp' },
-        { label: 'Prendre RDV fiscal', action: 'rdv' }
-      ]
-    };
-  }
-
-  // ── Seniors / Senioriales ──
-  if (matchKeywords(message, ['senior','seniors','senioriales','retraite','residence senior','ehpad','domitys','silver'])) {
-    return {
-      response: `Stratege est partenaire des **Senioriales**, leader francais des residences seniors non-medicalisees avec **38 residences** en France.\n\n**Pourquoi investir en residence seniors ?**\n- Marche en forte croissance (papy-boom)\n- Rendements attractifs (5-6%)\n- Dispositif LMNP optimise\n- Gestion locative deléguee\n- Bail commercial securise\n\nNous avons par exemple le **T3 residence seniors a Nice Cimiez** : ${formatPrice(285000)}, rendement 5.2%, effort reel ${formatPrice(380)}/mois.`,
-      suggestions: [
-        { label: 'Voir ce bien seniors', action: 'link', url: 'bien-detail.html?id=bien_011' },
-        { label: 'Decouvrir les Senioriales', action: 'link', url: 'catalogue.html' },
-        { label: 'Prendre RDV', action: 'rdv' }
-      ]
-    };
-  }
-
-  // ── RDV / Contact ──
-  if (matchKeywords(message, ['rdv','rendez-vous','rendezvous','contact','contacter','appeler','telephoner','conseiller','humain','parler'])) {
-    return {
-      response: `Je serais ravi de vous mettre en relation avec un **conseiller Stratege** !\n\nVous pouvez :\n- **Prendre rendez-vous** directement sur notre page dediee\n- **Nous contacter** par formulaire\n- **Nous appeler** du lundi au vendredi, 9h-19h\n\nNos conseillers sont bases a **Lyon** et interviennent sur toute la France. La premiere consultation est **gratuite et sans engagement**.`,
-      suggestions: [
-        { label: 'Prendre RDV', action: 'link', url: 'contact.html' },
-        { label: 'Formulaire de contact', action: 'link', url: 'contact.html' },
-        { label: 'En savoir plus sur nous', action: 'link', url: 'a-propos.html' }
-      ]
-    };
-  }
-
-  // ── About / Stratege / Qui ──
-  if (matchKeywords(message, ['stratege','qui etes','presentation','equipe','a propos','cabinet','cgp','gestion patrimoine'])) {
-    return {
-      response: `**Stratege** est un cabinet de **gestion de patrimoine** (CGP) base a **Lyon**.\n\nNous accompagnons nos clients dans :\n- L'investissement immobilier (neuf et ancien)\n- L'optimisation fiscale\n- Le placement en SCPI\n- Le financement (courtage credit)\n\nNotre approche : un immobilier **malin et durable**, avec des investissements a fort rendement et faible effort d'epargne grace aux dispositifs fiscaux.\n\nMarque deposee INPI — JESPER SAS.`,
-      suggestions: [
-        { label: 'Qui sommes-nous', action: 'link', url: 'a-propos.html' },
-        { label: 'Voir le catalogue', action: 'catalogue' },
-        { label: 'Prendre RDV', action: 'rdv' }
-      ]
-    };
-  }
-
-  // ── Effort reel / comment ca marche ──
-  if (matchKeywords(message, ['effort reel','effort','comment ca marche','comment fonctionne','expliquer','explication','comprendre','fonctionnement'])) {
-    return {
-      response: `L'**effort reel d'epargne**, c'est ce que vous payez vraiment chaque mois pour votre investissement immobilier.\n\n**Calcul simple :**\nMensualite credit - Loyer percu - Avantage fiscal mensualise = **Effort reel**\n\n**Exemple concret** avec notre T2 a Toulouse (189 000 \u20AC) :\n- Mensualite credit : 820 \u20AC/mois\n- Loyer percu : 750 \u20AC/mois\n- Avantage Jeanbrun : ~178 \u20AC/mois\n- **Effort reel : 248 \u20AC/mois** seulement !\n\nVous construisez un patrimoine de 189 000 \u20AC pour moins de 250 \u20AC par mois.`,
-      suggestions: [
-        { label: 'Voir ce bien', action: 'link', url: 'bien-detail.html?id=bien_001' },
-        { label: 'Simuler mon investissement', action: 'link', url: 'index.html#simulation' },
-        { label: 'Tout le catalogue', action: 'catalogue' }
-      ]
-    };
-  }
-
-  // ── Rendement / Performance ──
-  if (matchKeywords(message, ['rendement','performance','rentabilite','meilleur','top','classement','comparatif'])) {
-    const topBiens = [...BIENS].sort((a, b) => b.rendement - a.rendement).slice(0, 3);
-    const biensText = topBiens.map(b =>
-      `- **${b.titre}** — ${b.rendement}% (${formatPrice(b.prix)})`
-    ).join('\n');
-
-    return {
-      response: `Voici les **meilleurs rendements** de notre catalogue :\n\n${biensText}\n\nEt en SCPI, le top rendement est **Transitions Europe a 8.16%**.\n\nAttention : le rendement n'est pas le seul critere ! La localisation, la qualite du bien et le dispositif fiscal comptent aussi.`,
-      suggestions: [
-        { label: 'Top SCPI 2026', action: 'scpi' },
-        { label: 'Catalogue complet', action: 'catalogue' },
-        { label: 'Conseil personnalise', action: 'rdv' }
-      ]
-    };
-  }
-
-  // ── Budget / small amount ──
-  if (matchKeywords(message, ['budget','combien','minimum','petit budget','pas cher','accessible','petit'])) {
-    const cheapest = [...BIENS].sort((a, b) => a.effort - b.effort).slice(0, 3);
-    const text = cheapest.map(b =>
-      `- **${b.titre}** — Effort reel: **${formatPrice(b.effort)}/mois** (prix: ${formatPrice(b.prix)})`
-    ).join('\n');
-
-    return {
-      response: `Bonne nouvelle, l'investissement immobilier est accessible ! Voici nos biens avec le plus **faible effort d'epargne** :\n\n${text}\n\nAvec le dispositif LMNP ou Jeanbrun, votre effort mensuel peut etre inferieur a 200 \u20AC. Et en SCPI, vous pouvez commencer des **1 000 \u20AC**.`,
-      suggestions: [
-        { label: 'Biens petit budget', action: 'link', url: 'catalogue.html' },
-        { label: 'Investir en SCPI', action: 'link', url: 'scpi.html' },
-        { label: 'Simuler', action: 'link', url: 'index.html#simulation' }
-      ]
-    };
-  }
-
-  // ── Thank you ──
-  if (matchKeywords(message, ['merci','remercie','parfait','genial','super','excellent','top','bravo'])) {
-    return {
-      response: 'Avec plaisir ! N\'hesitez pas si vous avez d\'autres questions. Je suis la pour vous accompagner dans votre projet immobilier. Bonne journee !',
-      suggestions: [
-        { label: 'Autre question', action: 'reset' },
-        { label: 'Prendre RDV', action: 'rdv' }
-      ]
-    };
-  }
-
-  // ── Goodbye ──
-  if (matchKeywords(message, ['au revoir','bye','a bientot','bonne journee','bonne soiree','a plus','ciao'])) {
-    return {
-      response: 'A bientot ! N\'hesitez pas a revenir quand vous le souhaitez. Toute l\'equipe Stratege est a votre disposition. Bonne continuation !',
-      suggestions: [
-        { label: 'Nouvelle conversation', action: 'reset' }
-      ]
-    };
-  }
-
-  // ── Fallback (no match) ──
   return {
-    response: `Je ne suis pas sur de comprendre votre demande. Je suis specialise dans :\n\n- **L'investissement immobilier** (catalogue de 12 biens)\n- **Les SCPI** (Top 5 rendements 2026)\n- **Le credit immobilier** (taux et simulation)\n- **La defiscalisation** (Jeanbrun, LMNP, Denormandie...)\n- **Les residences seniors** (partenariat Senioriales)\n\nPourriez-vous reformuler ou choisir un sujet ci-dessous ?`,
-    suggestions: [
-      { label: 'Voir le catalogue', action: 'catalogue' },
-      { label: 'Top SCPI 2026', action: 'scpi' },
-      { label: 'Simuler un credit', action: 'pret' },
-      { label: 'Parler a un conseiller', action: 'rdv' }
-    ]
+    url: `https://${host}${path}`,
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Amz-Date': amzDate,
+      'Authorization': `AWS4-HMAC-SHA256 Credential=${accessKey}/${credentialScope}, SignedHeaders=${signedHeaders}, Signature=${signature}`,
+    }
   };
 }
+
+// ── Call Bedrock ─────────────────────────────────────────
+
+async function callBedrock(env, messages) {
+  const accessKey = env.AWS_ACCESS_KEY_ID;
+  const secretKey = env.AWS_SECRET_ACCESS_KEY;
+  const region = env.AWS_REGION || BEDROCK_REGION;
+
+  if (!accessKey || !secretKey) {
+    throw new Error('AWS credentials not configured');
+  }
+
+  const body = JSON.stringify({
+    anthropic_version: 'bedrock-2023-05-31',
+    max_tokens: 800,
+    system: SYSTEM_PROMPT,
+    messages: messages,
+  });
+
+  const signed = await signBedrockRequest(accessKey, secretKey, region, BEDROCK_MODEL, body);
+
+  const response = await fetch(signed.url, {
+    method: 'POST',
+    headers: signed.headers,
+    body: body,
+  });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(`Bedrock ${response.status}: ${errText}`);
+  }
+
+  const data = await response.json();
+  return data.content[0].text;
+}
+
+// ── Generate suggestions from response ──────────────────
+
+function generateSuggestions(responseText) {
+  const lower = responseText.toLowerCase();
+  const suggestions = [];
+
+  if (lower.includes('scpi') || lower.includes('pierre papier')) {
+    suggestions.push({ label: 'Voir les SCPI', action: 'link', url: 'scpi.html' });
+  }
+  if (lower.includes('credit') || lower.includes('pret') || lower.includes('emprunt') || lower.includes('mensualit')) {
+    suggestions.push({ label: 'Simuler un credit', action: 'link', url: 'pret.html' });
+  }
+  if (lower.includes('catalogue') || lower.includes('bien') || lower.includes('appartement') || lower.includes('programme')) {
+    suggestions.push({ label: 'Voir le catalogue', action: 'link', url: 'catalogue.html' });
+  }
+  if (lower.includes('rdv') || lower.includes('rendez-vous') || lower.includes('conseiller') || lower.includes('contact')) {
+    suggestions.push({ label: 'Prendre RDV', action: 'link', url: 'rdv.html' });
+  }
+  if (lower.includes('simul') || lower.includes('effort')) {
+    suggestions.push({ label: 'Lancer une simulation', action: 'link', url: 'index.html#simulation' });
+  }
+  if (lower.includes('souscri')) {
+    suggestions.push({ label: 'Souscrire SCPI', action: 'link', url: 'souscrire-scpi.html' });
+  }
+  if (lower.includes('senior') || lower.includes('senioriales')) {
+    suggestions.push({ label: 'Residences seniors', action: 'link', url: 'catalogue.html' });
+  }
+  if (lower.includes('defiscal') || lower.includes('jeanbrun') || lower.includes('lmnp')) {
+    suggestions.push({ label: 'Biens defiscalisation', action: 'link', url: 'catalogue.html' });
+  }
+
+  // Deduplicate
+  const seen = new Set();
+  const unique = suggestions.filter(s => { if (seen.has(s.label)) return false; seen.add(s.label); return true; });
+
+  if (unique.length === 0) {
+    unique.push(
+      { label: 'Voir le catalogue', action: 'link', url: 'catalogue.html' },
+      { label: 'Prendre RDV', action: 'link', url: 'rdv.html' }
+    );
+  }
+
+  return unique.slice(0, 4);
+}
+
+// ── Fallback rule-based ─────────────────────────────────
+
+function fallbackResponse(message) {
+  const msg = message.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+  if (/bonjour|salut|hello|hey|coucou/.test(msg)) {
+    return { response: 'Bonjour ! Je suis votre conseiller IA Stratege. Comment puis-je vous aider ? Investissement immobilier, SCPI, credit, defiscalisation — je suis la pour vous.', suggestions: [{ label: 'Catalogue', action: 'link', url: 'catalogue.html' }, { label: 'SCPI', action: 'link', url: 'scpi.html' }, { label: 'Credit', action: 'link', url: 'pret.html' }, { label: 'RDV', action: 'link', url: 'rdv.html' }] };
+  }
+  if (/scpi|pierre papier/.test(msg)) {
+    return { response: 'Top 5 SCPI 2026 :\n\n' + SCPI_DATA.map((s,i) => `${i+1}. **${s.nom}** — ${s.rendement}% (${s.type})`).join('\n'), suggestions: [{ label: 'Comparer', action: 'link', url: 'scpi.html' }] };
+  }
+  if (/credit|pret|taux|emprunt/.test(msg)) {
+    return { response: 'Taux mars 2026 :\n\n' + TAUX_PRET.map(t => `- **${t.duree} ans** : ${t.taux}%`).join('\n'), suggestions: [{ label: 'Simuler', action: 'link', url: 'pret.html' }] };
+  }
+  return { response: 'Je suis specialise en investissement immobilier, SCPI, credit et defiscalisation. Comment puis-je vous aider ?', suggestions: [{ label: 'Catalogue', action: 'link', url: 'catalogue.html' }, { label: 'SCPI', action: 'link', url: 'scpi.html' }, { label: 'Credit', action: 'link', url: 'pret.html' }, { label: 'RDV', action: 'link', url: 'rdv.html' }] };
+}
+
+// ── Main handler ────────────────────────────────────────
 
 export async function onRequestPost({ request, env }) {
   const corsHeaders = {
@@ -336,44 +257,45 @@ export async function onRequestPost({ request, env }) {
       }), { status: 400, headers: corsHeaders });
     }
 
-    // Process the message
-    const result = processMessage(message.trim(), history || []);
+    const trimmed = message.trim();
+    let result;
 
-    // Store in KV if available (non-blocking)
+    // Build conversation messages for Bedrock
+    const messages = [];
+    if (history && Array.isArray(history)) {
+      for (const h of history.slice(-6)) {
+        if (h.role === 'user' && h.text) messages.push({ role: 'user', content: h.text });
+        else if (h.role === 'bot' && h.text) messages.push({ role: 'assistant', content: h.text });
+      }
+    }
+    messages.push({ role: 'user', content: trimmed });
+
+    try {
+      const aiResponse = await callBedrock(env, messages);
+      result = { response: aiResponse, suggestions: generateSuggestions(aiResponse) };
+    } catch (aiErr) {
+      console.error('Bedrock error:', aiErr.message);
+      result = fallbackResponse(trimmed);
+    }
+
+    // Store in KV (non-blocking)
     if (env.STRATEGE_DB && sessionId) {
-      const key = `chat:${sessionId}`;
-      const conversationEntry = {
-        message: message.trim(),
-        response: result.response,
-        timestamp: new Date().toISOString()
-      };
-
       try {
+        const key = `chat:${sessionId}`;
         const existing = await env.STRATEGE_DB.get(key, 'json');
         const conversation = existing || { messages: [], created_at: new Date().toISOString() };
-        conversation.messages.push(conversationEntry);
+        conversation.messages.push({ message: trimmed, response: result.response, timestamp: new Date().toISOString(), ai: true });
         conversation.updated_at = new Date().toISOString();
-
-        // Keep only last 50 messages per session
-        if (conversation.messages.length > 50) {
-          conversation.messages = conversation.messages.slice(-50);
-        }
-
-        await env.STRATEGE_DB.put(key, JSON.stringify(conversation), {
-          expirationTtl: 60 * 60 * 24 * 7 // 7 days
-        });
-      } catch (kvErr) {
-        // KV errors are non-fatal
-      }
+        if (conversation.messages.length > 50) conversation.messages = conversation.messages.slice(-50);
+        await env.STRATEGE_DB.put(key, JSON.stringify(conversation), { expirationTtl: 604800 });
+      } catch (kvErr) { /* non-fatal */ }
     }
 
     return new Response(JSON.stringify(result), { headers: corsHeaders });
   } catch (err) {
     return new Response(JSON.stringify({
-      response: 'Desole, une erreur technique est survenue. Veuillez reessayer ou contacter notre equipe directement.',
-      suggestions: [
-        { label: 'Contacter Stratege', action: 'link', url: 'contact.html' }
-      ]
+      response: 'Desole, une erreur technique est survenue. Veuillez reessayer.',
+      suggestions: [{ label: 'Contacter Stratege', action: 'link', url: 'contact.html' }]
     }), { status: 500, headers: corsHeaders });
   }
 }

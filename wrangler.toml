@@ -5,3 +5,6 @@ pages_build_output_dir = "."
 [[kv_namespaces]]
 binding = "STRATEGE_DB"
 id = "5ca28b2b0a4e4aa7a699fd2577339ebd"
+
+[ai]
+binding = "AI"

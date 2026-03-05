@@ -8,8 +8,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/style.css?v=121" />
+  <link rel="stylesheet" href="assets/style.css?v=122" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#4ECDC4">
   <style>
     .admin-login { max-width:400px;margin:80px auto;padding:40px;background:var(--surface-1);border-radius:16px;border:1px solid var(--neutral-200); }
     .admin-grid { display:grid;grid-template-columns:240px 1fr;min-height:100vh; }
@@ -74,10 +76,14 @@
       <p style="color:var(--neutral-500);font-size:14px">Acces reserve aux conseillers Stratege</p>
     </div>
     <div class="form-group">
-      <label>Code conseiller</label>
-      <input type="password" id="admin-code" placeholder="Entrez votre code" />
+      <label>Email</label>
+      <input type="email" id="admin-email" placeholder="votre@email.com" autocomplete="email" />
     </div>
-    <button class="btn-primary" style="width:100%;justify-content:center" onclick="adminLogin()">Connexion</button>
+    <div class="form-group">
+      <label>Mot de passe</label>
+      <input type="password" id="admin-password" placeholder="Votre mot de passe" autocomplete="current-password" onkeydown="if(event.key==='Enter')adminLogin()" />
+    </div>
+    <button class="btn-primary" style="width:100%;justify-content:center" onclick="adminLogin()" id="admin-login-btn">Connexion</button>
     <p id="admin-login-error" style="color:var(--error);font-size:13px;margin-top:12px;display:none"></p>
   </div>
 </div>
@@ -101,7 +107,8 @@
       </nav>
       <div style="padding:20px;margin-top:auto;border-top:1px solid rgba(255,255,255,.1)">
         <div style="font-size:13px;color:var(--neutral-400)">Connecte en tant que</div>
-        <div style="font-size:14px;font-weight:600;color:#fff;margin-top:4px">Conseiller Stratege</div>
+        <div id="admin-user-email" style="font-size:14px;font-weight:600;color:#fff;margin-top:4px">Conseiller Stratege</div>
+        <div id="admin-user-role" style="font-size:11px;color:var(--primary-300);margin-top:2px;text-transform:uppercase;letter-spacing:.5px"></div>
         <a href="#" onclick="adminLogout()" style="font-size:12px;color:var(--primary-300);margin-top:8px;display:block">Deconnexion</a>
       </div>
     </aside>
@@ -411,24 +418,54 @@
   </div>
 </div>
 
-<script src="assets/shared.js?v=121"></script>
+<script src="assets/shared.js?v=122"></script>
 <script>
-var ADMIN_CODE = 'stratege2026';
+// JWT-based admin authentication
+var adminUser = null;
 
-function adminLogin() {
-  var code = document.getElementById('admin-code').value;
-  if (code === ADMIN_CODE) {
-    localStorage.setItem('admin_auth', '1');
-    showDashboard();
-  } else {
-    var err = document.getElementById('admin-login-error');
-    err.textContent = 'Code incorrect';
-    err.style.display = 'block';
+async function adminLogin() {
+  var email = document.getElementById('admin-email').value.trim();
+  var password = document.getElementById('admin-password').value;
+  var errEl = document.getElementById('admin-login-error');
+  var btn = document.getElementById('admin-login-btn');
+  errEl.style.display = 'none';
+
+  if (!email || !password) {
+    errEl.textContent = 'Email et mot de passe requis';
+    errEl.style.display = 'block';
+    return;
   }
+
+  btn.disabled = true;
+  btn.textContent = 'Connexion...';
+
+  try {
+    var res = await fetch('/api/admin/auth?action=login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, password: password })
+    });
+    var data = await res.json();
+    if (data.success && data.token) {
+      localStorage.setItem('admin_token', data.token);
+      adminUser = data.user;
+      showDashboard();
+    } else {
+      errEl.textContent = data.error || 'Identifiants incorrects';
+      errEl.style.display = 'block';
+    }
+  } catch (e) {
+    errEl.textContent = 'Erreur de connexion au serveur';
+    errEl.style.display = 'block';
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Connexion';
 }
 
 function adminLogout() {
-  localStorage.removeItem('admin_auth');
+  localStorage.removeItem('admin_token');
+  adminUser = null;
   location.reload();
 }
 
@@ -436,6 +473,10 @@ function showDashboard() {
   document.getElementById('admin-login-screen').style.display = 'none';
   document.getElementById('admin-dashboard').style.display = 'block';
   document.getElementById('admin-date').textContent = new Date().toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+  if (adminUser) {
+    document.getElementById('admin-user-email').textContent = adminUser.email || 'Conseiller';
+    document.getElementById('admin-user-role').textContent = adminUser.role === 'admin' ? 'Administrateur' : 'Conseiller';
+  }
   loadProspects();
   loadBiens();
   loadSenioriales();
@@ -443,7 +484,28 @@ function showDashboard() {
   updateStats();
 }
 
-if (localStorage.getItem('admin_auth') === '1') showDashboard();
+// On page load: verify existing token
+(async function checkAuth() {
+  var token = localStorage.getItem('admin_token');
+  if (!token) return;
+
+  try {
+    var res = await fetch('/api/admin/auth?action=verify', {
+      method: 'GET',
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    var data = await res.json();
+    if (data.success && data.valid) {
+      adminUser = { email: data.email, role: data.role };
+      showDashboard();
+    } else {
+      localStorage.removeItem('admin_token');
+    }
+  } catch (e) {
+    // Network error — keep login screen
+    localStorage.removeItem('admin_token');
+  }
+})();
 
 function showAdmin(section, el) {
   document.querySelectorAll('.admin-section').forEach(function(s) { s.style.display = 'none'; });

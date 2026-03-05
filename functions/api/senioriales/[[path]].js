@@ -356,10 +356,137 @@ export async function onRequest({ request, env, params }) {
     return Response.json({ error: "Programme non trouve" }, { status: 404, headers: H });
   }
 
+  // -- Enrich Photos (incremental, 1 programme par requete) --
+  if (subPath === "enrich-photos" && request.method === "POST") {
+    const indexRaw = await env.STRATEGE_DB.get("senioriales:index");
+    if (!indexRaw) {
+      return Response.json({ ok: false, error: "Pas d'index — POST /api/senioriales/init puis /next d'abord" }, { status: 404, headers: H });
+    }
+
+    const index = JSON.parse(indexRaw);
+    const programmes = index.programmes || [];
+
+    // Trouver le premier programme sans images
+    let target = null;
+    for (const prog of programmes) {
+      if (!prog.images || !prog.images.length) {
+        target = prog;
+        break;
+      }
+    }
+
+    if (!target) {
+      return Response.json({ ok: true, done: true, message: "Tous les programmes ont des images" }, { headers: H });
+    }
+
+    // Fetcher la page detail
+    const url = target.url_detail;
+    if (!url) {
+      // Marquer comme traite avec tableau vide pour ne pas boucler
+      target.images = [];
+      await env.STRATEGE_DB.put(`senioriales:prog:${target.id}`, JSON.stringify(target), { expirationTtl: CACHE_TTL });
+      // Mettre a jour l'index
+      const updatedIndex = { ...index, programmes: programmes.map(p => p.id === target.id ? target : p) };
+      await env.STRATEGE_DB.put("senioriales:index", JSON.stringify(updatedIndex), { expirationTtl: CACHE_TTL });
+      return Response.json({ ok: true, done: false, skipped: true, id: target.id, reason: "Pas d'URL detail" }, { headers: H });
+    }
+
+    const r = await fetchHtml(url);
+    if (!r.ok) {
+      target.images = [];
+      await env.STRATEGE_DB.put(`senioriales:prog:${target.id}`, JSON.stringify(target), { expirationTtl: CACHE_TTL });
+      const updatedIndex = { ...index, programmes: programmes.map(p => p.id === target.id ? target : p) };
+      await env.STRATEGE_DB.put("senioriales:index", JSON.stringify(updatedIndex), { expirationTtl: CACHE_TTL });
+      return Response.json({ ok: true, done: false, skipped: true, id: target.id, reason: "Fetch echoue: " + (r.status || r.error) }, { headers: H });
+    }
+
+    const html = r.html;
+    const images = new Set();
+
+    // 1. og:image
+    const ogMatch = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i);
+    if (ogMatch) images.add(ogMatch[1]);
+
+    // 2. JSON-LD image fields
+    const ldMatches = html.matchAll(/<script[^>]+ld\+json[^>]*>([\s\S]*?)<\/script>/gi);
+    for (const ldm of ldMatches) {
+      try {
+        const ld = JSON.parse(ldm[1]);
+        if (typeof ld.image === "string") images.add(ld.image);
+        if (Array.isArray(ld.image)) ld.image.forEach(i => { if (typeof i === "string") images.add(i); });
+        if (ld.photo) {
+          const photos = Array.isArray(ld.photo) ? ld.photo : [ld.photo];
+          photos.forEach(p => { if (typeof p === "string") images.add(p); else if (p?.contentUrl) images.add(p.contentUrl); else if (p?.url) images.add(p.url); });
+        }
+      } catch (e) {}
+    }
+
+    // 3. data-src, data-lazy (lazy-loaded images)
+    const dataSrcRe = /(?:data-src|data-lazy)\s*=\s*["']([^"']+\.(?:jpg|jpeg|png|webp)[^"']*)["']/gi;
+    let dsm;
+    while ((dsm = dataSrcRe.exec(html)) !== null) images.add(dsm[1]);
+
+    // 4. srcset first URL
+    const srcsetRe = /srcset\s*=\s*["']([^"']+)["']/gi;
+    let ssm;
+    while ((ssm = srcsetRe.exec(html)) !== null) {
+      const firstUrl = ssm[1].split(",")[0].trim().split(/\s+/)[0];
+      if (firstUrl && /\.(jpg|jpeg|png|webp)/i.test(firstUrl)) images.add(firstUrl);
+    }
+
+    // 5. Regular img src
+    const imgSrcRe = /<img[^>]+src=["']([^"']+\.(?:jpg|jpeg|png|webp)[^"']*)["']/gi;
+    let ism;
+    while ((ism = imgSrcRe.exec(html)) !== null) images.add(ism[1]);
+
+    // Filter out logos, icons, favicons, tiny images
+    const EXCLUDE = /logo|icon|favicon|sprite|pixel|tracking|badge|btn|button|arrow|loader|spinner/i;
+    let filtered = [...images]
+      .filter(u => !EXCLUDE.test(u))
+      .map(u => {
+        if (u.startsWith("//")) return "https:" + u;
+        if (u.startsWith("/")) return BASE + u;
+        return u;
+      })
+      .filter(u => u.startsWith("http"));
+
+    // Dedup
+    filtered = [...new Set(filtered)];
+
+    // Max 8
+    filtered = filtered.slice(0, 8);
+
+    // Mettre a jour le programme
+    target.images = filtered;
+    if (filtered.length > 0 && !target.image) {
+      target.image = filtered[0];
+    }
+
+    await env.STRATEGE_DB.put(`senioriales:prog:${target.id}`, JSON.stringify(target), { expirationTtl: CACHE_TTL });
+
+    // Mettre a jour l'index
+    const updatedIndex = { ...index, programmes: programmes.map(p => p.id === target.id ? target : p) };
+    await env.STRATEGE_DB.put("senioriales:index", JSON.stringify(updatedIndex), { expirationTtl: CACHE_TTL });
+
+    // Compter combien restent sans images
+    const remaining = programmes.filter(p => p.id !== target.id && (!p.images || !p.images.length)).length;
+
+    return Response.json({
+      ok: true,
+      done: false,
+      id: target.id,
+      titre: target.titre,
+      images_found: filtered.length,
+      remaining,
+      images: filtered,
+    }, { headers: H });
+  }
+
   return Response.json({
     routes: [
       "GET  /test", "POST /clear-lock", "POST /init",
       "POST /next", "GET  /status", "GET  /programmes",
+      "POST /enrich-photos",
     ]
   }, { status: 404, headers: H });
 }

@@ -8,8 +8,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/style.css?v=121" />
+  <link rel="stylesheet" href="assets/style.css?v=122" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#4ECDC4">
 </head>
 <body>
 
@@ -294,7 +296,7 @@
 
   <footer class="footer"></footer>
 
-  <script src="assets/shared.js?v=121"></script>
+  <script src="assets/shared.js?v=122"></script>
   <script>
     renderNavbar();
     renderFooter();
@@ -344,8 +346,145 @@
       ]
     };
 
+    // ═══ CHARGEMENT SENIORIALES ═══
+    function loadSenioriales(id) {
+      fetch('/api/senioriales/programmes').then(function(r) { return r.json(); }).then(function(data) {
+        var programmes = data.programmes || [];
+        var prog = programmes.find(function(p) { return p.id === id; });
+        if (!prog) {
+          return fetch('/api/senioriales/programme/' + id).then(function(r) { return r.ok ? r.json() : null; });
+        }
+        return prog;
+      }).then(function(prog) {
+        if (!prog) {
+          document.getElementById('bien-titre').textContent = 'Programme Senioriales introuvable';
+          document.getElementById('btn-reserver').style.display = 'none';
+          return;
+        }
+
+        bienData = prog;
+        document.title = prog.titre + ' — Stratege';
+        document.getElementById('breadcrumb-titre').textContent = prog.titre;
+        document.getElementById('bien-titre').textContent = prog.titre;
+        document.getElementById('bien-location').innerHTML = (prog.ville || prog.localisation || '') + (prog.region ? ' — ' + prog.region : '');
+
+        // Stats — relabel for Senioriales
+        document.getElementById('stat-surface').textContent = prog.types || '—';
+        document.getElementById('stat-etage').textContent = prog.livraison || '—';
+        document.getElementById('stat-dpe').textContent = '—';
+        document.getElementById('stat-rendement').textContent = '—';
+        document.querySelector('#bien-stats .bien-detail-stat:nth-child(1) .stat-label').textContent = 'Types';
+        document.querySelector('#bien-stats .bien-detail-stat:nth-child(2) .stat-label').textContent = 'Livraison';
+
+        // Sidebar
+        document.getElementById('sidebar-prix').textContent = prog.prix_min ? fmt(prog.prix_min) + ' \u20ac' : 'Sur demande';
+        document.getElementById('sidebar-mensualite').textContent = prog.prix_min ? 'A partir de' : '';
+        document.getElementById('sidebar-loyer').textContent = '—';
+        document.getElementById('sidebar-effort').textContent = '—';
+        document.getElementById('sidebar-rendement').textContent = '—';
+        document.getElementById('sidebar-dispositif').textContent = prog.dispositif || 'Residence senior';
+
+        // Tags
+        var tagsHtml = '<span style="display:inline-block;background:#00897b;color:white;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:600">Partenaire Senioriales</span>';
+        if (prog.categorie) tagsHtml += ' <span class="badge badge-primary">' + prog.categorie + '</span>';
+        if (prog.types) tagsHtml += ' <span class="badge badge-outline">' + prog.types + '</span>';
+        document.getElementById('bien-tags').innerHTML = tagsHtml;
+
+        // Details
+        var detailsHtml = '';
+        if (prog.ville) detailsHtml += '<div>Ville : <strong>' + prog.ville + '</strong></div>';
+        if (prog.departement) detailsHtml += '<div>Departement : <strong>' + prog.departement + '</strong></div>';
+        if (prog.code_postal) detailsHtml += '<div>Code postal : <strong>' + prog.code_postal + '</strong></div>';
+        if (prog.region) detailsHtml += '<div>Region : <strong>' + prog.region + '</strong></div>';
+        if (prog.types) detailsHtml += '<div>Types de logements : <strong>' + prog.types + '</strong></div>';
+        if (prog.livraison) detailsHtml += '<div>Livraison : <strong>' + prog.livraison + '</strong></div>';
+        if (prog.prix_min) detailsHtml += '<div>Prix a partir de : <strong>' + fmt(prog.prix_min) + ' \u20ac</strong></div>';
+        if (prog.adresse) detailsHtml += '<div>Adresse : <strong>' + prog.adresse + '</strong></div>';
+        document.getElementById('bien-details-list').innerHTML = detailsHtml;
+
+        // Description / Avantages
+        var avHtml = '';
+        if (prog.description) {
+          avHtml += '<div style="margin-bottom:16px;line-height:1.8">' + prog.description + '</div>';
+        }
+        avHtml += '<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px"><span style="color:#00897b;font-weight:700">&#10003;</span> Residence senior Senioriales — cadre de vie securise et convivial</div>';
+        avHtml += '<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px"><span style="color:#00897b;font-weight:700">&#10003;</span> Services et animations inclus pour les residents</div>';
+        avHtml += '<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px"><span style="color:#00897b;font-weight:700">&#10003;</span> Emplacement premium en centre-ville ou proche commodites</div>';
+        if (prog.categorie === 'investir') {
+          avHtml += '<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px"><span style="color:#00897b;font-weight:700">&#10003;</span> Investissement locatif avec gestionnaire professionnel</div>';
+        }
+        document.getElementById('bien-avantages').innerHTML = avHtml;
+
+        // Gallery
+        var allImages = prog.images || [];
+        if (!allImages.length && prog.image) allImages = [prog.image];
+        if (allImages.length) {
+          document.getElementById('gallery-placeholder').style.display = 'none';
+          var mainImg = document.createElement('img');
+          mainImg.src = allImages[0];
+          mainImg.alt = prog.titre;
+          mainImg.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:var(--radius-md)';
+          mainImg.onerror = function() { this.style.display = 'none'; };
+          mainImg.id = 'gallery-main-img';
+          document.getElementById('gallery-main').appendChild(mainImg);
+
+          if (allImages.length > 1) {
+            var thumbsContainer = document.getElementById('gallery-thumbs');
+            thumbsContainer.style.display = 'flex';
+            thumbsContainer.style.gap = '8px';
+            thumbsContainer.style.marginTop = '8px';
+            thumbsContainer.style.overflowX = 'auto';
+            allImages.forEach(function(imgUrl, idx) {
+              var thumb = document.createElement('img');
+              thumb.src = imgUrl;
+              thumb.alt = 'Photo ' + (idx + 1);
+              thumb.style.cssText = 'width:80px;height:60px;object-fit:cover;border-radius:6px;cursor:pointer;border:2px solid ' + (idx === 0 ? '#00897b' : 'transparent');
+              thumb.onclick = function() {
+                document.getElementById('gallery-main-img').src = imgUrl;
+                thumbsContainer.querySelectorAll('img').forEach(function(t) { t.style.borderColor = 'transparent'; });
+                thumb.style.borderColor = '#00897b';
+              };
+              thumb.onerror = function() { this.style.display = 'none'; };
+              thumbsContainer.appendChild(thumb);
+            });
+          }
+        }
+
+        // Sidebar buttons: replace reservation with CTA contact + link
+        document.getElementById('btn-reserver').textContent = 'Contactez un conseiller pour ce programme';
+        document.getElementById('btn-reserver').onclick = function() { ouvrirContact(); };
+
+        // Hide reservation fee text
+        var feeP = document.getElementById('btn-reserver').parentElement.querySelector('p');
+        if (feeP) feeP.style.display = 'none';
+
+        // Add link to original Senioriales page
+        if (prog.url_detail) {
+          var linkEl = document.createElement('a');
+          linkEl.href = prog.url_detail;
+          linkEl.target = '_blank';
+          linkEl.rel = 'noopener noreferrer';
+          linkEl.className = 'btn-secondary';
+          linkEl.style.cssText = 'width:100%;justify-content:center;margin-top:12px;display:flex;text-decoration:none';
+          linkEl.textContent = 'Voir sur Senioriales.com';
+          var contactBtn = document.getElementById('btn-reserver').parentElement.querySelector('.btn-secondary');
+          if (contactBtn) contactBtn.after(linkEl);
+        }
+
+        // Hide fiscal/financing tabs for Senioriales
+        var tabBtns = document.querySelectorAll('.tab-btn');
+        if (tabBtns[1]) tabBtns[1].style.display = 'none';
+        if (tabBtns[2]) tabBtns[2].style.display = 'none';
+      }).catch(function(e) {
+        document.getElementById('bien-titre').textContent = 'Erreur de chargement';
+        console.error('Senioriales load error:', e);
+      });
+    }
+
     // ═══ CHARGEMENT DU BIEN ═══
-    if (bienId) {
+    if (bienId && bienId.startsWith('SEN-')) {
+      loadSenioriales(bienId);
+    } else if (bienId) {
       fetch('/api/biens').then(function(r) { return r.json(); }).then(function(data) {
         if (!data.success) return;
         bienData = data.biens.find(function(b) { return b.id === bienId; });
@@ -355,11 +494,11 @@
           return;
         }
 
-        document.title = bienData.titre + ' — Stratège';
+        document.title = bienData.titre + ' — Stratege';
         document.getElementById('breadcrumb-titre').textContent = bienData.titre;
         document.getElementById('bien-titre').textContent = bienData.titre;
-        document.getElementById('bien-location').innerHTML = '📍 ' + bienData.ville + ' — ' + bienData.dispositif;
-        document.getElementById('stat-surface').textContent = bienData.surface + ' m²';
+        document.getElementById('bien-location').innerHTML = bienData.ville + ' — ' + bienData.dispositif;
+        document.getElementById('stat-surface').textContent = bienData.surface + ' m\u00b2';
         document.getElementById('stat-etage').textContent = bienData.etage || '—';
         document.getElementById('stat-dpe').textContent = bienData.dpe || '—';
         document.getElementById('stat-rendement').textContent = bienData.rendement + '%';
@@ -379,19 +518,19 @@
 
         // Details
         document.getElementById('bien-details-list').innerHTML =
-          '<div>Surface : <strong>' + bienData.surface + ' m²</strong></div>' +
-          '<div>Étage : <strong>' + (bienData.etage || '—') + '</strong></div>' +
+          '<div>Surface : <strong>' + bienData.surface + ' m\u00b2</strong></div>' +
+          '<div>Etage : <strong>' + (bienData.etage || '—') + '</strong></div>' +
           '<div>DPE : <strong>' + (bienData.dpe || '—') + '</strong></div>' +
           '<div>Ville : <strong>' + bienData.ville + '</strong></div>' +
           '<div>Dispositif : <strong>' + bienData.dispositif + '</strong></div>' +
           '<div>Disponible : <strong>' + (bienData.disponible ? 'Oui' : 'Non') + '</strong></div>' +
           '<div>Rendement : <strong>' + bienData.rendement + '% brut</strong></div>' +
-          '<div>Mensualité : <strong>' + fmt(bienData.mensualite) + ' \u20ac</strong></div>';
+          '<div>Mensualite : <strong>' + fmt(bienData.mensualite) + ' \u20ac</strong></div>';
 
         // Avantages
         var avantages = AVANTAGES[bienData.dispositif] || AVANTAGES['Jeanbrun Social'];
         document.getElementById('bien-avantages').innerHTML = avantages.map(function(a) {
-          return '<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px"><span style="color:var(--primary-500);font-weight:700">✓</span> ' + a + '</div>';
+          return '<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px"><span style="color:var(--primary-500);font-weight:700">&#10003;</span> ' + a + '</div>';
         }).join('');
 
         if (!bienData.disponible) {
@@ -403,7 +542,7 @@
         // Pre-fill tunnel
         document.getElementById('tunnel-bien-titre').textContent = bienData.titre;
         document.getElementById('tunnel-prix').textContent = fmt(bienData.prix) + ' \u20ac';
-        document.getElementById('tunnel-surface').textContent = bienData.surface + ' m²';
+        document.getElementById('tunnel-surface').textContent = bienData.surface + ' m\u00b2';
         document.getElementById('tunnel-dispositif').textContent = bienData.dispositif;
 
         // Pre-fill user info if logged in
@@ -418,7 +557,7 @@
         loadFiscalSimulation();
       });
     } else {
-      document.getElementById('bien-titre').textContent = 'Aucun bien sélectionné';
+      document.getElementById('bien-titre').textContent = 'Aucun bien selectionne';
       document.getElementById('btn-reserver').style.display = 'none';
     }
 
