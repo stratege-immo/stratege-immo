@@ -114,7 +114,73 @@ Toutes les features demandees ont ete implementees, testees et deployees en prod
 - SCPI subscription genere une reference
 - Senioriales : 38 programmes en KV
 
+## Batch 2 (Session nuit Part 3)
+
+### 13. Photos Senioriales (Fix)
+- Diagnostic : images en /sites/default/files/externals/*.jpg
+- Fix : ajout pattern specifique + filtre testimony/articles/picto
+- Endpoint reset-photos + re-enrichissement
+- Resultat : 32/38 programmes avec 8 photos chacun
+
+### 14. Comparateur de Programmes
+- comparer.html : comparaison 2-3 biens cote a cote
+- Tableau : prix, rendement, surface, ville, dispositif, DPE
+- Meilleure valeur surlignee en teal par critere
+- Boutons Simuler/Reserver par programme
+
+### 15. Carte Interactive Catalogue
+- Leaflet.js integre dans catalogue.html
+- Toggle "Vue Liste / Vue Carte"
+- Markers teal avec popups (titre, prix, lien)
+- Geocoding Nominatim pour villes sans coordonnees
+
+### 16. Espace Conseiller
+- conseiller.html : portail complet avec sidebar
+- KPIs : clients, RDV, dossiers, messages
+- Fiche client : profil, simulations, documents, chat, notes
+- API /api/advisor : 8 endpoints (clients, notes, messages, email)
+- Compte conseiller : conseiller@stratege-immo.fr / Conseiller2026!
+
+### 17. Score Investisseur
+- SVG gauge arc dans dashboard.html
+- 4 categories : capacite, stabilite, risque, fiscal (/25 chacune)
+- Profils : Excellence, Dynamique, Prudent, Debutant
+- Recommandation personnalisee
+
+### 18. Blog (6 articles SEO)
+- Loi Jeanbrun 2026 : guide complet
+- SCPI comparatif 2026 : top 5
+- LMNP defiscalisation : amortissements
+- Residences seniors Senioriales
+- Credit immobilier : taux et strategies
+- Bilan patrimonial : guide
+- JSON-LD Article sur chaque page
+
+### 19. Contact Enrichi
+- FAQ accordeon 5 questions
+- JSON-LD FAQPage pour SEO
+- Coordonnees : 51 bis rue de Miromesnil, 75008 Paris
+
+### 20. Partage Simulation
+- API /api/simulations/share (POST create, GET retrieve)
+- Hash unique, TTL 30 jours
+- Modal avec lien copiable
+- Auto-chargement depuis ?shared= en URL
+
+### 21. Optimisations Techniques
+- Cache-Control middleware (_middleware.js)
+- Error tracking global (window.onerror → /api/log/error)
+- Stockage erreurs KV 7 jours
+
+## Verification finale
+- 28/28 pages HTTP 200
+- Chatbot Bedrock OK
+- SCPI subscription OK
+- Error tracking OK
+- Advisor seed OK
+
 ## Production
 - URL : https://stratege-immo.fr
 - Deploy : Cloudflare Pages via wrangler
-- Dernier deploy : 5 mars 2026 ~06:20 UTC
+- Dernier deploy : 5 mars 2026 ~07:00 UTC
+- Commits totaux cette session : 10+

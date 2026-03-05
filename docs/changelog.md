@@ -1,5 +1,26 @@
 # Changelog Stratege
 
+## [1.5.0] — 5 mars 2026 (Session nuit - Part 3)
+
+### Nouvelles features
+- **Comparateur programmes** (`comparer.html`) — comparaison cote a cote 2-3 biens, meilleure valeur surlignee
+- **Carte interactive Leaflet** — vue carte dans catalogue.html avec markers teal, popups, geocoding
+- **Checkboxes comparaison** — selection dans catalogue + badge flottant "X biens — Comparer"
+- **Espace conseiller** (`conseiller.html`) — portail complet avec clients, RDV, messages, notes, email
+- **API Advisor** — 8 endpoints (/api/advisor/clients, notes, messages, email, seed)
+- **Compte conseiller** — conseiller@stratege-immo.fr / Conseiller2026! (role: advisor)
+- **Score investisseur** — SVG gauge dans dashboard, 4 categories /25, recommandation personnalisee
+- **6 articles blog** — Jeanbrun, SCPI comparatif, LMNP, Seniors, Credit, Bilan patrimonial
+- **Contact enrichi** — FAQ accordeon 5 questions, JSON-LD FAQPage, coordonnees
+- **Partage simulation** — lien partage avec hash, API /api/simulations/share, modal copie
+- **Error tracking** — window.onerror → /api/log/error, stockage KV 7 jours
+- **Cache-Control middleware** — assets immutable 1an, API no-store, HTML no-cache
+- **Photos Senioriales** — 32 programmes enrichis avec 8 photos chacun (fix pattern /sites/default/files/)
+
+### Ameliorations
+- sitemap.xml: 6 articles blog ajoutes
+- Cache-bust v123 → v124
+
 ## [1.4.0] — 5 mars 2026 (Session nuit - Part 2)
 
 ### Nouvelles features
