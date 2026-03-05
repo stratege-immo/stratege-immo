@@ -349,15 +349,18 @@ async function sendEmail(env, { to, subject, html }) {
 // ── Helpers ─────────────────────────────────────────────
 function getDocTypeLabel(docType) {
   const labels = {
+    'bon_reservation': 'Bon de reservation',
+    'bulletin_scpi': 'Bulletin de souscription SCPI',
+    'mandat_recherche': 'Mandat de recherche',
+    'lettre_mission': 'Lettre de mission CGP',
+    'conditions_generales': 'Conditions generales',
     'reservation': 'Contrat de reservation',
     'mandat': 'Mandat de recherche',
     'compromis': 'Compromis de vente',
     'scpi': 'Bulletin de souscription SCPI',
     'bilan': 'Bilan patrimonial',
     'cgv': 'Conditions generales de vente',
-    'devis': 'Devis',
     'contrat': 'Contrat',
-    'document': 'Document'
   };
   return labels[docType] || docType || 'Document';
 }

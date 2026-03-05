@@ -412,6 +412,7 @@ export async function onRequestPost({ request, env }) {
       } catch (kvErr) { /* non-fatal */ }
     }
 
+    result.source = source;
     return new Response(JSON.stringify(result), { headers: corsHeaders });
   } catch (err) {
     return new Response(JSON.stringify({
