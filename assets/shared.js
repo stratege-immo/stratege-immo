@@ -58,8 +58,8 @@ function renderNavbar(activePage) {
         '<li><a href="catalogue.html"' + isActive('catalogue') + '>Catalogue</a></li>' +
         '<li><a href="scpi.html"' + isActive('scpi') + '>SCPI</a></li>' +
         '<li><a href="pret.html"' + isActive('pret') + '>Prêt immobilier</a></li>' +
+        '<li><a href="calculateur.html"' + isActive('calculateur') + '>Defiscalisation</a></li>' +
         '<li><a href="blog.html"' + isActive('blog') + '>Blog</a></li>' +
-        '<li><a href="souscrire-scpi.html"' + isActive('souscrire') + '>Souscrire SCPI</a></li>' +
         '<li><a href="rdv.html"' + isActive('rdv') + ' style="color:var(--primary-500);font-weight:600">Prendre RDV</a></li>' +
         (loggedIn ? '<li><a href="dashboard.html"' + isActive('dashboard') + '>Dashboard</a></li>' : '') +
       '</ul>' +
@@ -107,6 +107,7 @@ function renderFooter() {
             '<li><a href="catalogue.html">Catalogue</a></li>' +
             '<li><a href="scpi.html">SCPI</a></li>' +
             '<li><a href="pret.html">Prêt immobilier</a></li>' +
+            '<li><a href="calculateur.html">Defiscalisation</a></li>' +
             '<li><a href="souscrire-scpi.html">Souscrire SCPI</a></li>' +
             '<li><a href="rdv.html">Prendre RDV</a></li>' +
             '<li><a href="dashboard.html">Espace client</a></li>' +

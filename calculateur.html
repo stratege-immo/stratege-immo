@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculateur de defiscalisation 2026 — Stratege</title>
+  <meta name="description" content="Calculez votre economie d'impots avec Jeanbrun, LMNP, Denormandie ou Deficit foncier. Simulation gratuite et instantanee." />
+  <link rel="canonical" href="https://stratege-immo.fr/calculateur" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css?v=122" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#4ECDC4">
+  <style>
+    .calc-container { max-width:900px;margin:0 auto;padding:40px 20px }
+    .calc-grid { display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:32px }
+    .calc-form { background:var(--surface-1);padding:32px;border-radius:16px;border:1px solid var(--neutral-200) }
+    .calc-results { background:linear-gradient(135deg,#1B2A4A,#2D3A52);color:#fff;padding:32px;border-radius:16px;position:sticky;top:100px }
+    .calc-results h3 { color:#4ECDC4;font-size:14px;text-transform:uppercase;letter-spacing:1px;margin-bottom:20px }
+    .calc-big { font-size:42px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#4ECDC4;margin-bottom:4px }
+    .calc-label { font-size:14px;color:rgba(255,255,255,.7);margin-bottom:20px }
+    .calc-detail { display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.1);font-size:14px }
+    .calc-detail:last-child { border-bottom:none }
+    .calc-detail .val { font-family:'JetBrains Mono',monospace;font-weight:600;color:#95E8DF }
+    .device-cards { display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px }
+    .device-card { padding:16px;border:2px solid var(--neutral-200);border-radius:12px;cursor:pointer;transition:all .2s;text-align:center }
+    .device-card:hover { border-color:var(--primary-300) }
+    .device-card.active { border-color:#4ECDC4;background:var(--primary-50) }
+    .device-card h4 { font-size:15px;margin-bottom:4px }
+    .device-card p { font-size:12px;color:var(--neutral-500);margin:0 }
+    .range-group { margin-bottom:20px }
+    .range-group label { display:block;font-size:14px;font-weight:500;margin-bottom:8px;color:var(--neutral-700) }
+    .range-group .range-values { display:flex;justify-content:space-between;font-size:13px;color:var(--neutral-500);margin-top:4px }
+    .range-group input[type=range] { width:100%;accent-color:#4ECDC4;height:6px }
+    .range-value-display { font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:600;color:var(--primary-600);text-align:right }
+    .share-btn { background:#4ECDC4;color:#1B2A4A;border:none;padding:12px 24px;border-radius:999px;font-weight:600;cursor:pointer;width:100%;margin-top:16px;font-size:15px;transition:opacity .2s }
+    .share-btn:hover { opacity:.9 }
+    .cta-box { margin-top:24px;padding:20px;background:rgba(78,205,196,.1);border-radius:12px;text-align:center }
+    .cta-box p { font-size:14px;margin-bottom:12px;color:rgba(255,255,255,.8) }
+    @media(max-width:768px) {
+      .calc-grid { grid-template-columns:1fr }
+      .device-cards { grid-template-columns:1fr 1fr }
+      .calc-results { position:static }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar"></nav>
+
+  <main style="padding-top:100px;padding-bottom:60px">
+    <div class="calc-container">
+      <div style="text-align:center;margin-bottom:8px">
+        <span class="badge badge-teal" style="display:inline-block;margin-bottom:12px">Simulateur</span>
+        <h1 style="font-family:var(--font-display)">Calculateur de defiscalisation</h1>
+        <p style="color:var(--neutral-500);max-width:600px;margin:12px auto 0">
+          Estimez votre economie d'impots selon le dispositif fiscal et le montant de votre investissement.
+        </p>
+      </div>
+
+      <div class="calc-grid">
+        <!-- LEFT: Form -->
+        <div class="calc-form">
+          <h3 style="font-size:16px;margin-bottom:20px">1. Choisissez un dispositif</h3>
+          <div class="device-cards">
+            <div class="device-card active" onclick="selectDevice('jeanbrun',this)">
+              <h4>Jeanbrun Social</h4>
+              <p>Neuf, zones tendues</p>
+            </div>
+            <div class="device-card" onclick="selectDevice('lmnp',this)">
+              <h4>LMNP</h4>
+              <p>Meuble, amortissement</p>
+            </div>
+            <div class="device-card" onclick="selectDevice('denormandie',this)">
+              <h4>Denormandie</h4>
+              <p>Ancien renove</p>
+            </div>
+            <div class="device-card" onclick="selectDevice('deficit',this)">
+              <h4>Deficit foncier</h4>
+              <p>Travaux deductibles</p>
+            </div>
+          </div>
+
+          <h3 style="font-size:16px;margin-bottom:20px">2. Vos parametres</h3>
+
+          <div class="range-group">
+            <label>Prix du bien
+              <span class="range-value-display" id="price-display">200 000 EUR</span>
+            </label>
+            <input type="range" id="price" min="80000" max="500000" step="5000" value="200000" oninput="calculate()">
+            <div class="range-values"><span>80 000 EUR</span><span>500 000 EUR</span></div>
+          </div>
+
+          <div class="range-group">
+            <label>Revenus annuels imposables
+              <span class="range-value-display" id="income-display">40 000 EUR</span>
+            </label>
+            <input type="range" id="income" min="15000" max="150000" step="1000" value="40000" oninput="calculate()">
+            <div class="range-values"><span>15 000 EUR</span><span>150 000 EUR</span></div>
+          </div>
+
+          <div class="range-group" id="duration-group">
+            <label>Duree d'engagement
+              <span class="range-value-display" id="duration-display">9 ans</span>
+            </label>
+            <input type="range" id="duration" min="6" max="12" step="3" value="9" oninput="calculate()">
+            <div class="range-values"><span>6 ans</span><span>12 ans</span></div>
+          </div>
+
+          <div class="range-group" id="works-group" style="display:none">
+            <label>Montant des travaux
+              <span class="range-value-display" id="works-display">50 000 EUR</span>
+            </label>
+            <input type="range" id="works" min="10000" max="200000" step="5000" value="50000" oninput="calculate()">
+            <div class="range-values"><span>10 000 EUR</span><span>200 000 EUR</span></div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Results -->
+        <div class="calc-results" id="results">
+          <h3>Votre economie estimee</h3>
+          <div class="calc-big" id="res-total">35 000 EUR</div>
+          <div class="calc-label" id="res-subtitle">Economie totale sur 9 ans</div>
+
+          <div class="calc-detail"><span>Reduction annuelle</span><span class="val" id="res-annual">3 889 EUR/an</span></div>
+          <div class="calc-detail"><span>Reduction mensuelle</span><span class="val" id="res-monthly">324 EUR/mois</span></div>
+          <div class="calc-detail"><span>Taux de reduction</span><span class="val" id="res-rate">17.5%</span></div>
+          <div class="calc-detail"><span>TMI estimee</span><span class="val" id="res-tmi">30%</span></div>
+          <div class="calc-detail"><span>Impot avant</span><span class="val" id="res-tax-before">-</span></div>
+          <div class="calc-detail"><span>Impot apres</span><span class="val" id="res-tax-after">-</span></div>
+
+          <button class="share-btn" onclick="shareResults()">Partager mes resultats</button>
+
+          <div class="cta-box">
+            <p>Ces chiffres sont indicatifs. Un conseiller Stratege peut affiner votre simulation.</p>
+            <a href="rdv.html" class="btn-primary btn-small" style="background:#4ECDC4;color:#1B2A4A;border:none">Prendre RDV gratuit</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Disclaimer -->
+      <div style="margin-top:32px;padding:24px;background:var(--neutral-50);border-radius:12px;font-size:13px;color:var(--neutral-500);line-height:1.6">
+        <strong>Avertissement :</strong> Cette simulation est fournie a titre indicatif et ne constitue pas un conseil fiscal. Les resultats dependent de votre situation personnelle. Les dispositifs fiscaux sont soumis a des conditions d'eligibilite specifiques. Consultez un conseiller en gestion de patrimoine pour une etude personnalisee.
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer"></footer>
+
+  <script src="assets/shared.js?v=122"></script>
+  <script>
+    renderNavbar();
+    renderFooter();
+
+    var device = 'jeanbrun';
+
+    function selectDevice(d, el) {
+      device = d;
+      document.querySelectorAll('.device-card').forEach(function(c) { c.classList.remove('active'); });
+      el.classList.add('active');
+
+      var dg = document.getElementById('duration-group');
+      var wg = document.getElementById('works-group');
+
+      if (d === 'deficit') {
+        dg.style.display = 'none';
+        wg.style.display = 'block';
+      } else if (d === 'lmnp') {
+        dg.style.display = 'none';
+        wg.style.display = 'none';
+      } else {
+        dg.style.display = 'block';
+        wg.style.display = 'none';
+      }
+      calculate();
+    }
+
+    function fmt(n) { return Math.round(n).toLocaleString('fr-FR') + ' EUR'; }
+
+    function calculateTax(income) {
+      // 2026 bareme IR (approximated)
+      var brackets = [
+        { limit: 11294, rate: 0 },
+        { limit: 28797, rate: 0.11 },
+        { limit: 82341, rate: 0.30 },
+        { limit: 177106, rate: 0.41 },
+        { limit: Infinity, rate: 0.45 }
+      ];
+      var tax = 0;
+      var prev = 0;
+      for (var i = 0; i < brackets.length; i++) {
+        var b = brackets[i];
+        if (income <= prev) break;
+        var taxable = Math.min(income, b.limit) - prev;
+        if (taxable > 0) tax += taxable * b.rate;
+        prev = b.limit;
+      }
+      return tax;
+    }
+
+    function getTMI(income) {
+      if (income <= 11294) return 0;
+      if (income <= 28797) return 11;
+      if (income <= 82341) return 30;
+      if (income <= 177106) return 41;
+      return 45;
+    }
+
+    function calculate() {
+      var price = parseInt(document.getElementById('price').value);
+      var income = parseInt(document.getElementById('income').value);
+      var duration = parseInt(document.getElementById('duration').value);
+      var works = parseInt(document.getElementById('works').value);
+
+      document.getElementById('price-display').textContent = fmt(price);
+      document.getElementById('income-display').textContent = fmt(income);
+      document.getElementById('duration-display').textContent = duration + ' ans';
+      document.getElementById('works-display').textContent = fmt(works);
+
+      var totalReduction = 0;
+      var annualReduction = 0;
+      var ratePercent = 0;
+      var subtitle = '';
+      var taxBefore = calculateTax(income);
+
+      if (device === 'jeanbrun') {
+        // Jeanbrun: 14% on 6y, 17.5% on 9y, 21% on 12y
+        var rates = { 6: 0.14, 9: 0.175, 12: 0.21 };
+        ratePercent = (rates[duration] || 0.175) * 100;
+        totalReduction = price * (rates[duration] || 0.175);
+        annualReduction = totalReduction / duration;
+        subtitle = 'Economie totale sur ' + duration + ' ans (Jeanbrun)';
+      } else if (device === 'denormandie') {
+        // Same rates as Jeanbrun
+        var rates = { 6: 0.14, 9: 0.175, 12: 0.21 };
+        ratePercent = (rates[duration] || 0.175) * 100;
+        totalReduction = price * (rates[duration] || 0.175);
+        annualReduction = totalReduction / duration;
+        subtitle = 'Economie totale sur ' + duration + ' ans (Denormandie)';
+      } else if (device === 'lmnp') {
+        // LMNP: amortization ~ 2.5% of building value per year (80% of price)
+        var buildingValue = price * 0.80;
+        var annualAmort = buildingValue * 0.025;
+        var tmi = getTMI(income) / 100;
+        annualReduction = annualAmort * tmi;
+        totalReduction = annualReduction * 20; // over 20 years
+        ratePercent = Math.round((totalReduction / price) * 100);
+        duration = 20;
+        subtitle = 'Economie fiscale estimee sur 20 ans (LMNP)';
+      } else if (device === 'deficit') {
+        // Deficit foncier: works deductible up to 10,700/year
+        var annualDeductible = Math.min(works, 10700);
+        var tmi = getTMI(income) / 100;
+        annualReduction = annualDeductible * tmi;
+        var yearsOfWorks = Math.ceil(works / 10700);
+        totalReduction = annualReduction * yearsOfWorks;
+        ratePercent = Math.round((totalReduction / works) * 100);
+        duration = yearsOfWorks;
+        subtitle = 'Economie sur ' + yearsOfWorks + ' an(s) de travaux';
+      }
+
+      var taxAfter = Math.max(0, taxBefore - annualReduction);
+
+      document.getElementById('res-total').textContent = fmt(totalReduction);
+      document.getElementById('res-subtitle').textContent = subtitle;
+      document.getElementById('res-annual').textContent = fmt(annualReduction) + '/an';
+      document.getElementById('res-monthly').textContent = fmt(annualReduction / 12) + '/mois';
+      document.getElementById('res-rate').textContent = ratePercent.toFixed(1) + '%';
+      document.getElementById('res-tmi').textContent = getTMI(income) + '%';
+      document.getElementById('res-tax-before').textContent = fmt(taxBefore);
+      document.getElementById('res-tax-after').textContent = fmt(taxAfter);
+    }
+
+    function shareResults() {
+      var text = 'Simulation Stratege : ' + document.getElementById('res-total').textContent +
+        ' d\'economie avec ' + device.charAt(0).toUpperCase() + device.slice(1) +
+        ' sur un bien a ' + document.getElementById('price-display').textContent +
+        '. Faites votre simulation : https://stratege-immo.fr/calculateur.html';
+
+      if (navigator.share) {
+        navigator.share({ title: 'Simulation Stratege', text: text, url: 'https://stratege-immo.fr/calculateur.html' });
+      } else if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(function() {
+          showToast('Resultats copies dans le presse-papier !', 'success');
+        });
+      }
+    }
+
+    calculate();
+  </script>
+
+</body>
+</html>

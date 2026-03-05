@@ -3,23 +3,23 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Investissement immobilier malin | Stratège — CGP Lyon</title>
-  <meta name="description" content="Stratège accompagne votre projet immobilier : simulation, catalogue de biens, conseil personnalisé." />
+  <title>Investissement immobilier malin | Stratege — CGP Lyon</title>
+  <meta name="description" content="Stratege accompagne votre projet immobilier : simulation, catalogue de biens, conseil personnalise." />
   <link rel="canonical" href="https://stratege-immo.fr/" />
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="Stratège — L'immobilier malin et durable" />
-  <meta property="og:description" content="Simulez votre investissement immobilier, comparez les SCPI, calculez votre prêt. Accompagnement personnalisé." />
+  <meta property="og:title" content="Stratege — L'immobilier malin et durable" />
+  <meta property="og:description" content="Simulez votre investissement immobilier, comparez les SCPI, calculez votre pret. Accompagnement personnalise." />
   <meta property="og:url" content="https://stratege-immo.fr/" />
-  <meta property="og:site_name" content="Stratège" />
+  <meta property="og:site_name" content="Stratege" />
   <meta property="og:locale" content="fr_FR" />
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Stratège — L'immobilier malin et durable" />
-  <meta name="twitter:description" content="Simulez votre investissement immobilier, comparez les SCPI, calculez votre prêt." />
+  <meta name="twitter:title" content="Stratege — L'immobilier malin et durable" />
+  <meta name="twitter:description" content="Simulez votre investissement immobilier, comparez les SCPI, calculez votre pret." />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "RealEstateAgent",
-    "name": "Stratège",
+    "name": "Stratege",
     "url": "https://stratege-immo.fr",
     "telephone": "+33695275152",
     "email": "contact@stratege-immo.fr",
@@ -30,9 +30,9 @@
       "postalCode": "75008",
       "addressCountry": "FR"
     },
-    "priceRange": "Gratuit - 29€/mois",
+    "priceRange": "Gratuit - 29/mois",
     "sameAs": [],
-    "description": "Cabinet de gestion de patrimoine spécialisé en investissement immobilier, SCPI et défiscalisation."
+    "description": "Cabinet de gestion de patrimoine specialise en investissement immobilier, SCPI et defiscalisation."
   }
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -42,158 +42,1043 @@
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#4ECDC4">
+
+  <style>
+    /* ═══ LANDING PAGE PREMIUM STYLES ═══ */
+
+    /* ─── HERO ENHANCED ─── */
+    .hero-premium {
+      background: linear-gradient(135deg, var(--neutral-900) 0%, var(--neutral-800) 60%, #1a3a5c 100%);
+      color: #fff;
+      padding: 120px 0 80px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-premium::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(78,205,196,0.12) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .hero-premium .container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+    .hero-overline {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(78,205,196,0.15);
+      border: 1px solid rgba(78,205,196,0.3);
+      color: var(--primary-300);
+      padding: 6px 16px;
+      border-radius: 100px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      margin-bottom: 24px;
+      backdrop-filter: blur(4px);
+    }
+    .hero-overline .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--primary-300);
+      border-radius: 50%;
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(78,205,196,0.4); }
+      50% { box-shadow: 0 0 0 6px rgba(78,205,196,0); }
+    }
+    .hero-premium h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2.4rem, 5vw, 3.6rem);
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 8px;
+      color: #fff;
+    }
+    .hero-premium h1 .highlight {
+      color: var(--primary-300);
+    }
+    .hero-premium .hero-tagline {
+      font-size: 1.3rem;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 20px;
+      font-weight: 300;
+    }
+    .hero-premium .hero-description {
+      font-size: 1.05rem;
+      color: rgba(255,255,255,0.6);
+      line-height: 1.7;
+      max-width: 520px;
+      margin-bottom: 32px;
+    }
+    .hero-social-proof {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+    }
+    .hero-social-proof .proof-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.75);
+    }
+    .proof-item .proof-number {
+      font-weight: 600;
+      color: var(--primary-300);
+      font-size: 1rem;
+    }
+    .proof-item .stars {
+      color: var(--gold-400);
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+    }
+    .hero-premium .hero-ctas {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    /* Mini floating simulator */
+    .hero-right-col {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 400px;
+    }
+    .mini-simulator {
+      background: rgba(255,255,255,0.07);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 20px;
+      padding: 32px 28px;
+      width: 340px;
+      animation: float 4s ease-in-out infinite;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    .mini-sim-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .mini-sim-header .sim-label {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.6);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 500;
+    }
+    .mini-sim-header .sim-badge {
+      background: var(--primary-300);
+      color: var(--neutral-900);
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 100px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .mini-sim-slider-group {
+      margin-bottom: 20px;
+    }
+    .mini-sim-slider-group label {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.5);
+      display: block;
+      margin-bottom: 8px;
+    }
+    .mini-sim-slider-track {
+      position: relative;
+      height: 6px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 3px;
+      overflow: visible;
+    }
+    .mini-sim-slider-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 65%;
+      background: linear-gradient(90deg, var(--primary-300), var(--primary-400));
+      border-radius: 3px;
+    }
+    .mini-sim-slider-thumb {
+      position: absolute;
+      top: 50%;
+      left: 65%;
+      transform: translate(-50%, -50%);
+      width: 18px;
+      height: 18px;
+      background: #fff;
+      border: 3px solid var(--primary-300);
+      border-radius: 50%;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .mini-sim-slider-values {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.35);
+    }
+    .mini-sim-result {
+      background: rgba(78,205,196,0.1);
+      border: 1px solid rgba(78,205,196,0.2);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      margin-top: 8px;
+    }
+    .mini-sim-result .result-label {
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .mini-sim-result .result-amount {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary-300);
+    }
+    .mini-sim-result .result-sub {
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.45);
+      margin-top: 4px;
+    }
+
+    /* Floating accents around mini-sim */
+    .hero-right-col .accent-card {
+      position: absolute;
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.8);
+      z-index: 2;
+    }
+    .accent-card.top-right {
+      top: 20px;
+      right: 0;
+      animation: float 5s ease-in-out infinite;
+      animation-delay: -1s;
+    }
+    .accent-card.bottom-left {
+      bottom: 30px;
+      left: 0;
+      animation: float 5s ease-in-out infinite;
+      animation-delay: -2.5s;
+    }
+    .accent-card .ac-label { font-size: 0.72rem; color: rgba(255,255,255,0.45); margin-bottom: 2px; }
+    .accent-card .ac-value { font-weight: 600; color: var(--primary-300); font-size: 1.1rem; }
+
+    /* ─── STATS BAR ─── */
+    .stats-bar {
+      background: var(--neutral-800);
+      padding: 48px 0;
+    }
+    .stats-bar .container {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 32px;
+      text-align: center;
+    }
+    .stat-item .stat-number {
+      font-family: var(--font-display);
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: var(--primary-300);
+      line-height: 1.2;
+    }
+    .stat-item .stat-label {
+      font-size: 0.88rem;
+      color: rgba(255,255,255,0.6);
+      margin-top: 6px;
+    }
+
+    /* ─── POUR QUI SECTION (enhanced profiles) ─── */
+    .pour-qui {
+      padding: 100px 0;
+      background: var(--neutral-0);
+    }
+    .pour-qui .section-header {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+    .pour-qui .section-label {
+      display: inline-block;
+      background: var(--primary-50);
+      color: var(--primary-600);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 4px 14px;
+      border-radius: 100px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 12px;
+    }
+    .pour-qui h2 {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      color: var(--neutral-800);
+      margin-bottom: 12px;
+    }
+    .pour-qui .section-header > p {
+      color: var(--neutral-500);
+      max-width: 560px;
+      margin: 0 auto;
+    }
+    .pq-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+    }
+    .pq-card {
+      background: #fff;
+      border: 1px solid var(--neutral-200);
+      border-radius: 16px;
+      padding: 32px 24px;
+      transition: transform 0.25s, box-shadow 0.25s;
+      display: flex;
+      flex-direction: column;
+    }
+    .pq-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.08);
+    }
+    .pq-card .pq-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+    }
+    .pq-card h3 {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      color: var(--neutral-800);
+      margin-bottom: 4px;
+    }
+    .pq-card .pq-age {
+      font-size: 0.8rem;
+      color: var(--neutral-400);
+      margin-bottom: 12px;
+    }
+    .pq-card .pq-desc {
+      font-size: 0.9rem;
+      color: var(--neutral-500);
+      line-height: 1.6;
+      margin-bottom: 16px;
+      flex: 1;
+    }
+    .pq-card .pq-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 20px;
+      font-size: 0.82rem;
+    }
+    .pq-card .pq-meta span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--neutral-600);
+    }
+    .pq-card .pq-meta .meta-label {
+      color: var(--neutral-400);
+      min-width: 55px;
+    }
+    .pq-card .btn-simuler {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: var(--primary-300);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+      width: 100%;
+    }
+    .pq-card .btn-simuler:hover {
+      background: var(--primary-400);
+    }
+
+    /* ─── SENIORIALES PREVIEW ─── */
+    .senioriales-preview {
+      padding: 100px 0;
+      background: #fff;
+    }
+    .senioriales-preview .section-header {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+    .senioriales-preview .section-label {
+      display: inline-block;
+      background: var(--gold-50);
+      color: var(--gold-700);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 4px 14px;
+      border-radius: 100px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 12px;
+    }
+    .senioriales-preview h2 {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      color: var(--neutral-800);
+      margin-bottom: 12px;
+    }
+    .senioriales-preview .section-header > p {
+      color: var(--neutral-500);
+      max-width: 560px;
+      margin: 0 auto;
+    }
+    .senio-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+    .senio-card {
+      background: #fff;
+      border: 1px solid var(--neutral-200);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+    .senio-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.08);
+    }
+    .senio-card .senio-img {
+      width: 100%;
+      height: 180px;
+      background: linear-gradient(135deg, var(--neutral-100), var(--neutral-200));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--neutral-400);
+      font-size: 2.5rem;
+      position: relative;
+    }
+    .senio-card .senio-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: var(--gold-400);
+      color: var(--neutral-900);
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 100px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .senio-card .senio-body {
+      padding: 20px;
+    }
+    .senio-card h4 {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      color: var(--neutral-800);
+      margin-bottom: 6px;
+    }
+    .senio-card .senio-location {
+      font-size: 0.85rem;
+      color: var(--neutral-400);
+      margin-bottom: 8px;
+    }
+    .senio-card .senio-type {
+      display: inline-block;
+      background: var(--neutral-50);
+      color: var(--neutral-600);
+      font-size: 0.75rem;
+      padding: 3px 10px;
+      border-radius: 100px;
+    }
+    .senio-voir-tous {
+      text-align: center;
+    }
+    .senio-voir-tous a {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--primary-500);
+      font-weight: 500;
+      font-size: 1rem;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .senio-voir-tous a:hover {
+      color: var(--primary-700);
+    }
+
+    /* ─── COMMENT CA MARCHE ─── */
+    .process-section {
+      padding: 100px 0;
+      background: var(--neutral-0);
+    }
+    .process-section .section-header {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+    .process-section .section-label {
+      display: inline-block;
+      background: var(--primary-50);
+      color: var(--primary-600);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 4px 14px;
+      border-radius: 100px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 12px;
+    }
+    .process-section h2 {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      color: var(--neutral-800);
+      margin-bottom: 12px;
+    }
+    .process-section .section-header > p {
+      color: var(--neutral-500);
+      max-width: 560px;
+      margin: 0 auto;
+    }
+    .process-steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
+      max-width: 900px;
+      margin: 0 auto;
+      position: relative;
+    }
+    .process-steps::before {
+      content: '';
+      position: absolute;
+      top: 44px;
+      left: 16%;
+      right: 16%;
+      height: 2px;
+      background: var(--neutral-200);
+      z-index: 0;
+    }
+    .process-step {
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+    .process-step .step-number {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--primary-300);
+      color: #fff;
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      box-shadow: 0 4px 16px rgba(78,205,196,0.3);
+    }
+    .process-step .step-icon {
+      font-size: 2rem;
+      margin-bottom: 16px;
+    }
+    .process-step h3 {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      color: var(--neutral-800);
+      margin-bottom: 4px;
+    }
+    .process-step .step-time {
+      font-size: 0.78rem;
+      color: var(--primary-500);
+      font-weight: 500;
+      margin-bottom: 10px;
+    }
+    .process-step .step-desc {
+      font-size: 0.9rem;
+      color: var(--neutral-500);
+      line-height: 1.6;
+    }
+
+    /* ─── TRUST SECTION (enhanced) ─── */
+    .trust-enhanced {
+      padding: 100px 0;
+      background: #fff;
+    }
+    .trust-enhanced .section-header {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+    .trust-enhanced .section-label {
+      display: inline-block;
+      background: var(--neutral-800);
+      color: var(--primary-300);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 4px 14px;
+      border-radius: 100px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 12px;
+    }
+    .trust-enhanced h2 {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      color: var(--neutral-800);
+      margin-bottom: 12px;
+    }
+    .trust-enhanced .section-header > p {
+      color: var(--neutral-500);
+      max-width: 560px;
+      margin: 0 auto;
+    }
+    .trust-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 24px;
+    }
+    .trust-item {
+      text-align: center;
+      padding: 32px 16px;
+      border-radius: 16px;
+      border: 1px solid var(--neutral-100);
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+    .trust-item:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+    }
+    .trust-item .ti-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin: 0 auto 16px;
+      background: var(--neutral-50);
+    }
+    .trust-item h4 {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      color: var(--neutral-800);
+      margin-bottom: 8px;
+    }
+    .trust-item p {
+      font-size: 0.85rem;
+      color: var(--neutral-500);
+      line-height: 1.6;
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 1024px) {
+      .hero-premium .container {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+      .hero-right-col {
+        min-height: 320px;
+      }
+      .stats-bar .container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+      }
+      .pq-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .senio-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .trust-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    @media (max-width: 768px) {
+      .hero-premium {
+        padding: 100px 0 60px;
+      }
+      .hero-premium .container {
+        gap: 32px;
+      }
+      .hero-right-col {
+        min-height: 280px;
+      }
+      .mini-simulator {
+        width: 300px;
+        padding: 24px 20px;
+      }
+      .accent-card.top-right,
+      .accent-card.bottom-left {
+        display: none;
+      }
+      .process-steps {
+        grid-template-columns: 1fr;
+        gap: 32px;
+        max-width: 400px;
+      }
+      .process-steps::before {
+        display: none;
+      }
+      .trust-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 600px) {
+      .hero-premium {
+        padding: 90px 0 50px;
+      }
+      .stats-bar .container {
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+      .pq-grid {
+        grid-template-columns: 1fr;
+      }
+      .senio-grid {
+        grid-template-columns: 1fr;
+      }
+      .trust-grid {
+        grid-template-columns: 1fr;
+      }
+      .hero-social-proof {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+    }
+  </style>
 </head>
 <body>
 
   <nav class="navbar"></nav>
 
-  <!-- ══════════ HERO ══════════ -->
-  <section class="hero">
+  <!-- ══════════ HERO PREMIUM ══════════ -->
+  <section class="hero-premium">
     <div class="container">
-      <div class="hero-content">
-        <div class="hero-badge">
-          <span>&#9733;</span> Plateforme immobilière nouvelle génération
+      <div class="hero-left-col">
+        <div class="hero-overline">
+          <span class="pulse-dot"></span>
+          Dispositif Jeanbrun actif — Jusqu'a 34% de reduction
         </div>
-        <h1><span class="highlight">Stratège</span></h1>
-        <p class="hero-tagline">L'immobilier malin et durable</p>
+        <h1>
+          Investissez malin<br>
+          avec <span class="highlight">Stratege</span>
+        </h1>
+        <p class="hero-tagline">L'immobilier patrimonial, simplifie et optimise.</p>
         <p class="hero-description">
-          Simulez votre capacité d'investissement, découvrez des biens sélectionnés
-          et bénéficiez d'un accompagnement personnalisé pour construire votre patrimoine.
+          Simulez votre capacite d'investissement, decouvrez des biens selectionnes
+          et beneficiez d'un accompagnement personnalise pour construire votre patrimoine.
         </p>
+        <div class="hero-social-proof">
+          <div class="proof-item">
+            <span class="proof-number">127</span> investisseurs accompagnes
+          </div>
+          <div class="proof-item">
+            <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+            <span class="proof-number">4.9/5</span> satisfaction
+          </div>
+        </div>
         <div class="hero-ctas">
-          <button class="btn-primary" onclick="navTo('simulation')">Situation complète</button>
+          <button class="btn-primary" onclick="navTo('simulation')">Simuler mon projet</button>
           <a href="rdv.html" class="btn-secondary">Prendre rendez-vous &rarr;</a>
         </div>
-        <div class="hero-stats">
-          <div class="hero-stat">
-            <div class="hero-stat-value">5.8%</div>
-            <div class="hero-stat-label">Rendement moyen</div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-value">248 &euro;</div>
-            <div class="hero-stat-label">Effort mensuel</div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-value">97%</div>
-            <div class="hero-stat-label">Clients satisfaits</div>
-          </div>
-        </div>
       </div>
-      <div class="hero-visual">
-        <div class="hero-image-wrapper">
-          <img src="assets/image0.jpeg" alt="Stratège — Investissement immobilier" />
+      <div class="hero-right-col">
+        <div class="accent-card top-right">
+          <div class="ac-label">Rendement estime</div>
+          <div class="ac-value">5.8%</div>
         </div>
-        <div class="hero-float-card top-right">
-          <div class="float-card-label">Rendement estimé</div>
-          <div class="float-card-value">5.8%</div>
-          <div class="float-card-sub">+1.2% vs marché</div>
-        </div>
-        <div class="hero-float-card bottom-left">
-          <div class="float-card-label">Effort réel</div>
-          <div class="float-card-value">248 &euro;/mois</div>
-          <div class="float-card-sub">Après loyer perçu</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ══════════ TRUST ══════════ -->
-  <section class="trust" id="trust">
-    <div class="container">
-      <div>
-        <div class="trust-header">
-          <h2>Pourquoi Stratège ?</h2>
-          <p class="trust-subtitle">5 piliers pour un investissement serein et performant.</p>
-        </div>
-        <div class="pillars">
-          <div class="pillar fade-up">
-            <div class="pillar-icon">&#128737;</div>
-            <div>
-              <div class="pillar-title">Confiance</div>
-              <div class="pillar-text">Des conseillers certifiés et des partenaires de confiance à chaque étape.</div>
+        <div class="mini-simulator">
+          <div class="mini-sim-header">
+            <span class="sim-label">Simulateur</span>
+            <span class="sim-badge">Gratuit</span>
+          </div>
+          <div class="mini-sim-slider-group">
+            <label>Revenu annuel brut</label>
+            <div class="mini-sim-slider-track">
+              <div class="mini-sim-slider-fill"></div>
+              <div class="mini-sim-slider-thumb"></div>
+            </div>
+            <div class="mini-sim-slider-values">
+              <span>20 000 &euro;</span>
+              <span>100 000 &euro;</span>
             </div>
           </div>
-          <div class="pillar fade-up">
-            <div class="pillar-icon">&#128274;</div>
-            <div>
-              <div class="pillar-title">Sécurité</div>
-              <div class="pillar-text">Vos données protégées, vos investissements sécurisés par des garanties solides.</div>
+          <div class="mini-sim-slider-group">
+            <label>Apport personnel</label>
+            <div class="mini-sim-slider-track">
+              <div class="mini-sim-slider-fill" style="width:45%"></div>
+              <div class="mini-sim-slider-thumb" style="left:45%"></div>
+            </div>
+            <div class="mini-sim-slider-values">
+              <span>0 &euro;</span>
+              <span>80 000 &euro;</span>
             </div>
           </div>
-          <div class="pillar fade-up">
-            <div class="pillar-icon">&#128222;</div>
-            <div>
-              <div class="pillar-title">Disponibilité</div>
-              <div class="pillar-text">Un conseiller dédié joignable 6j/7 pour répondre à toutes vos questions.</div>
-            </div>
-          </div>
-          <div class="pillar fade-up">
-            <div class="pillar-icon">&#128065;</div>
-            <div>
-              <div class="pillar-title">Transparence</div>
-              <div class="pillar-text">Aucun frais caché. Tous les coûts affichés clairement dès le départ.</div>
-            </div>
-          </div>
-          <div class="pillar fade-up">
-            <div class="pillar-icon">&#9889;</div>
-            <div>
-              <div class="pillar-title">Rapidité</div>
-              <div class="pillar-text">Simulation en 2 minutes, réponse sous 24h, accompagnement immédiat.</div>
-            </div>
+          <div class="mini-sim-result">
+            <div class="result-label">Economie estimee</div>
+            <div class="result-amount">29 160 &euro;</div>
+            <div class="result-sub">sur 20 ans avec dispositif Jeanbrun</div>
           </div>
         </div>
-      </div>
-      <div class="trust-visual">
-        <div class="trust-graphic">
-          <div class="trust-center-text">
-            <div class="big">5</div>
-            <div class="sub">piliers</div>
-          </div>
+        <div class="accent-card bottom-left">
+          <div class="ac-label">Effort reel</div>
+          <div class="ac-value">248 &euro;/mois</div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ══════════ PROFILS ══════════ -->
-  <section class="profiles" id="profils">
+  <!-- ══════════ STATS BAR ══════════ -->
+  <section class="stats-bar">
+    <div class="container" id="stats-bar-container">
+      <div class="stat-item">
+        <div class="stat-number" data-target="127" data-suffix="">0</div>
+        <div class="stat-label">Investisseurs accompagnes</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" data-target="34" data-suffix="%">0%</div>
+        <div class="stat-label">Reduction maximale</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" data-target="38" data-suffix="">0</div>
+        <div class="stat-label">Programmes partenaires</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" data-target="4.9" data-suffix="/5" data-decimal="true">0/5</div>
+        <div class="stat-label">Satisfaction client</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ POUR QUI ? ══════════ -->
+  <section class="pour-qui" id="profils">
     <div class="container">
       <div class="section-header">
         <div class="section-label">Votre profil</div>
-        <h2>Quel investisseur êtes-vous ?</h2>
-        <p>Chaque situation est unique. Découvrez la stratégie adaptée à votre profil.</p>
+        <h2>Pour qui est Stratege ?</h2>
+        <p>Chaque situation est unique. Decouvrez la strategie adaptee a votre profil d'investisseur.</p>
       </div>
-      <div class="profiles-grid">
-        <div class="profile-card">
-          <div class="profile-img" style="background:linear-gradient(135deg,#3DD9BE,#2CC4AA)">&#127891;</div>
-          <div class="profile-body">
-            <h3>Jeunes actifs</h3>
-            <p>Commencez à investir tôt pour maximiser l'effet de levier et construire votre patrimoine dès maintenant.</p>
-            <button class="btn-primary btn-small" onclick="navTo('simulation');selectProfil('jeune_actif')">Simuler mon projet</button>
+      <div class="pq-grid">
+        <div class="pq-card">
+          <div class="pq-icon" style="background:linear-gradient(135deg,#E0F7F5,#C8EDE8)">&#127891;</div>
+          <h3>Jeunes actifs</h3>
+          <div class="pq-age">25 - 35 ans</div>
+          <div class="pq-desc">Commencez a investir tot pour maximiser l'effet de levier et construire votre patrimoine des maintenant.</div>
+          <div class="pq-meta">
+            <span><span class="meta-label">Revenus</span> 30 000 - 45 000 &euro;/an</span>
+            <span><span class="meta-label">Budget</span> 80 000 - 150 000 &euro;</span>
+            <span><span class="meta-label">Dispositif</span> Jeanbrun / LMNP</span>
+          </div>
+          <button class="btn-simuler" onclick="navTo('simulation');selectProfil('jeune_actif')">Simuler &rarr;</button>
+        </div>
+        <div class="pq-card">
+          <div class="pq-icon" style="background:linear-gradient(135deg,#E0F7F5,#C8EDE8)">&#128106;</div>
+          <h3>Couples</h3>
+          <div class="pq-age">35 - 50 ans</div>
+          <div class="pq-desc">Combinez vos revenus pour acceder a des biens de qualite et preparer l'avenir de votre famille.</div>
+          <div class="pq-meta">
+            <span><span class="meta-label">Revenus</span> 50 000 - 80 000 &euro;/an</span>
+            <span><span class="meta-label">Budget</span> 150 000 - 300 000 &euro;</span>
+            <span><span class="meta-label">Dispositif</span> Jeanbrun / SCPI</span>
+          </div>
+          <button class="btn-simuler" onclick="navTo('simulation');selectProfil('couple')">Simuler &rarr;</button>
+        </div>
+        <div class="pq-card">
+          <div class="pq-icon" style="background:linear-gradient(135deg,#E0F7F5,#C8EDE8)">&#127796;</div>
+          <h3>Jeunes retraites</h3>
+          <div class="pq-age">55 - 65 ans</div>
+          <div class="pq-desc">Generez des revenus complementaires stables pour profiter pleinement de votre retraite.</div>
+          <div class="pq-meta">
+            <span><span class="meta-label">Revenus</span> 40 000 - 60 000 &euro;/an</span>
+            <span><span class="meta-label">Budget</span> 100 000 - 200 000 &euro;</span>
+            <span><span class="meta-label">Dispositif</span> SCPI / LMNP</span>
+          </div>
+          <button class="btn-simuler" onclick="navTo('simulation');selectProfil('retraite')">Simuler &rarr;</button>
+        </div>
+        <div class="pq-card">
+          <div class="pq-icon" style="background:linear-gradient(135deg,#E8EDF2,#D4DCE4)">&#127968;</div>
+          <h3>Residence principale</h3>
+          <div class="pq-age">Tout age</div>
+          <div class="pq-desc">Trouvez le bien ideal pour votre famille avec un financement optimise et sans stress.</div>
+          <div class="pq-meta">
+            <span><span class="meta-label">Revenus</span> Variable</span>
+            <span><span class="meta-label">Budget</span> Selon capacite</span>
+            <span><span class="meta-label">Dispositif</span> PTZ / PAS</span>
+          </div>
+          <button class="btn-simuler" onclick="navTo('simulation');selectProfil('residence')">Simuler &rarr;</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ SENIORIALES PREVIEW ══════════ -->
+  <section class="senioriales-preview">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-label">Partenaire</div>
+        <h2>38 programmes Senioriales</h2>
+        <p>Residences seniors de qualite, ideales pour un investissement LMNP performant et securise.</p>
+      </div>
+      <div class="senio-grid">
+        <div class="senio-card">
+          <div class="senio-img">
+            &#127968;
+            <span class="senio-badge">Partenaire</span>
+          </div>
+          <div class="senio-body">
+            <h4>Les Senioriales de Marseille</h4>
+            <div class="senio-location">&#128205; Marseille, Bouches-du-Rhone</div>
+            <span class="senio-type">Residence senior</span>
           </div>
         </div>
-        <div class="profile-card">
-          <div class="profile-img" style="background:linear-gradient(135deg,#6EE6D0,#3DD9BE)">&#128106;</div>
-          <div class="profile-body">
-            <h3>Couples</h3>
-            <p>Combinez vos revenus pour accéder à des biens de qualité et préparer l'avenir de votre famille.</p>
-            <button class="btn-primary btn-small" onclick="navTo('simulation');selectProfil('couple')">Simuler mon projet</button>
+        <div class="senio-card">
+          <div class="senio-img">
+            &#127968;
+            <span class="senio-badge">Partenaire</span>
+          </div>
+          <div class="senio-body">
+            <h4>Les Senioriales de Lyon</h4>
+            <div class="senio-location">&#128205; Lyon, Rhone</div>
+            <span class="senio-type">Residence senior</span>
           </div>
         </div>
-        <div class="profile-card">
-          <div class="profile-img" style="background:linear-gradient(135deg,#2CC4AA,#1A8F7D)">&#127796;</div>
-          <div class="profile-body">
-            <h3>Jeunes retraités</h3>
-            <p>Générez des revenus complémentaires stables pour profiter pleinement de votre retraite.</p>
-            <button class="btn-primary btn-small" onclick="navTo('simulation');selectProfil('retraite')">Simuler mon projet</button>
+        <div class="senio-card">
+          <div class="senio-img">
+            &#127968;
+            <span class="senio-badge">Partenaire</span>
+          </div>
+          <div class="senio-body">
+            <h4>Les Senioriales de Bordeaux</h4>
+            <div class="senio-location">&#128205; Bordeaux, Gironde</div>
+            <span class="senio-type">Residence senior</span>
           </div>
         </div>
-        <div class="profile-card">
-          <div class="profile-img" style="background:linear-gradient(135deg,#4A6B82,#3D5A72)">&#127968;</div>
-          <div class="profile-body">
-            <h3>Résidence principale</h3>
-            <p>Trouvez le bien idéal pour votre famille avec un financement optimisé et sans stress.</p>
-            <button class="btn-primary btn-small" onclick="navTo('simulation');selectProfil('residence')">Simuler mon projet</button>
+        <div class="senio-card">
+          <div class="senio-img">
+            &#127968;
+            <span class="senio-badge">Partenaire</span>
           </div>
+          <div class="senio-body">
+            <h4>Les Senioriales de Toulouse</h4>
+            <div class="senio-location">&#128205; Toulouse, Haute-Garonne</div>
+            <span class="senio-type">Residence senior</span>
+          </div>
+        </div>
+      </div>
+      <div class="senio-voir-tous">
+        <a href="catalogue.html">Voir tous les programmes &rarr;</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ COMMENT CA MARCHE ══════════ -->
+  <section class="process-section">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-label">Processus</div>
+        <h2>Comment ca marche ?</h2>
+        <p>3 etapes simples pour lancer votre investissement immobilier.</p>
+      </div>
+      <div class="process-steps">
+        <div class="process-step">
+          <div class="step-number">1</div>
+          <div class="step-icon">&#9889;</div>
+          <h3>Simulez</h3>
+          <div class="step-time">5 min, gratuit</div>
+          <div class="step-desc">Renseignez vos revenus et votre apport. Notre algorithme calcule instantanement votre capacite d'investissement et les dispositifs adaptes.</div>
+        </div>
+        <div class="process-step">
+          <div class="step-number">2</div>
+          <div class="step-icon">&#128100;</div>
+          <h3>Etre conseille</h3>
+          <div class="step-time">RDV offert</div>
+          <div class="step-desc">Un conseiller certifie analyse votre situation, affine la strategie et vous presente les meilleures opportunites du marche.</div>
+        </div>
+        <div class="process-step">
+          <div class="step-number">3</div>
+          <div class="step-icon">&#9989;</div>
+          <h3>Investissez</h3>
+          <div class="step-time">Signature securisee</div>
+          <div class="step-desc">Nous gerons le financement, les demarches administratives et la mise en location. Vous n'avez qu'a signer.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ TRUST INDICATORS ══════════ -->
+  <section class="trust-enhanced">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-label">Nos engagements</div>
+        <h2>Pourquoi Stratege ?</h2>
+        <p>5 piliers pour un investissement serein et performant.</p>
+      </div>
+      <div class="trust-grid">
+        <div class="trust-item">
+          <div class="ti-icon">&#128737;</div>
+          <h4>Confiance</h4>
+          <p>Des conseillers certifies et des partenaires de confiance a chaque etape de votre projet.</p>
+        </div>
+        <div class="trust-item">
+          <div class="ti-icon">&#128274;</div>
+          <h4>Securite</h4>
+          <p>Vos donnees protegees, vos investissements securises par des garanties solides.</p>
+        </div>
+        <div class="trust-item">
+          <div class="ti-icon">&#128222;</div>
+          <h4>Disponibilite</h4>
+          <p>Un conseiller dedie joignable 6j/7 pour repondre a toutes vos questions.</p>
+        </div>
+        <div class="trust-item">
+          <div class="ti-icon">&#128065;</div>
+          <h4>Transparence</h4>
+          <p>Aucun frais cache. Tous les couts affiches clairement des le depart.</p>
+        </div>
+        <div class="trust-item">
+          <div class="ti-icon">&#9889;</div>
+          <h4>Rapidite</h4>
+          <p>Simulation en 2 minutes, reponse sous 24h, accompagnement immediat.</p>
         </div>
       </div>
     </div>
@@ -204,8 +1089,8 @@
     <div class="container">
       <div class="section-header">
         <div class="section-label">Simulation</div>
-        <h2>Calculez votre capacité d'investissement</h2>
-        <p>En quelques étapes, découvrez votre budget, votre rendement estimé et l'effort réel mensuel.</p>
+        <h2>Calculez votre capacite d'investissement</h2>
+        <p>En quelques etapes, decouvrez votre budget, votre rendement estime et l'effort reel mensuel.</p>
       </div>
       <div class="sim-container">
         <!-- Progress -->
@@ -219,10 +1104,10 @@
           <div class="step-indicator"><div class="step-dot">4</div></div>
         </div>
 
-        <!-- Étape 1 : Profil -->
+        <!-- Etape 1 : Profil -->
         <div class="sim-etape active" data-etape="1">
           <h3>Votre profil investisseur</h3>
-          <p class="sim-desc">Sélectionnez le profil qui vous correspond le mieux.</p>
+          <p class="sim-desc">Selectionnez le profil qui vous correspond le mieux.</p>
           <div class="profil-grid">
             <div class="profil-option" data-profil="jeune_actif" onclick="selectProfil('jeune_actif')">
               <div class="icon">&#127891;</div>
@@ -232,29 +1117,29 @@
             <div class="profil-option" data-profil="couple" onclick="selectProfil('couple')">
               <div class="icon">&#128106;</div>
               <div class="label">Couple</div>
-              <div class="desc">Investissement à deux</div>
+              <div class="desc">Investissement a deux</div>
             </div>
             <div class="profil-option" data-profil="retraite" onclick="selectProfil('retraite')">
               <div class="icon">&#127796;</div>
-              <div class="label">Jeune retraité</div>
-              <div class="desc">Revenus complémentaires</div>
+              <div class="label">Jeune retraite</div>
+              <div class="desc">Revenus complementaires</div>
             </div>
             <div class="profil-option" data-profil="residence" onclick="selectProfil('residence')">
               <div class="icon">&#127968;</div>
-              <div class="label">Résidence principale</div>
+              <div class="label">Residence principale</div>
               <div class="desc">Achat de votre logement</div>
             </div>
           </div>
           <div class="sim-nav">
             <div></div>
-            <button class="btn-primary" onclick="if(state.simulation.profil) goToEtape(2); else alert('Sélectionnez un profil');">Continuer &rarr;</button>
+            <button class="btn-primary" onclick="if(state.simulation.profil) goToEtape(2); else alert('Selectionnez un profil');">Continuer &rarr;</button>
           </div>
         </div>
 
-        <!-- Étape 2 : Infos financières -->
+        <!-- Etape 2 : Infos financieres -->
         <div class="sim-etape" data-etape="2">
-          <h3>Vos informations financières</h3>
-          <p class="sim-desc">Ces données permettent de calculer votre capacité d'emprunt.</p>
+          <h3>Vos informations financieres</h3>
+          <p class="sim-desc">Ces donnees permettent de calculer votre capacite d'emprunt.</p>
           <div class="form-group">
             <label for="sim-nom">Nom complet</label>
             <input type="text" id="sim-nom" placeholder="Jean Dupont" />
@@ -264,7 +1149,7 @@
             <input type="email" id="sim-email" placeholder="jean@exemple.fr" />
           </div>
           <div class="form-group">
-            <label for="sim-tel">Téléphone</label>
+            <label for="sim-tel">Telephone</label>
             <input type="tel" id="sim-tel" placeholder="06 12 34 56 78" />
           </div>
           <div class="form-group">
@@ -278,7 +1163,7 @@
             <span class="input-suffix">&euro;</span>
           </div>
           <div class="form-group">
-            <label for="sim-effort">Effort mensuel souhaité</label>
+            <label for="sim-effort">Effort mensuel souhaite</label>
             <input type="number" id="sim-effort" placeholder="500" />
             <span class="input-suffix">&euro;/mois</span>
           </div>
@@ -288,18 +1173,18 @@
           </div>
         </div>
 
-        <!-- Étape 3 : Type de simulation -->
+        <!-- Etape 3 : Type de simulation -->
         <div class="sim-etape" data-etape="3">
           <h3>Type de simulation</h3>
-          <p class="sim-desc">Choisissez le niveau de détail souhaité.</p>
+          <p class="sim-desc">Choisissez le niveau de detail souhaite.</p>
           <div class="sim-type-grid">
             <div class="sim-type-option selected" data-type="express" onclick="selectSimType('express')">
               <div class="type-title">&#9889; Express</div>
-              <div class="type-desc">Résultat instantané basé sur vos revenus et votre apport. Idéal pour une première estimation.</div>
+              <div class="type-desc">Resultat instantane base sur vos revenus et votre apport. Ideal pour une premiere estimation.</div>
             </div>
             <div class="sim-type-option" data-type="approfondie" onclick="selectSimType('approfondie')">
               <div class="type-title">&#128202; Approfondie</div>
-              <div class="type-desc">Analyse complète avec dispositifs fiscaux, cash-flow détaillé et recommandations personnalisées.</div>
+              <div class="type-desc">Analyse complete avec dispositifs fiscaux, cash-flow detaille et recommandations personnalisees.</div>
             </div>
           </div>
           <div class="sim-nav">
@@ -308,10 +1193,10 @@
           </div>
         </div>
 
-        <!-- Étape 4 : Résultats -->
+        <!-- Etape 4 : Resultats -->
         <div class="sim-etape" data-etape="4">
-          <h3>Vos résultats</h3>
-          <p class="sim-desc">Voici votre capacité d'investissement estimée.</p>
+          <h3>Vos resultats</h3>
+          <p class="sim-desc">Voici votre capacite d'investissement estimee.</p>
           <input type="hidden" id="res-simulation-id" />
           <div class="results-grid">
             <div class="result-card highlight">
@@ -323,23 +1208,23 @@
               <div class="result-value" id="res-financement">&mdash;</div>
             </div>
             <div class="result-card">
-              <div class="result-label">Mensualité</div>
+              <div class="result-label">Mensualite</div>
               <div class="result-value" id="res-mensualite">&mdash;</div>
             </div>
             <div class="result-card highlight">
-              <div class="result-label">Loyer mensuel estimé</div>
+              <div class="result-label">Loyer mensuel estime</div>
               <div class="result-value" id="res-loyer">&mdash;</div>
             </div>
             <div class="result-card highlight">
-              <div class="result-label">Effort réel</div>
+              <div class="result-label">Effort reel</div>
               <div class="result-value" id="res-effort">&mdash;</div>
             </div>
             <div class="result-card">
-              <div class="result-label">Rendement estimé</div>
+              <div class="result-label">Rendement estime</div>
               <div class="result-value" id="res-rendement">&mdash;</div>
             </div>
             <div class="result-card">
-              <div class="result-label">Économie fiscale</div>
+              <div class="result-label">Economie fiscale</div>
               <div class="result-value" id="res-fiscal">&mdash;</div>
             </div>
             <div class="result-card">
@@ -350,7 +1235,7 @@
           <div class="sim-nav">
             <button class="btn-ghost" onclick="goToEtape(1)">Nouvelle simulation</button>
             <button class="btn-secondary" id="btn-sauvegarder" onclick="sauvegarderSimulation()">Sauvegarder</button>
-            <button class="btn-primary" onclick="ouvrirContact()">Être contacté par un conseiller</button>
+            <button class="btn-primary" onclick="ouvrirContact()">Etre contacte par un conseiller</button>
           </div>
         </div>
       </div>
@@ -363,8 +1248,8 @@
       <div class="alert alert-warning" style="max-width:800px;margin:0 auto;text-align:center;">
         <div>
           <strong>Transition fiscale Pinel &rarr; Jeanbrun</strong><br>
-          Le dispositif Pinel a pris fin le 31/12/2024. Le dispositif Jeanbrun (Statut Bailleur Privé)
-          le remplace depuis le 21/02/2026, avec un mécanisme d'amortissement fiscal de 3,5% à 5,5%
+          Le dispositif Pinel a pris fin le 31/12/2024. Le dispositif Jeanbrun (Statut Bailleur Prive)
+          le remplace depuis le 21/02/2026, avec un mecanisme d'amortissement fiscal de 3,5% a 5,5%
           selon le niveau de loyer. <a href="scpi.html" style="color:var(--warning-700);text-decoration:underline;">En savoir plus</a>
         </div>
       </div>
@@ -376,8 +1261,8 @@
     <div class="container">
       <div class="section-header">
         <div class="section-label">Catalogue</div>
-        <h2>Nos biens sélectionnés</h2>
-        <p>Des opportunités immobilières triées sur le volet pour chaque profil d'investisseur.</p>
+        <h2>Nos biens selectionnes</h2>
+        <p>Des opportunites immobilieres triees sur le volet pour chaque profil d'investisseur.</p>
       </div>
       <div class="catalogue-filters">
         <button class="filter-btn active" onclick="filtrerBiens('tous')">Tous</button>
@@ -398,11 +1283,11 @@
       <div class="why-box fade-up">
         <h3>Pourquoi demandons-nous ces informations ?</h3>
         <p>
-          Vos données sont utilisées uniquement pour calculer votre capacité d'investissement
-          et vous proposer des biens adaptés. Nous respectons le RGPD et ne partageons
+          Vos donnees sont utilisees uniquement pour calculer votre capacite d'investissement
+          et vous proposer des biens adaptes. Nous respectons le RGPD et ne partageons
           jamais vos informations avec des tiers sans votre consentement explicite.
-          Vous pouvez demander la suppression de vos données à tout moment en nous
-          contactant à <strong>contact@stratege-immo.fr</strong>.
+          Vous pouvez demander la suppression de vos donnees a tout moment en nous
+          contactant a <strong>contact@stratege-immo.fr</strong>.
         </p>
       </div>
     </div>
@@ -414,7 +1299,7 @@
   <div class="modale-overlay" id="modale-contact">
     <div class="modale-box">
       <button class="modale-close" onclick="fermerContact()">&times;</button>
-      <h3>Être contacté par un conseiller</h3>
+      <h3>Etre contacte par un conseiller</h3>
       <p class="modale-desc">Remplissez ce formulaire et un expert vous rappellera sous 24h.</p>
       <form id="contact-form" onsubmit="envoyerContact(event)">
         <input type="hidden" id="contact-bien-id" />
@@ -427,12 +1312,12 @@
           <input type="email" id="contact-email" placeholder="jean@exemple.fr" required />
         </div>
         <div class="form-group">
-          <label for="contact-tel">Téléphone</label>
+          <label for="contact-tel">Telephone</label>
           <input type="tel" id="contact-tel" placeholder="06 12 34 56 78" required />
         </div>
         <div class="form-group">
           <label for="contact-message">Message (optionnel)</label>
-          <textarea id="contact-message" placeholder="Décrivez votre projet ou posez vos questions..."></textarea>
+          <textarea id="contact-message" placeholder="Decrivez votre projet ou posez vos questions..."></textarea>
         </div>
         <button type="submit" class="btn-primary" id="btn-contact" style="width:100%;justify-content:center;">
           Envoyer ma demande
@@ -444,5 +1329,53 @@
   <script src="assets/shared.js?v=122"></script>
   <script>renderNavbar('simulation'); renderFooter();</script>
   <script src="assets/main.js?v=122"></script>
+
+  <!-- Count-up animation for stats bar -->
+  <script>
+  (function() {
+    var animated = false;
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting && !animated) {
+          animated = true;
+          var counters = document.querySelectorAll('.stat-number[data-target]');
+          counters.forEach(function(el) {
+            var target = parseFloat(el.getAttribute('data-target'));
+            var suffix = el.getAttribute('data-suffix') || '';
+            var isDecimal = el.getAttribute('data-decimal') === 'true';
+            var duration = 2000;
+            var startTime = null;
+
+            function animate(currentTime) {
+              if (!startTime) startTime = currentTime;
+              var progress = Math.min((currentTime - startTime) / duration, 1);
+              // ease out quad
+              var eased = 1 - (1 - progress) * (1 - progress);
+              var current = eased * target;
+              if (isDecimal) {
+                el.textContent = current.toFixed(1) + suffix;
+              } else {
+                el.textContent = Math.floor(current) + suffix;
+              }
+              if (progress < 1) {
+                requestAnimationFrame(animate);
+              } else {
+                if (isDecimal) {
+                  el.textContent = target.toFixed(1) + suffix;
+                } else {
+                  el.textContent = target + suffix;
+                }
+              }
+            }
+            requestAnimationFrame(animate);
+          });
+        }
+      });
+    }, { threshold: 0.3 });
+
+    var statsBar = document.getElementById('stats-bar-container');
+    if (statsBar) observer.observe(statsBar);
+  })();
+  </script>
 </body>
 </html>
