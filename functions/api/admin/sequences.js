@@ -81,7 +81,7 @@ function generateEmailHtml(template, subject, recipientEmail) {
       <p>Bienvenue chez <strong>Stratege</strong>, votre partenaire en gestion de patrimoine.</p>
       <p>Nous sommes ravis de vous compter parmi nos clients. Notre equipe d'experts est a votre disposition pour vous accompagner dans vos projets d'investissement immobilier et financier.</p>
       <p>Decouvrez nos outils et services :</p>
-      <a href="https://stratege-immo.fr/catalogue.html" style="display:inline-block;background:#4ECDC4;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;margin:16px 0">Decouvrir nos programmes</a>
+      <a href="https://stratege-immo.fr/catalogue.html" style="display:inline-block;background:#3ECFB4;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;margin:16px 0">Decouvrir nos programmes</a>
     `,
     welcome_1: `
       <p>Bonjour ${prenomCap},</p>
@@ -91,26 +91,26 @@ function generateEmailHtml(template, subject, recipientEmail) {
         <li><strong>Echangez</strong> avec un conseiller dedie lors d'un rendez-vous personnalise</li>
         <li><strong>Investissez</strong> sereinement avec notre accompagnement complet</li>
       </ol>
-      <a href="https://stratege-immo.fr/simulateur-pret.html" style="display:inline-block;background:#4ECDC4;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;margin:16px 0">Lancer une simulation</a>
+      <a href="https://stratege-immo.fr/simulateur-pret.html" style="display:inline-block;background:#3ECFB4;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;margin:16px 0">Lancer une simulation</a>
     `,
     welcome_3: `
       <p>Bonjour ${prenomCap},</p>
       <p>Avez-vous deja lance votre premiere simulation d'investissement ?</p>
       <p>En quelques clics, decouvrez votre capacite d'emprunt et les economies d'impots possibles grace a nos simulateurs gratuits.</p>
-      <a href="https://stratege-immo.fr/simulateur-pret.html" style="display:inline-block;background:#4ECDC4;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;margin:16px 0">Simuler maintenant</a>
+      <a href="https://stratege-immo.fr/simulateur-pret.html" style="display:inline-block;background:#3ECFB4;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;margin:16px 0">Simuler maintenant</a>
     `,
     welcome_7: `
       <p>Bonjour ${prenomCap},</p>
       <p>De nouvelles opportunites d'investissement vous attendent sur Stratege !</p>
       <p>Explorez notre catalogue de programmes immobiliers neufs et nos SCPI selectionnees pour leur rendement et leur solidite.</p>
-      <a href="https://stratege-immo.fr/catalogue.html" style="display:inline-block;background:#4ECDC4;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;margin:16px 0">Voir les opportunites</a>
-      <p style="margin-top:16px">Vous souhaitez en discuter ? <a href="https://stratege-immo.fr/rdv.html" style="color:#4ECDC4;font-weight:600">Prenez rendez-vous</a> avec un conseiller.</p>
+      <a href="https://stratege-immo.fr/catalogue.html" style="display:inline-block;background:#3ECFB4;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;margin:16px 0">Voir les opportunites</a>
+      <p style="margin-top:16px">Vous souhaitez en discuter ? <a href="https://stratege-immo.fr/rdv.html" style="color:#3ECFB4;font-weight:600">Prenez rendez-vous</a> avec un conseiller.</p>
     `,
     rdv_confirm: `
       <p>Bonjour ${prenomCap},</p>
       <p>Votre rendez-vous avec un conseiller Stratege est bien confirme.</p>
       <p>Vous recevrez un rappel la veille. En attendant, n'hesitez pas a preparer vos questions.</p>
-      <a href="https://stratege-immo.fr" style="display:inline-block;background:#4ECDC4;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;margin:16px 0">Preparer mon rendez-vous</a>
+      <a href="https://stratege-immo.fr" style="display:inline-block;background:#3ECFB4;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;margin:16px 0">Preparer mon rendez-vous</a>
     `,
     rdv_rappel: `
       <p>Bonjour ${prenomCap},</p>
@@ -122,13 +122,13 @@ function generateEmailHtml(template, subject, recipientEmail) {
       <p>Bonjour ${prenomCap},</p>
       <p>Merci pour votre rendez-vous avec notre equipe !</p>
       <p>Nous esperons que cet echange a repondu a vos attentes. Si vous avez des questions supplementaires, n'hesitez pas a nous contacter.</p>
-      <a href="https://stratege-immo.fr/rdv.html" style="display:inline-block;background:#4ECDC4;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;margin:16px 0">Reprendre rendez-vous</a>
+      <a href="https://stratege-immo.fr/rdv.html" style="display:inline-block;background:#3ECFB4;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;margin:16px 0">Reprendre rendez-vous</a>
     `,
     scpi_confirm: `
       <p>Bonjour ${prenomCap},</p>
       <p>Votre souscription SCPI est bien confirmee. Notre equipe traite votre dossier.</p>
       <p>Vous recevrez un suivi regulier de l'avancement de votre investissement.</p>
-      <a href="https://stratege-immo.fr/scpi.html" style="display:inline-block;background:#4ECDC4;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;margin:16px 0">En savoir plus sur les SCPI</a>
+      <a href="https://stratege-immo.fr/scpi.html" style="display:inline-block;background:#3ECFB4;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;margin:16px 0">En savoir plus sur les SCPI</a>
     `,
     scpi_suivi: `
       <p>Bonjour ${prenomCap},</p>
@@ -138,20 +138,20 @@ function generateEmailHtml(template, subject, recipientEmail) {
         <li>Confirmation de la souscription sous 2 a 4 semaines</li>
         <li>Premiers dividendes selon le calendrier de la SCPI</li>
       </ul>
-      <p>Des questions ? <a href="https://stratege-immo.fr/rdv.html" style="color:#4ECDC4;font-weight:600">Contactez votre conseiller</a>.</p>
+      <p>Des questions ? <a href="https://stratege-immo.fr/rdv.html" style="color:#3ECFB4;font-weight:600">Contactez votre conseiller</a>.</p>
     `,
     scpi_releve: `
       <p>Bonjour ${prenomCap},</p>
       <p>Un mois deja depuis votre souscription SCPI ! Votre investissement est desormais actif.</p>
       <p>Vous pouvez suivre l'evolution de vos parts et consulter les rapports trimestriels de la societe de gestion.</p>
-      <a href="https://stratege-immo.fr/scpi.html" style="display:inline-block;background:#4ECDC4;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;margin:16px 0">Consulter mes investissements</a>
+      <a href="https://stratege-immo.fr/scpi.html" style="display:inline-block;background:#3ECFB4;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;margin:16px 0">Consulter mes investissements</a>
     `,
     relance_simu: `
       <p>Bonjour ${prenomCap},</p>
       <p>Saviez-vous que vous pourriez economiser jusqu'a <strong>plusieurs milliers d'euros d'impots</strong> par an grace a l'investissement immobilier ?</p>
       <p>Lancez une simulation gratuite et sans engagement pour decouvrir votre potentiel d'economie.</p>
-      <a href="https://stratege-immo.fr/simulateur-pret.html" style="display:inline-block;background:#4ECDC4;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;margin:16px 0">Simuler mon economie</a>
-      <p style="margin-top:16px">Besoin d'aide ? <a href="https://stratege-immo.fr/rdv.html" style="color:#4ECDC4;font-weight:600">Prenez rendez-vous</a> avec un conseiller.</p>
+      <a href="https://stratege-immo.fr/simulateur-pret.html" style="display:inline-block;background:#3ECFB4;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;margin:16px 0">Simuler mon economie</a>
+      <p style="margin-top:16px">Besoin d'aide ? <a href="https://stratege-immo.fr/rdv.html" style="color:#3ECFB4;font-weight:600">Prenez rendez-vous</a> avec un conseiller.</p>
     `,
   };
 
@@ -165,8 +165,8 @@ function generateEmailHtml(template, subject, recipientEmail) {
     <tr><td align="center">
       <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;max-width:100%">
         <!-- Header -->
-        <tr><td style="background:linear-gradient(135deg,#1B2A4A,#2d4a7a);padding:32px 40px;text-align:center">
-          <h1 style="color:#4ECDC4;font-size:28px;margin:0;font-weight:700;letter-spacing:1px">STRATEGE</h1>
+        <tr><td style="background:linear-gradient(135deg,#1B2E3D,#2d4a7a);padding:32px 40px;text-align:center">
+          <h1 style="color:#3ECFB4;font-size:28px;margin:0;font-weight:700;letter-spacing:1px">STRATEGE</h1>
           <p style="color:rgba(255,255,255,.7);font-size:13px;margin:8px 0 0">Gestion de patrimoine</p>
         </td></tr>
         <!-- Body -->
@@ -177,7 +177,7 @@ function generateEmailHtml(template, subject, recipientEmail) {
         <tr><td style="padding:24px 40px;background:#f8f9fa;text-align:center;border-top:1px solid #e5e7eb">
           <p style="color:#9ca3af;font-size:12px;margin:0">JESPER SAS — Marque Stratege — Lyon</p>
           <p style="color:#9ca3af;font-size:11px;margin:8px 0 0">
-            <a href="https://stratege-immo.fr" style="color:#4ECDC4;text-decoration:none">stratege-immo.fr</a> |
+            <a href="https://stratege-immo.fr" style="color:#3ECFB4;text-decoration:none">stratege-immo.fr</a> |
             Pour vous desinscrire, repondez "STOP" a cet email.
           </p>
         </td></tr>

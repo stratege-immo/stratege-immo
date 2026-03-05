@@ -86,22 +86,22 @@ async function handleSign(request, env) {
 <html><head><meta charset="UTF-8"/></head>
 <body style="margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;background:#f4f5f7">
   <div style="max-width:600px;margin:0 auto;background:#fff">
-    <div style="background:#1B2A4A;padding:32px;text-align:center">
-      <h1 style="margin:0;color:#4ECDC4;font-size:24px;letter-spacing:1px">STRATEGE</h1>
+    <div style="background:#1B2E3D;padding:32px;text-align:center">
+      <h1 style="margin:0;color:#3ECFB4;font-size:24px;letter-spacing:1px">STRATEGE</h1>
       <p style="margin:8px 0 0;color:rgba(255,255,255,0.7);font-size:13px">Signature electronique</p>
     </div>
     <div style="padding:32px">
-      <h2 style="color:#1B2A4A;margin-top:0">Votre document a ete signe avec succes</h2>
+      <h2 style="color:#1B2E3D;margin-top:0">Votre document a ete signe avec succes</h2>
       <p style="color:#555;line-height:1.6">Bonjour ${signer_name},</p>
       <p style="color:#555;line-height:1.6">Votre signature electronique a bien ete enregistree. Voici les details :</p>
       <table style="width:100%;border-collapse:collapse;margin:24px 0">
-        <tr><td style="padding:10px 12px;background:#f8f9fa;border:1px solid #e9ecef;font-weight:bold;color:#1B2A4A;width:40%">Reference</td><td style="padding:10px 12px;border:1px solid #e9ecef;font-family:monospace;color:#333">${reference}</td></tr>
-        <tr><td style="padding:10px 12px;background:#f8f9fa;border:1px solid #e9ecef;font-weight:bold;color:#1B2A4A">Type de document</td><td style="padding:10px 12px;border:1px solid #e9ecef;color:#333">${docTypeLabel}</td></tr>
-        <tr><td style="padding:10px 12px;background:#f8f9fa;border:1px solid #e9ecef;font-weight:bold;color:#1B2A4A">Date</td><td style="padding:10px 12px;border:1px solid #e9ecef;color:#333">${dateStr}</td></tr>
-        <tr><td style="padding:10px 12px;background:#f8f9fa;border:1px solid #e9ecef;font-weight:bold;color:#1B2A4A">Hash SHA-256</td><td style="padding:10px 12px;border:1px solid #e9ecef;font-family:monospace;font-size:11px;color:#333;word-break:break-all">${hash}</td></tr>
+        <tr><td style="padding:10px 12px;background:#f8f9fa;border:1px solid #e9ecef;font-weight:bold;color:#1B2E3D;width:40%">Reference</td><td style="padding:10px 12px;border:1px solid #e9ecef;font-family:monospace;color:#333">${reference}</td></tr>
+        <tr><td style="padding:10px 12px;background:#f8f9fa;border:1px solid #e9ecef;font-weight:bold;color:#1B2E3D">Type de document</td><td style="padding:10px 12px;border:1px solid #e9ecef;color:#333">${docTypeLabel}</td></tr>
+        <tr><td style="padding:10px 12px;background:#f8f9fa;border:1px solid #e9ecef;font-weight:bold;color:#1B2E3D">Date</td><td style="padding:10px 12px;border:1px solid #e9ecef;color:#333">${dateStr}</td></tr>
+        <tr><td style="padding:10px 12px;background:#f8f9fa;border:1px solid #e9ecef;font-weight:bold;color:#1B2E3D">Hash SHA-256</td><td style="padding:10px 12px;border:1px solid #e9ecef;font-family:monospace;font-size:11px;color:#333;word-break:break-all">${hash}</td></tr>
       </table>
       <div style="text-align:center;margin:32px 0">
-        <a href="${verifyUrl}" style="display:inline-block;background:#4ECDC4;color:#1B2A4A;padding:14px 32px;text-decoration:none;border-radius:8px;font-weight:bold;font-size:15px">Verifier l'authenticite</a>
+        <a href="${verifyUrl}" style="display:inline-block;background:#3ECFB4;color:#1B2E3D;padding:14px 32px;text-decoration:none;border-radius:8px;font-weight:bold;font-size:15px">Verifier l'authenticite</a>
       </div>
       <p style="color:#999;font-size:12px;line-height:1.6">Ce document est horodate et son integrite peut etre verifiee a tout moment via le lien ci-dessus ou en saisissant la reference sur notre plateforme.</p>
     </div>
@@ -254,16 +254,16 @@ async function handleCertificate(request, env) {
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Inter', sans-serif; background: #f4f5f7; padding: 40px 20px; }
     .cert { max-width: 700px; margin: 0 auto; background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
-    .cert-header { background: #1B2A4A; color: white; padding: 40px; text-align: center; }
+    .cert-header { background: #1B2E3D; color: white; padding: 40px; text-align: center; }
     .cert-header h1 { font-family: 'Playfair Display', serif; font-size: 28px; margin-bottom: 8px; }
-    .cert-header .subtitle { color: #4ECDC4; font-size: 14px; letter-spacing: 2px; text-transform: uppercase; }
+    .cert-header .subtitle { color: #3ECFB4; font-size: 14px; letter-spacing: 2px; text-transform: uppercase; }
     .cert-body { padding: 40px; }
-    .cert-body h2 { font-family: 'Playfair Display', serif; color: #1B2A4A; font-size: 22px; margin-bottom: 24px; text-align: center; }
+    .cert-body h2 { font-family: 'Playfair Display', serif; color: #1B2E3D; font-size: 22px; margin-bottom: 24px; text-align: center; }
     .valid-badge { display: inline-flex; align-items: center; gap: 8px; background: #d4edda; color: #155724; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 15px; margin: 0 auto 32px; }
     .valid-badge svg { width: 20px; height: 20px; }
     .field { display: flex; border-bottom: 1px solid #e9ecef; padding: 14px 0; }
     .field:last-child { border-bottom: none; }
-    .field-label { width: 200px; font-weight: 600; color: #1B2A4A; font-size: 14px; flex-shrink: 0; }
+    .field-label { width: 200px; font-weight: 600; color: #1B2E3D; font-size: 14px; flex-shrink: 0; }
     .field-value { color: #333; font-size: 14px; word-break: break-all; }
     .field-value.mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; }
     .cert-footer { background: #f8f9fa; padding: 24px 40px; border-top: 1px solid #e9ecef; text-align: center; }
@@ -311,7 +311,7 @@ async function handleCertificate(request, env) {
     </div>
     <div class="cert-footer">
       <p>Certificat genere le ${new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}<br/>
-      Verifiable sur <a href="https://stratege-immo.fr/verifier-signature.html?ref=${sig.reference}" style="color:#4ECDC4">stratege-immo.fr/verifier-signature</a></p>
+      Verifiable sur <a href="https://stratege-immo.fr/verifier-signature.html?ref=${sig.reference}" style="color:#3ECFB4">stratege-immo.fr/verifier-signature</a></p>
     </div>
   </div>
 </body>

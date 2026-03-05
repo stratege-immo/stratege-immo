@@ -7,11 +7,11 @@
   <meta name="description" content="Votre espace CGP Stratège : simulations, investissements, documents et analyse bancaire." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/style.css?v=124" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css?v=125" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#4ECDC4">
+  <meta name="theme-color" content="#3ECFB4">
   <style>
     /* ── Dashboard enrichment styles ───────────────────── */
 
@@ -56,7 +56,7 @@
     .rdv-card-icon {
       width: 56px;
       height: 56px;
-      background: rgba(78,205,196,0.15);
+      background: rgba(62,207,180,0.15);
       border-radius: var(--radius-md);
       display: flex;
       align-items: center;
@@ -710,10 +710,10 @@
             <div class="conseiller-card">
               <div class="conseiller-avatar">
                 <svg viewBox="0 0 40 40" fill="none">
-                  <circle cx="20" cy="14" r="8" fill="rgba(78,205,196,0.3)"/>
-                  <path d="M6 36c0-7 6-12 14-12s14 5 14 12" fill="rgba(78,205,196,0.2)"/>
-                  <circle cx="20" cy="14" r="7" stroke="#4ECDC4" stroke-width="1.5" fill="none"/>
-                  <path d="M7 35c0-6.5 5.5-11.5 13-11.5S33 28.5 33 35" stroke="#4ECDC4" stroke-width="1.5" fill="none"/>
+                  <circle cx="20" cy="14" r="8" fill="rgba(62,207,180,0.3)"/>
+                  <path d="M6 36c0-7 6-12 14-12s14 5 14 12" fill="rgba(62,207,180,0.2)"/>
+                  <circle cx="20" cy="14" r="7" stroke="#3ECFB4" stroke-width="1.5" fill="none"/>
+                  <path d="M7 35c0-6.5 5.5-11.5 13-11.5S33 28.5 33 35" stroke="#3ECFB4" stroke-width="1.5" fill="none"/>
                 </svg>
               </div>
               <div class="conseiller-name">Équipe Stratège</div>
@@ -781,8 +781,8 @@
           <div class="dash-card" style="text-align:center;padding:32px">
             <svg viewBox="0 0 200 120" width="200" style="margin:0 auto;display:block">
               <path d="M20 100 A80 80 0 0 1 180 100" fill="none" stroke="#E9ECEF" stroke-width="12" stroke-linecap="round"/>
-              <path id="score-arc" d="M20 100 A80 80 0 0 1 180 100" fill="none" stroke="#4ECDC4" stroke-width="12" stroke-linecap="round" stroke-dasharray="0 251"/>
-              <text x="100" y="85" text-anchor="middle" font-size="36" font-weight="700" font-family="JetBrains Mono" fill="#1B2A4A" id="score-value">0</text>
+              <path id="score-arc" d="M20 100 A80 80 0 0 1 180 100" fill="none" stroke="#3ECFB4" stroke-width="12" stroke-linecap="round" stroke-dasharray="0 251"/>
+              <text x="100" y="85" text-anchor="middle" font-size="36" font-weight="700" font-family="JetBrains Mono" fill="#1B2E3D" id="score-value">0</text>
               <text x="100" y="105" text-anchor="middle" font-size="12" fill="#868E96">/100</text>
             </svg>
             <div id="score-profil-label" style="margin-top:12px;font-size:18px;font-weight:700;color:var(--primary-600);font-family:var(--font-display)">--</div>
@@ -792,7 +792,7 @@
           <!-- Recommendation card -->
           <div class="dash-card" id="score-reco-card" style="padding:28px">
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
-              <div style="width:40px;height:40px;background:rgba(78,205,196,0.12);border-radius:10px;display:flex;align-items:center;justify-content:center">
+              <div style="width:40px;height:40px;background:rgba(62,207,180,0.12);border-radius:10px;display:flex;align-items:center;justify-content:center">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary-600)" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
               </div>
               <h3 style="font-size:16px;font-weight:700;color:var(--neutral-800)">Recommandation</h3>
@@ -885,7 +885,7 @@
     </main>
   </div>
 
-  <script src="assets/shared.js?v=124"></script>
+  <script src="assets/shared.js?v=125"></script>
   <script>
     renderNavbar();
 
@@ -1533,9 +1533,9 @@
       var scoreText = document.getElementById('score-value');
 
       // Color based on score
-      var color = '#4ECDC4';
+      var color = '#3ECFB4';
       if (score.total >= 80) color = '#22c55e';
-      else if (score.total >= 60) color = '#4ECDC4';
+      else if (score.total >= 60) color = '#3ECFB4';
       else if (score.total >= 40) color = '#f59e0b';
       else color = '#ef4444';
 

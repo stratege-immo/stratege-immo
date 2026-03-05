@@ -117,7 +117,7 @@ export async function onRequestPost({ request, env, params }) {
       // Email to advisor
       const advisorHtml = `
         <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
-          <h2 style="color:#4ECDC4;">Nouvelle souscription SCPI</h2>
+          <h2 style="color:#3ECFB4;">Nouvelle souscription SCPI</h2>
           <table style="width:100%;border-collapse:collapse;">
             <tr><td style="padding:8px;border-bottom:1px solid #eee;color:#666;">Reference</td><td style="padding:8px;border-bottom:1px solid #eee;font-weight:600;">${reference}</td></tr>
             <tr><td style="padding:8px;border-bottom:1px solid #eee;color:#666;">Client</td><td style="padding:8px;border-bottom:1px solid #eee;font-weight:600;">${prenom} ${nom}</td></tr>
@@ -141,7 +141,7 @@ export async function onRequestPost({ request, env, params }) {
       const clientHtml = `
         <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
           <div style="text-align:center;padding:30px 0;">
-            <h1 style="color:#4ECDC4;margin-bottom:8px;">Stratege</h1>
+            <h1 style="color:#3ECFB4;margin-bottom:8px;">Stratege</h1>
             <p style="color:#666;">Votre souscription SCPI est enregistree</p>
           </div>
           <div style="background:#f8f9fa;border-radius:12px;padding:24px;margin:20px 0;">

@@ -8,11 +8,11 @@
   <link rel="canonical" href="https://stratege-immo.fr/simulation" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/style.css?v=124" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css?v=125" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#4ECDC4">
+  <meta name="theme-color" content="#3ECFB4">
   <style>
     .sim-container { max-width:960px;margin:0 auto;padding:40px 20px }
 
@@ -20,7 +20,7 @@
     .sim-tabs { display:flex;gap:8px;margin:32px 0 24px;flex-wrap:wrap;justify-content:center }
     .sim-tab { padding:12px 24px;border:2px solid var(--neutral-200);border-radius:999px;cursor:pointer;font-size:14px;font-weight:600;background:transparent;color:var(--neutral-600);transition:all .2s;font-family:'Inter',sans-serif }
     .sim-tab:hover { border-color:var(--primary-300);color:var(--primary-600) }
-    .sim-tab.active { border-color:#4ECDC4;background:#4ECDC4;color:#1B2A4A }
+    .sim-tab.active { border-color:#3ECFB4;background:#3ECFB4;color:#1B2E3D }
 
     /* Tab panels */
     .tab-panel { display:none }
@@ -29,10 +29,10 @@
     /* Grid layout */
     .sim-grid { display:grid;grid-template-columns:1fr 1fr;gap:32px }
     .sim-form { background:var(--surface-1);padding:32px;border-radius:16px;border:1px solid var(--neutral-200) }
-    .sim-results { background:linear-gradient(135deg,#1B2A4A,#2D3A52);color:#fff;padding:32px;border-radius:16px;position:sticky;top:100px }
-    .sim-results h3 { color:#4ECDC4;font-size:14px;text-transform:uppercase;letter-spacing:1px;margin-bottom:20px }
+    .sim-results { background:linear-gradient(135deg,#1B2E3D,#2D3A52);color:#fff;padding:32px;border-radius:16px;position:sticky;top:100px }
+    .sim-results h3 { color:#3ECFB4;font-size:14px;text-transform:uppercase;letter-spacing:1px;margin-bottom:20px }
 
-    .sim-big { font-size:42px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#4ECDC4;margin-bottom:4px }
+    .sim-big { font-size:42px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#3ECFB4;margin-bottom:4px }
     .sim-label { font-size:14px;color:rgba(255,255,255,.7);margin-bottom:20px }
     .sim-detail { display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.1);font-size:14px }
     .sim-detail:last-child { border-bottom:none }
@@ -42,7 +42,7 @@
     .range-group { margin-bottom:20px }
     .range-group label { display:block;font-size:14px;font-weight:500;margin-bottom:8px;color:var(--neutral-700) }
     .range-group .range-values { display:flex;justify-content:space-between;font-size:13px;color:var(--neutral-500);margin-top:4px }
-    .range-group input[type=range] { width:100%;accent-color:#4ECDC4;height:6px }
+    .range-group input[type=range] { width:100%;accent-color:#3ECFB4;height:6px }
     .range-value-display { font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:600;color:var(--primary-600);text-align:right }
 
     .select-group { margin-bottom:20px }
@@ -54,8 +54,8 @@
     .radio-options { display:flex;gap:12px }
     .radio-options label { display:flex;align-items:center;gap:6px;cursor:pointer;padding:8px 16px;border:2px solid var(--neutral-200);border-radius:8px;font-size:14px;transition:all .2s }
     .radio-options label:hover { border-color:var(--primary-300) }
-    .radio-options input[type=radio] { accent-color:#4ECDC4 }
-    .radio-options label:has(input:checked) { border-color:#4ECDC4;background:rgba(78,205,196,.08) }
+    .radio-options input[type=radio] { accent-color:#3ECFB4 }
+    .radio-options label:has(input:checked) { border-color:#3ECFB4;background:rgba(62,207,180,.08) }
 
     /* Chart */
     .chart-container { margin-top:24px;padding:20px;background:rgba(0,0,0,.15);border-radius:12px }
@@ -64,14 +64,14 @@
     /* Action buttons */
     .sim-actions { display:flex;flex-direction:column;gap:10px;margin-top:24px }
     .btn-sim { padding:12px 24px;border-radius:999px;font-weight:600;cursor:pointer;font-size:14px;text-align:center;text-decoration:none;transition:all .2s;border:none;font-family:'Inter',sans-serif }
-    .btn-sim-primary { background:#4ECDC4;color:#1B2A4A }
+    .btn-sim-primary { background:#3ECFB4;color:#1B2E3D }
     .btn-sim-primary:hover { opacity:.9 }
     .btn-sim-outline { background:transparent;color:#fff;border:1px solid rgba(255,255,255,.3) }
-    .btn-sim-outline:hover { border-color:#4ECDC4;color:#4ECDC4 }
+    .btn-sim-outline:hover { border-color:#3ECFB4;color:#3ECFB4 }
 
     /* Bilan profil card */
-    .profil-card { margin-top:20px;padding:20px;background:rgba(78,205,196,.1);border-radius:12px;border:1px solid rgba(78,205,196,.2) }
-    .profil-card h4 { color:#4ECDC4;font-size:16px;margin-bottom:8px }
+    .profil-card { margin-top:20px;padding:20px;background:rgba(62,207,180,.1);border-radius:12px;border:1px solid rgba(62,207,180,.2) }
+    .profil-card h4 { color:#3ECFB4;font-size:16px;margin-bottom:8px }
     .profil-card p { font-size:14px;color:rgba(255,255,255,.85);line-height:1.6 }
 
     .section-title { font-size:16px;font-weight:600;margin-bottom:16px;color:var(--neutral-800) }
@@ -459,7 +459,7 @@
 
   <footer class="footer"></footer>
 
-  <script src="assets/shared.js?v=124"></script>
+  <script src="assets/shared.js?v=125"></script>
   <script>
     renderNavbar('simulation');
     renderFooter();
@@ -553,8 +553,8 @@
         '<rect x="60" y="' + y1 + '" width="100" height="' + h1 + '" fill="#ef4444" rx="4"/>' +
         '<text x="110" y="' + (y1 - 8) + '" text-anchor="middle" fill="#ef4444" font-size="13" font-family="JetBrains Mono,monospace" font-weight="600">' + fmt(impotSans) + '</text>' +
         '<text x="110" y="180" text-anchor="middle" fill="rgba(255,255,255,.5)" font-size="11">Sans investissement</text>' +
-        '<rect x="240" y="' + y2 + '" width="100" height="' + h2 + '" fill="#4ECDC4" rx="4"/>' +
-        '<text x="290" y="' + (y2 - 8) + '" text-anchor="middle" fill="#4ECDC4" font-size="13" font-family="JetBrains Mono,monospace" font-weight="600">' + fmt(impotAvec) + '</text>' +
+        '<rect x="240" y="' + y2 + '" width="100" height="' + h2 + '" fill="#3ECFB4" rx="4"/>' +
+        '<text x="290" y="' + (y2 - 8) + '" text-anchor="middle" fill="#3ECFB4" font-size="13" font-family="JetBrains Mono,monospace" font-weight="600">' + fmt(impotAvec) + '</text>' +
         '<text x="290" y="180" text-anchor="middle" fill="rgba(255,255,255,.5)" font-size="11">Avec Jeanbrun</text>';
 
       // Fetch eligible programmes
@@ -570,10 +570,10 @@
         el.style.display = 'block';
         cards.innerHTML = '';
         biens.forEach(function(b) {
-          cards.innerHTML += '<a href="bien-detail.html?id=' + b.id + '" style="display:flex;justify-content:space-between;padding:10px 14px;background:rgba(255,255,255,.06);border-radius:8px;text-decoration:none;color:#fff;transition:background .2s;border:1px solid rgba(255,255,255,.08)" onmouseover="this.style.background=\'rgba(78,205,196,.15)\'" onmouseout="this.style.background=\'rgba(255,255,255,.06)\'">' +
+          cards.innerHTML += '<a href="bien-detail.html?id=' + b.id + '" style="display:flex;justify-content:space-between;padding:10px 14px;background:rgba(255,255,255,.06);border-radius:8px;text-decoration:none;color:#fff;transition:background .2s;border:1px solid rgba(255,255,255,.08)" onmouseover="this.style.background=\'rgba(62,207,180,.15)\'" onmouseout="this.style.background=\'rgba(255,255,255,.06)\'">' +
             '<div><div style="font-weight:600;font-size:14px">' + b.titre + '</div>' +
             '<div style="font-size:12px;color:rgba(255,255,255,.5)">' + b.ville + ' — ' + b.surface + ' m2</div></div>' +
-            '<div style="text-align:right"><div style="font-family:JetBrains Mono;font-weight:600;color:#4ECDC4">' + Number(b.prix).toLocaleString('fr-FR') + ' EUR</div>' +
+            '<div style="text-align:right"><div style="font-family:JetBrains Mono;font-weight:600;color:#3ECFB4">' + Number(b.prix).toLocaleString('fr-FR') + ' EUR</div>' +
             '<div style="font-size:12px;color:#95E8DF">' + b.rendement + '% rendement</div></div></a>';
         });
       }).catch(function() { el.style.display = 'none'; });

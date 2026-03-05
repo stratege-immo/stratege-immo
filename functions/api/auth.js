@@ -362,12 +362,12 @@ async function handleSendSMS(request, env, secret) {
 
   // Send OTP via email (Mailchannels)
   const otpHtml = emailWrapper(`
-<h2 style="color:#1B2A4A;font-family:Georgia,serif;margin:0 0 16px;text-align:center">Verification de votre telephone</h2>
+<h2 style="color:#1B2E3D;font-family:Georgia,serif;margin:0 0 16px;text-align:center">Verification de votre telephone</h2>
 <p style="color:#3F4E66;font-size:16px;line-height:1.6;margin:0 0 24px;text-align:center">
 Voici votre code de verification :
 </p>
 <div style="text-align:center;margin:32px 0">
-<span style="font-size:36px;font-weight:700;color:#1B2A4A;letter-spacing:8px;background:#F0F7F6;padding:16px 32px;border-radius:12px;display:inline-block;font-family:monospace">${code}</span>
+<span style="font-size:36px;font-weight:700;color:#1B2E3D;letter-spacing:8px;background:#F0F7F6;padding:16px 32px;border-radius:12px;display:inline-block;font-family:monospace">${code}</span>
 </div>
 <p style="color:#6B7F99;font-size:14px;text-align:center;margin:0 0 8px">
 Ce code expire dans 10 minutes.
@@ -452,7 +452,7 @@ async function handleVerifyEmail(request, env, secret) {
     return new Response(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Lien expiré</title></head>
     <body style="font-family:Inter,sans-serif;text-align:center;padding:80px">
     <h2>Lien expiré ou invalide</h2><p>Reconnectez-vous pour renvoyer un email de vérification.</p>
-    <a href="/login.html" style="color:#4ECDC4">Se connecter</a></body></html>`, {
+    <a href="/login.html" style="color:#3ECFB4">Se connecter</a></body></html>`, {
       status: 400, headers: { 'Content-Type': 'text/html;charset=utf-8' }
     });
   }
@@ -472,9 +472,9 @@ async function handleVerifyEmail(request, env, secret) {
   return new Response(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Email vérifié</title>
   <meta http-equiv="refresh" content="3;url=/dashboard.html"></head>
   <body style="font-family:Inter,sans-serif;text-align:center;padding:80px">
-  <h2 style="color:#1B2A4A">Email vérifié avec succès !</h2>
+  <h2 style="color:#1B2E3D">Email vérifié avec succès !</h2>
   <p>Redirection vers votre espace...</p>
-  <a href="/dashboard.html" style="color:#4ECDC4">Accéder au dashboard</a></body></html>`, {
+  <a href="/dashboard.html" style="color:#3ECFB4">Accéder au dashboard</a></body></html>`, {
     status: 200, headers: { 'Content-Type': 'text/html;charset=utf-8' }
   });
 }
@@ -537,15 +537,15 @@ function emailWrapper(content) {
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#F8F9FA;padding:40px 0">
 <tr><td align="center">
 <table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.06)">
-<tr><td style="background:#1B2A4A;padding:32px 40px;text-align:center">
-<span style="font-size:28px;font-weight:700;color:#4ECDC4;font-family:Georgia,serif">Stratège</span>
+<tr><td style="background:#1B2E3D;padding:32px 40px;text-align:center">
+<span style="font-size:28px;font-weight:700;color:#3ECFB4;font-family:Georgia,serif">Stratège</span>
 </td></tr>
 <tr><td style="padding:40px">${content}</td></tr>
 <tr><td style="background:#f5f9fb;padding:24px 40px;text-align:center;font-size:12px;color:#6B7F99;line-height:1.6">
 JESPER SAS — 51 bis rue de Miromesnil, 75008 Paris<br>
 CPI 7501 2025 000 000 012 — Transaction<br>
-<a href="https://stratege-immo.fr/mentions-legales.html" style="color:#4ECDC4">Mentions légales</a> |
-<a href="https://stratege-immo.fr/politique-confidentialite.html" style="color:#4ECDC4">Confidentialité</a>
+<a href="https://stratege-immo.fr/mentions-legales.html" style="color:#3ECFB4">Mentions légales</a> |
+<a href="https://stratege-immo.fr/politique-confidentialite.html" style="color:#3ECFB4">Confidentialité</a>
 </td></tr>
 </table>
 </td></tr></table></body></html>`;
@@ -553,12 +553,12 @@ CPI 7501 2025 000 000 012 — Transaction<br>
 
 function welcomeEmailHTML(prenom, verifyLink) {
   return emailWrapper(`
-<h2 style="color:#1B2A4A;font-family:Georgia,serif;margin:0 0 16px">Bienvenue ${prenom} !</h2>
+<h2 style="color:#1B2E3D;font-family:Georgia,serif;margin:0 0 16px">Bienvenue ${prenom} !</h2>
 <p style="color:#3F4E66;font-size:16px;line-height:1.6;margin:0 0 24px">
 Votre compte Stratège est maintenant actif. Vérifiez votre email pour accéder à toutes les fonctionnalités.
 </p>
 <div style="text-align:center;margin:32px 0">
-<a href="${verifyLink}" style="background:#4ECDC4;color:#1B2A4A;padding:14px 32px;border-radius:999px;text-decoration:none;font-weight:600;font-size:15px;display:inline-block">
+<a href="${verifyLink}" style="background:#3ECFB4;color:#1B2E3D;padding:14px 32px;border-radius:999px;text-decoration:none;font-weight:600;font-size:15px;display:inline-block">
 Vérifier mon email
 </a>
 </div>
@@ -569,13 +569,13 @@ Si vous n'êtes pas à l'origine de cette inscription, ignorez cet email.
 
 function resetEmailHTML(prenom, resetLink) {
   return emailWrapper(`
-<h2 style="color:#1B2A4A;font-family:Georgia,serif;margin:0 0 16px">Réinitialisation du mot de passe</h2>
+<h2 style="color:#1B2E3D;font-family:Georgia,serif;margin:0 0 16px">Réinitialisation du mot de passe</h2>
 <p style="color:#3F4E66;font-size:16px;line-height:1.6;margin:0 0 24px">
 Bonjour ${prenom}, vous avez demandé la réinitialisation de votre mot de passe.
 Cliquez sur le bouton ci-dessous (lien valable 1 heure).
 </p>
 <div style="text-align:center;margin:32px 0">
-<a href="${resetLink}" style="background:#4ECDC4;color:#1B2A4A;padding:14px 32px;border-radius:999px;text-decoration:none;font-weight:600;font-size:15px;display:inline-block">
+<a href="${resetLink}" style="background:#3ECFB4;color:#1B2E3D;padding:14px 32px;border-radius:999px;text-decoration:none;font-weight:600;font-size:15px;display:inline-block">
 Réinitialiser mon mot de passe
 </a>
 </div>

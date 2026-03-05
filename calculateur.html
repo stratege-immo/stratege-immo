@@ -8,18 +8,18 @@
   <link rel="canonical" href="https://stratege-immo.fr/calculateur" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/style.css?v=124" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css?v=125" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#4ECDC4">
+  <meta name="theme-color" content="#3ECFB4">
   <style>
     .calc-container { max-width:900px;margin:0 auto;padding:40px 20px }
     .calc-grid { display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:32px }
     .calc-form { background:var(--surface-1);padding:32px;border-radius:16px;border:1px solid var(--neutral-200) }
-    .calc-results { background:linear-gradient(135deg,#1B2A4A,#2D3A52);color:#fff;padding:32px;border-radius:16px;position:sticky;top:100px }
-    .calc-results h3 { color:#4ECDC4;font-size:14px;text-transform:uppercase;letter-spacing:1px;margin-bottom:20px }
-    .calc-big { font-size:42px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#4ECDC4;margin-bottom:4px }
+    .calc-results { background:linear-gradient(135deg,#1B2E3D,#2D3A52);color:#fff;padding:32px;border-radius:16px;position:sticky;top:100px }
+    .calc-results h3 { color:#3ECFB4;font-size:14px;text-transform:uppercase;letter-spacing:1px;margin-bottom:20px }
+    .calc-big { font-size:42px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#3ECFB4;margin-bottom:4px }
     .calc-label { font-size:14px;color:rgba(255,255,255,.7);margin-bottom:20px }
     .calc-detail { display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.1);font-size:14px }
     .calc-detail:last-child { border-bottom:none }
@@ -27,17 +27,17 @@
     .device-cards { display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px }
     .device-card { padding:16px;border:2px solid var(--neutral-200);border-radius:12px;cursor:pointer;transition:all .2s;text-align:center }
     .device-card:hover { border-color:var(--primary-300) }
-    .device-card.active { border-color:#4ECDC4;background:var(--primary-50) }
+    .device-card.active { border-color:#3ECFB4;background:var(--primary-50) }
     .device-card h4 { font-size:15px;margin-bottom:4px }
     .device-card p { font-size:12px;color:var(--neutral-500);margin:0 }
     .range-group { margin-bottom:20px }
     .range-group label { display:block;font-size:14px;font-weight:500;margin-bottom:8px;color:var(--neutral-700) }
     .range-group .range-values { display:flex;justify-content:space-between;font-size:13px;color:var(--neutral-500);margin-top:4px }
-    .range-group input[type=range] { width:100%;accent-color:#4ECDC4;height:6px }
+    .range-group input[type=range] { width:100%;accent-color:#3ECFB4;height:6px }
     .range-value-display { font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:600;color:var(--primary-600);text-align:right }
-    .share-btn { background:#4ECDC4;color:#1B2A4A;border:none;padding:12px 24px;border-radius:999px;font-weight:600;cursor:pointer;width:100%;margin-top:16px;font-size:15px;transition:opacity .2s }
+    .share-btn { background:#3ECFB4;color:#1B2E3D;border:none;padding:12px 24px;border-radius:999px;font-weight:600;cursor:pointer;width:100%;margin-top:16px;font-size:15px;transition:opacity .2s }
     .share-btn:hover { opacity:.9 }
-    .cta-box { margin-top:24px;padding:20px;background:rgba(78,205,196,.1);border-radius:12px;text-align:center }
+    .cta-box { margin-top:24px;padding:20px;background:rgba(62,207,180,.1);border-radius:12px;text-align:center }
     .cta-box p { font-size:14px;margin-bottom:12px;color:rgba(255,255,255,.8) }
     @media(max-width:768px) {
       .calc-grid { grid-template-columns:1fr }
@@ -135,7 +135,7 @@
 
           <div class="cta-box">
             <p>Ces chiffres sont indicatifs. Un conseiller Stratege peut affiner votre simulation.</p>
-            <a href="rdv.html" class="btn-primary btn-small" style="background:#4ECDC4;color:#1B2A4A;border:none">Prendre RDV gratuit</a>
+            <a href="rdv.html" class="btn-primary btn-small" style="background:#3ECFB4;color:#1B2E3D;border:none">Prendre RDV gratuit</a>
           </div>
         </div>
       </div>
@@ -149,7 +149,7 @@
 
   <footer class="footer"></footer>
 
-  <script src="assets/shared.js?v=124"></script>
+  <script src="assets/shared.js?v=125"></script>
   <script>
     renderNavbar();
     renderFooter();

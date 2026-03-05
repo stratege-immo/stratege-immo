@@ -22,13 +22,13 @@
     var content = '';
     var dots = '';
     for (var i = 1; i <= 4; i++) {
-      dots += '<div style="width:' + (i === step ? '24px' : '8px') + ';height:8px;border-radius:4px;background:' + (i === step ? '#4ECDC4' : (i < step ? '#95E8DF' : 'rgba(255,255,255,0.2)')) + ';transition:all .3s"></div>';
+      dots += '<div style="width:' + (i === step ? '24px' : '8px') + ';height:8px;border-radius:4px;background:' + (i === step ? '#3ECFB4' : (i < step ? '#95E8DF' : 'rgba(255,255,255,0.2)')) + ';transition:all .3s"></div>';
     }
 
     if (step === 1) {
       content =
         '<div style="font-size:48px;margin-bottom:16px">' +
-          '<svg viewBox="0 0 36 36" fill="none" width="64" height="64"><path d="M13 2C13 2 15.5 10.5 7 13C7 13 15.5 15.5 13 24C13 24 15.5 15.5 24 13C24 13 15.5 10.5 13 2Z" fill="#4ECDC4"/><path d="M20 10C20 10 22 16.5 15.5 18.5C15.5 18.5 22 20.5 20 27C20 27 22 20.5 28.5 18.5C28.5 18.5 22 16.5 20 10Z" fill="#95E8DF"/></svg>' +
+          '<svg viewBox="0 0 36 36" fill="none" width="64" height="64"><path d="M13 2C13 2 15.5 10.5 7 13C7 13 15.5 15.5 13 24C13 24 15.5 15.5 24 13C24 13 15.5 10.5 13 2Z" fill="#3ECFB4"/><path d="M20 10C20 10 22 16.5 15.5 18.5C15.5 18.5 22 20.5 20 27C20 27 22 20.5 28.5 18.5C28.5 18.5 22 16.5 20 10Z" fill="#95E8DF"/></svg>' +
         '</div>' +
         '<h2 style="font-family:Playfair Display,serif;font-size:24px;margin-bottom:8px;color:#fff">Bienvenue ' + prenom + ' !</h2>' +
         '<p style="color:rgba(255,255,255,0.7);margin-bottom:24px">Quel est votre objectif principal ?</p>' +
@@ -61,15 +61,15 @@
     } else if (step === 4) {
       var reco = getRecommendation();
       content =
-        '<div style="width:64px;height:64px;border-radius:50%;background:rgba(78,205,196,0.2);display:flex;align-items:center;justify-content:center;margin:0 auto 16px">' +
-          '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#4ECDC4" stroke-width="2"><polyline points="22 4 12 14.01 9 11.01"/><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/></svg>' +
+        '<div style="width:64px;height:64px;border-radius:50%;background:rgba(62,207,180,0.2);display:flex;align-items:center;justify-content:center;margin:0 auto 16px">' +
+          '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#3ECFB4" stroke-width="2"><polyline points="22 4 12 14.01 9 11.01"/><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/></svg>' +
         '</div>' +
         '<h2 style="font-family:Playfair Display,serif;font-size:24px;margin-bottom:8px;color:#fff">Parfait !</h2>' +
         '<p style="color:rgba(255,255,255,0.7);margin-bottom:20px">Voici ce que nous vous recommandons :</p>' +
         '<div style="display:grid;gap:12px;margin-bottom:24px">' +
           reco.map(function(r) {
-            return '<div style="background:rgba(78,205,196,0.1);border:1px solid rgba(78,205,196,0.3);border-radius:12px;padding:16px;text-align:left">' +
-              '<div style="font-weight:600;color:#4ECDC4;margin-bottom:4px">' + r.name + '</div>' +
+            return '<div style="background:rgba(62,207,180,0.1);border:1px solid rgba(62,207,180,0.3);border-radius:12px;padding:16px;text-align:left">' +
+              '<div style="font-weight:600;color:#3ECFB4;margin-bottom:4px">' + r.name + '</div>' +
               '<div style="font-size:13px;color:rgba(255,255,255,0.7)">' + r.desc + '</div>' +
             '</div>';
           }).join('') +
@@ -78,7 +78,7 @@
     }
 
     overlay.innerHTML =
-      '<div style="background:linear-gradient(135deg,#1B2A4A,#2D3A52);border-radius:20px;padding:40px;max-width:520px;width:90%;text-align:center;position:relative;max-height:90vh;overflow-y:auto">' +
+      '<div style="background:linear-gradient(135deg,#1B2E3D,#2D3A52);border-radius:20px;padding:40px;max-width:520px;width:90%;text-align:center;position:relative;max-height:90vh;overflow-y:auto">' +
         (step > 1 && step < 4 ? '<button onclick="onboardingBack()" style="position:absolute;top:16px;left:16px;background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;font-size:14px">&larr; Retour</button>' : '') +
         '<button onclick="finishOnboarding()" style="position:absolute;top:16px;right:16px;background:none;border:none;color:rgba(255,255,255,0.3);cursor:pointer;font-size:18px">&times;</button>' +
         content +
@@ -88,7 +88,7 @@
 
   function makeOption(key, value, title, subtitle) {
     var selected = answers[key] === value;
-    return '<div onclick="onboardingSelect(\'' + key + '\',\'' + value + '\')" style="padding:16px;border:2px solid ' + (selected ? '#4ECDC4' : 'rgba(255,255,255,0.15)') + ';border-radius:12px;cursor:pointer;transition:all .2s;background:' + (selected ? 'rgba(78,205,196,0.1)' : 'transparent') + '">' +
+    return '<div onclick="onboardingSelect(\'' + key + '\',\'' + value + '\')" style="padding:16px;border:2px solid ' + (selected ? '#3ECFB4' : 'rgba(255,255,255,0.15)') + ';border-radius:12px;cursor:pointer;transition:all .2s;background:' + (selected ? 'rgba(62,207,180,0.1)' : 'transparent') + '">' +
       '<div style="font-weight:600;color:#fff;font-size:14px">' + title + '</div>' +
       '<div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:4px">' + subtitle + '</div>' +
     '</div>';

@@ -103,14 +103,14 @@ function wrapEmail(content) {
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#F8F9FA;padding:40px 0">
 <tr><td align="center">
 <table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.06)">
-<tr><td style="background:#1B2A4A;padding:32px 40px;text-align:center">
-<span style="font-size:28px;font-weight:700;color:#4ECDC4;font-family:Georgia,serif">Stratege</span>
+<tr><td style="background:#1B2E3D;padding:32px 40px;text-align:center">
+<span style="font-size:28px;font-weight:700;color:#3ECFB4;font-family:Georgia,serif">Stratege</span>
 </td></tr>
 <tr><td style="padding:40px">${content}</td></tr>
 <tr><td style="background:#f5f9fb;padding:24px 40px;text-align:center;font-size:12px;color:#6B7F99;line-height:1.6">
 JESPER SAS - 51 bis rue de Miromesnil, 75008 Paris<br>
-<a href="https://stratege-immo.fr/mentions-legales.html" style="color:#4ECDC4">Mentions legales</a> |
-<a href="https://stratege-immo.fr/politique-confidentialite.html" style="color:#4ECDC4">Confidentialite</a><br>
+<a href="https://stratege-immo.fr/mentions-legales.html" style="color:#3ECFB4">Mentions legales</a> |
+<a href="https://stratege-immo.fr/politique-confidentialite.html" style="color:#3ECFB4">Confidentialite</a><br>
 <a href="https://stratege-immo.fr" style="color:#6B7F99;font-size:11px">Se desinscrire</a>
 </td></tr>
 </table>

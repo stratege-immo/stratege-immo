@@ -22,8 +22,8 @@ function getInitials() {
 
 // ── Logo SVG (navy + teal) ─────────────────────────────
 var LOGO_SVG = '<svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">' +
-  '<path d="M13 2C13 2 15.5 10.5 7 13C7 13 15.5 15.5 13 24C13 24 15.5 15.5 24 13C24 13 15.5 10.5 13 2Z" fill="#2D3A52"/>' +
-  '<path d="M20 10C20 10 22 16.5 15.5 18.5C15.5 18.5 22 20.5 20 27C20 27 22 20.5 28.5 18.5C28.5 18.5 22 16.5 20 10Z" fill="#4ECDC4"/>' +
+  '<path d="M13 2C13 2 15.5 10.5 7 13C7 13 15.5 15.5 13 24C13 24 15.5 15.5 24 13C24 13 15.5 10.5 13 2Z" fill="#1B2E3D"/>' +
+  '<path d="M20 10C20 10 22 16.5 15.5 18.5C15.5 18.5 22 20.5 20 27C20 27 22 20.5 28.5 18.5C28.5 18.5 22 16.5 20 10Z" fill="#3ECFB4"/>' +
   '<path d="M26 2.5C26 2.5 27 5.5 24 6.5C24 6.5 27 7.5 26 10.5C26 10.5 27 7.5 30 6.5C30 6.5 27 5.5 26 2.5Z" fill="#95E8DF"/>' +
   '</svg>';
 
@@ -162,7 +162,7 @@ async function loadNotifications() {
       if (list && data.notifications && data.notifications.length > 0) {
         list.innerHTML = data.notifications.map(function(n) {
           var icons = { rdv: '&#128197;', document: '&#128196;', programme: '&#127970;', simulation: '&#9203;' };
-          return '<div style="padding:10px 16px;border-bottom:1px solid var(--neutral-100);font-size:13px;' + (n.read ? '' : 'background:rgba(78,205,196,0.05);') + '">' +
+          return '<div style="padding:10px 16px;border-bottom:1px solid var(--neutral-100);font-size:13px;' + (n.read ? '' : 'background:rgba(62,207,180,0.05);') + '">' +
             '<span>' + (icons[n.type] || '') + '</span> ' + n.message +
             '<div style="font-size:11px;color:var(--neutral-400);margin-top:4px">' + new Date(n.created_at).toLocaleDateString('fr-FR') + '</div>' +
           '</div>';

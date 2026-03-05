@@ -8,18 +8,18 @@
   <link rel="canonical" href="https://stratege-immo.fr/signer.html" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/style.css?v=124" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css?v=125" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#4ECDC4">
+  <meta name="theme-color" content="#3ECFB4">
   <style>
     .signer-container { max-width:900px; margin:0 auto; padding:40px 20px 80px; }
-    .signer-container h1 { font-family:'Playfair Display',serif; font-size:32px; color:#1B2A4A; margin-bottom:8px; }
+    .signer-container h1 { font-family:'Playfair Display',serif; font-size:32px; color:#1B2E3D; margin-bottom:8px; }
     .signer-container .subtitle { color:#6b7280; font-size:15px; margin-bottom:32px; }
 
     .signer-panel { background:var(--surface-1,#fff); border-radius:16px; border:1px solid var(--neutral-200,#e5e7eb); padding:32px; margin-bottom:24px; }
-    .signer-panel h2 { font-size:20px; color:#1B2A4A; margin-bottom:16px; font-family:'Playfair Display',serif; }
+    .signer-panel h2 { font-size:20px; color:#1B2E3D; margin-bottom:16px; font-family:'Playfair Display',serif; }
 
     .form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
     .form-row.single { grid-template-columns:1fr; }
@@ -29,48 +29,48 @@
     .form-group input,
     .form-group select { width:100%; padding:10px 14px; border:1px solid var(--neutral-200,#d1d5db); border-radius:10px; font-size:14px; font-family:'Inter',sans-serif; background:var(--surface-1,#fff); color:var(--neutral-800,#1f2937); transition:border-color .2s; }
     .form-group input:focus,
-    .form-group select:focus { outline:none; border-color:#4ECDC4; box-shadow:0 0 0 3px rgba(78,205,196,.15); }
+    .form-group select:focus { outline:none; border-color:#3ECFB4; box-shadow:0 0 0 3px rgba(62,207,180,.15); }
 
     .pdf-viewer-wrap { background:#f3f4f6; border-radius:12px; min-height:400px; display:flex; flex-direction:column; align-items:center; justify-content:center; overflow:hidden; position:relative; }
     .pdf-viewer-wrap canvas { max-width:100%; height:auto; }
     .pdf-nav { display:flex; align-items:center; gap:12px; padding:12px; background:rgba(27,42,74,.05); border-radius:8px; margin-top:12px; }
     .pdf-nav button { padding:6px 14px; border:1px solid var(--neutral-200,#d1d5db); border-radius:8px; background:#fff; cursor:pointer; font-size:13px; font-weight:500; transition:all .2s; }
-    .pdf-nav button:hover { border-color:#4ECDC4; color:#4ECDC4; }
+    .pdf-nav button:hover { border-color:#3ECFB4; color:#3ECFB4; }
     .pdf-nav span { font-size:13px; color:#6b7280; }
     .pdf-placeholder { text-align:center; color:#9ca3af; padding:40px; }
     .pdf-placeholder svg { width:64px; height:64px; margin-bottom:16px; opacity:.4; }
 
-    .signature-zone { border:2px dashed #d1d5db; border-radius:12px; padding:20px; text-align:center; background:rgba(78,205,196,.02); }
-    .signature-zone.has-signature { border-color:#4ECDC4; background:rgba(78,205,196,.05); }
+    .signature-zone { border:2px dashed #d1d5db; border-radius:12px; padding:20px; text-align:center; background:rgba(62,207,180,.02); }
+    .signature-zone.has-signature { border-color:#3ECFB4; background:rgba(62,207,180,.05); }
     .signature-zone label { display:block; font-size:13px; color:#6b7280; margin-bottom:12px; }
     #signatureCanvas { border:1px solid #e5e7eb; border-radius:8px; background:#fff; cursor:crosshair; touch-action:none; max-width:100%; }
     .sig-actions { display:flex; gap:10px; justify-content:center; margin-top:12px; }
 
-    .btn-primary { padding:12px 28px; background:linear-gradient(135deg,#4ECDC4,#44b3ab); color:#fff; border:none; border-radius:10px; font-size:15px; font-weight:600; cursor:pointer; transition:all .2s; font-family:'Inter',sans-serif; }
-    .btn-primary:hover { transform:translateY(-1px); box-shadow:0 4px 12px rgba(78,205,196,.3); }
+    .btn-primary { padding:12px 28px; background:linear-gradient(135deg,#3ECFB4,#44b3ab); color:#fff; border:none; border-radius:10px; font-size:15px; font-weight:600; cursor:pointer; transition:all .2s; font-family:'Inter',sans-serif; }
+    .btn-primary:hover { transform:translateY(-1px); box-shadow:0 4px 12px rgba(62,207,180,.3); }
     .btn-primary:disabled { opacity:.5; cursor:not-allowed; transform:none; box-shadow:none; }
-    .btn-outline { padding:10px 20px; background:transparent; color:#1B2A4A; border:1px solid #d1d5db; border-radius:10px; font-size:14px; font-weight:500; cursor:pointer; transition:all .2s; font-family:'Inter',sans-serif; }
-    .btn-outline:hover { border-color:#4ECDC4; color:#4ECDC4; }
+    .btn-outline { padding:10px 20px; background:transparent; color:#1B2E3D; border:1px solid #d1d5db; border-radius:10px; font-size:14px; font-weight:500; cursor:pointer; transition:all .2s; font-family:'Inter',sans-serif; }
+    .btn-outline:hover { border-color:#3ECFB4; color:#3ECFB4; }
     .btn-danger-outline { padding:10px 20px; background:transparent; color:#ef4444; border:1px solid #fca5a5; border-radius:10px; font-size:14px; font-weight:500; cursor:pointer; transition:all .2s; font-family:'Inter',sans-serif; }
     .btn-danger-outline:hover { background:rgba(239,68,68,.05); }
 
     .success-panel { text-align:center; padding:40px 20px; }
     .success-panel .check-icon { width:80px; height:80px; border-radius:50%; background:linear-gradient(135deg,#22c55e,#16a34a); display:flex; align-items:center; justify-content:center; margin:0 auto 20px; }
     .success-panel .check-icon svg { width:40px; height:40px; color:#fff; }
-    .success-panel h2 { font-size:24px; color:#1B2A4A; margin-bottom:8px; }
+    .success-panel h2 { font-size:24px; color:#1B2E3D; margin-bottom:8px; }
     .success-panel .ref { font-family:'JetBrains Mono',monospace; font-size:14px; background:#f0fdf4; color:#16a34a; padding:8px 16px; border-radius:8px; display:inline-block; margin:12px 0; }
     .success-panel .hash { font-family:'JetBrains Mono',monospace; font-size:11px; color:#9ca3af; word-break:break-all; margin-top:12px; }
     .success-actions { display:flex; gap:12px; justify-content:center; margin-top:24px; flex-wrap:wrap; }
 
     .steps-indicator { display:flex; gap:8px; margin-bottom:32px; }
     .step-dot { width:12px; height:12px; border-radius:50%; background:#e5e7eb; transition:all .3s; }
-    .step-dot.active { background:#4ECDC4; transform:scale(1.2); }
+    .step-dot.active { background:#3ECFB4; transform:scale(1.2); }
     .step-dot.done { background:#22c55e; }
 
     .legal-note { font-size:11px; color:#9ca3af; text-align:center; margin-top:16px; line-height:1.5; }
     .loading-overlay { position:fixed; inset:0; background:rgba(27,42,74,.6); display:flex; align-items:center; justify-content:center; z-index:1000; }
     .loading-box { background:#fff; border-radius:16px; padding:40px; text-align:center; max-width:360px; }
-    .loading-box .spinner { width:40px; height:40px; border:3px solid #e5e7eb; border-top-color:#4ECDC4; border-radius:50%; animation:spin .8s linear infinite; margin:0 auto 16px; }
+    .loading-box .spinner { width:40px; height:40px; border:3px solid #e5e7eb; border-top-color:#3ECFB4; border-radius:50%; animation:spin .8s linear infinite; margin:0 auto 16px; }
     @keyframes spin { to { transform:rotate(360deg); } }
 
     .signer-footer { text-align:center; padding:32px 20px; font-size:12px; color:#9ca3af; border-top:1px solid var(--neutral-200,#e5e7eb); margin-top:60px; }

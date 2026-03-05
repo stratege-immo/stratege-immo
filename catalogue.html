@@ -8,19 +8,19 @@
   <link rel="canonical" href="https://stratege-immo.fr/catalogue" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/style.css?v=124" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css?v=125" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#4ECDC4">
+  <meta name="theme-color" content="#3ECFB4">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     .compare-check { position:absolute;top:10px;right:10px;z-index:2;display:flex;align-items:center;gap:4px;background:rgba(255,255,255,.92);padding:4px 10px;border-radius:999px;font-size:12px;font-weight:600;color:var(--neutral-700);cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.12);transition:background .2s }
-    .compare-check:hover { background:rgba(78,205,196,.15) }
-    .compare-check input { accent-color:#4ECDC4;width:16px;height:16px;cursor:pointer }
-    .compare-check.checked { background:rgba(78,205,196,.2);color:#1B2A4A }
-    .compare-float { position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1B2A4A;color:white;padding:14px 28px;border-radius:999px;font-size:15px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.25);z-index:1000;display:none;align-items:center;gap:12px;animation:floatIn .3s ease }
-    .compare-float a { background:#4ECDC4;color:#1B2A4A;padding:8px 18px;border-radius:999px;text-decoration:none;font-weight:700;font-size:14px;transition:opacity .2s }
+    .compare-check:hover { background:rgba(62,207,180,.15) }
+    .compare-check input { accent-color:#3ECFB4;width:16px;height:16px;cursor:pointer }
+    .compare-check.checked { background:rgba(62,207,180,.2);color:#1B2E3D }
+    .compare-float { position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1B2E3D;color:white;padding:14px 28px;border-radius:999px;font-size:15px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.25);z-index:1000;display:none;align-items:center;gap:12px;animation:floatIn .3s ease }
+    .compare-float a { background:#3ECFB4;color:#1B2E3D;padding:8px 18px;border-radius:999px;text-decoration:none;font-weight:700;font-size:14px;transition:opacity .2s }
     .compare-float a:hover { opacity:.85 }
     .compare-float .close-float { background:none;border:none;color:rgba(255,255,255,.6);cursor:pointer;font-size:18px;padding:0 4px }
     @keyframes floatIn { from { transform:translateX(-50%) translateY(20px);opacity:0 } to { transform:translateX(-50%) translateY(0);opacity:1 } }
@@ -125,7 +125,7 @@
   <footer class="footer"></footer>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="assets/shared.js?v=124"></script>
+  <script src="assets/shared.js?v=125"></script>
   <script>
     renderNavbar('catalogue');
     renderFooter();
@@ -379,7 +379,7 @@
             '<strong>' + b.titre + '</strong><br>' +
             b.surface + ' m&sup2; — ' + b.rendement + '% rendement<br>' +
             '<strong>' + b.prix.toLocaleString('fr-FR') + ' &euro;</strong><br>' +
-            '<a href="bien-detail.html?id=' + b.id + '" style="color:#4ECDC4">Voir le bien &rarr;</a>' +
+            '<a href="bien-detail.html?id=' + b.id + '" style="color:#3ECFB4">Voir le bien &rarr;</a>' +
           '</div>';
         }
 

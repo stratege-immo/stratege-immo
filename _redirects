@@ -2,4 +2,9 @@
 # CF Pages automatically serves .html files without extension
 # API routes are handled by Functions
 
+# Alias routes for common paths
+/connexion      /login.html     301
+/creer-compte   /register.html  301
+/documentation  /blog.html      301
+
 # 404 fallback handled by 404.html automatically
