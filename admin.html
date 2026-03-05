@@ -17,7 +17,7 @@
     .admin-grid { display:grid;grid-template-columns:240px 1fr;min-height:100vh; }
     .admin-sidebar { background:var(--neutral-800);color:#fff;padding:24px 0;position:sticky;top:0;height:100vh;overflow-y:auto; }
     .admin-sidebar h3 { padding:0 20px;font-size:14px;color:var(--primary-300);margin-bottom:20px;font-family:'Inter',sans-serif;letter-spacing:1px;text-transform:uppercase; }
-    .admin-sidebar .admin-nav a { display:flex;align-items:center;gap:10px;padding:10px 20px;color:var(--neutral-300);text-decoration:none;font-size:14px;transition:all .2s; }
+    .admin-sidebar .admin-nav a { display:flex;align-items:center;gap:10px;padding:10px 20px;color:var(--neutral-300);text-decoration:none;font-size:14px;transition:all .2s;position:relative; }
     .admin-sidebar .admin-nav a:hover,.admin-sidebar .admin-nav a.active { background:rgba(78,205,196,.15);color:#fff; }
     .admin-sidebar .admin-nav a.active { border-left:3px solid var(--primary-300); }
     .admin-content { padding:32px;background:var(--surface-2);overflow-y:auto; }
@@ -57,6 +57,21 @@
     .activity-dot.rdv { background:#dcfce7;color:#22c55e; }
     .activity-dot.sign { background:#fef3c7;color:#d97706; }
     .activity-dot.call { background:#f3e8ff;color:#9333ea; }
+    /* Notification badge */
+    .nav-badge { position:absolute;right:16px;top:50%;transform:translateY(-50%);background:#ef4444;color:#fff;font-size:11px;font-weight:700;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 5px; }
+    /* Progress bar */
+    .progress-bar-container { background:var(--neutral-200);border-radius:8px;height:24px;overflow:hidden;margin:12px 0;position:relative; }
+    .progress-bar-fill { background:linear-gradient(90deg,var(--primary-500),var(--primary-300));height:100%;border-radius:8px;transition:width .3s ease;min-width:0; }
+    .progress-bar-text { position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--neutral-800); }
+    /* Scoring colors */
+    .scoring-green { color:#22c55e;font-weight:700; }
+    .scoring-orange { color:#f59e0b;font-weight:700; }
+    .scoring-red { color:#ef4444;font-weight:700; }
+    /* Email preview modal */
+    .email-preview-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;align-items:center;justify-content:center; }
+    .email-preview-box { background:var(--surface-1);border-radius:16px;padding:32px;max-width:700px;width:90%;max-height:85vh;overflow-y:auto; }
+    /* Status select */
+    .status-select { padding:4px 8px;border-radius:6px;border:1px solid var(--neutral-200);font-size:13px;cursor:pointer; }
     @media(max-width:768px) {
       .admin-grid { grid-template-columns:1fr; }
       .admin-sidebar { display:none; }
@@ -97,12 +112,13 @@
       <h3>Stratege Admin</h3>
       <nav class="admin-nav">
         <a href="#" class="active" onclick="showAdmin('dashboard',this)">&#x1f4ca; Dashboard</a>
-        <a href="#" onclick="showAdmin('prospects',this)">&#x1f465; Prospects</a>
+        <a href="#" id="nav-prospects" onclick="showAdmin('prospects',this)">&#x1f465; Prospects</a>
         <a href="#" onclick="showAdmin('pipeline',this)">&#x1f4b0; Pipeline</a>
         <a href="#" onclick="showAdmin('rdv',this)">&#x1f4c5; Rendez-vous</a>
         <a href="#" onclick="showAdmin('biens',this)">&#x1f3e0; Biens</a>
         <a href="#" onclick="showAdmin('senioriales',this)">&#x1f3e2; Senioriales</a>
         <a href="#" onclick="showAdmin('marketing',this)">&#x1f4e7; Marketing</a>
+        <a href="#" onclick="showAdmin('credit',this)">&#x1f3e6; Dossiers credit</a>
         <a href="#" onclick="showAdmin('stats',this)">&#x1f4c8; Statistiques</a>
       </nav>
       <div style="padding:20px;margin-top:auto;border-top:1px solid rgba(255,255,255,.1)">
@@ -315,43 +331,116 @@
         </div>
       </div>
 
-      <!-- ===== SENIORIALES ===== -->
+      <!-- ===== SENIORIALES (Enhanced) ===== -->
       <div id="admin-senioriales-section" class="admin-section" style="display:none">
         <div class="admin-header">
           <h1>Partenaire Senioriales</h1>
-          <button class="btn-primary btn-small" onclick="refreshSenioriales()">Rafraichir les donnees</button>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn-primary btn-small" onclick="launchSeniorialesSync()">Lancer sync complete</button>
+            <button class="btn-ghost btn-small" onclick="launchSeniorialesPhotos()">Enrichir photos</button>
+            <button class="btn-ghost btn-small" onclick="refreshSenioriales()">Rafraichir donnees</button>
+          </div>
         </div>
+
+        <!-- Sync progress -->
+        <div id="sen-sync-progress" class="admin-card" style="display:none">
+          <h3 id="sen-sync-title">Synchronisation en cours...</h3>
+          <div class="progress-bar-container">
+            <div class="progress-bar-fill" id="sen-progress-fill" style="width:0%"></div>
+            <div class="progress-bar-text" id="sen-progress-text">0 / 0</div>
+          </div>
+          <p id="sen-sync-status" style="font-size:13px;color:var(--neutral-500);margin-top:8px"></p>
+        </div>
+
         <div class="stat-grid" id="senioriales-stats">
           <div class="stat-card"><div class="stat-value" id="sen-total">-</div><div class="stat-label">Programmes</div></div>
           <div class="stat-card"><div class="stat-value" id="sen-date">-</div><div class="stat-label">Dernier scraping</div></div>
+          <div class="stat-card"><div class="stat-value" id="sen-photos">-</div><div class="stat-label">Avec photos</div></div>
         </div>
         <div class="admin-card" style="padding:0;overflow:hidden">
           <table class="admin-table">
-            <thead><tr><th>Residence</th><th>Ville</th><th>Region</th><th>Prix min</th><th>Categorie</th><th></th></tr></thead>
+            <thead><tr><th>Residence</th><th>Ville</th><th>Region</th><th>Prix min</th><th>Photos</th><th>Categorie</th><th></th></tr></thead>
             <tbody id="sen-tbody"></tbody>
           </table>
         </div>
       </div>
 
-      <!-- ===== MARKETING ===== -->
+      <!-- ===== MARKETING (Enhanced with campaign sender) ===== -->
       <div id="admin-marketing-section" class="admin-section" style="display:none">
         <div class="admin-header">
           <h1>Marketing</h1>
         </div>
-        <div class="stat-grid">
-          <div class="stat-card"><div class="stat-value">312</div><div class="stat-label">Abonnes newsletter</div></div>
-          <div class="stat-card"><div class="stat-value">47.2%</div><div class="stat-label">Taux d'ouverture</div></div>
-          <div class="stat-card"><div class="stat-value">8.1%</div><div class="stat-label">Taux de clic</div></div>
-          <div class="stat-card"><div class="stat-value">23</div><div class="stat-label">Leads ce mois</div></div>
+
+        <div class="admin-tabs">
+          <div class="admin-tab active" onclick="showMarketingTab('compose',this)">Nouvelle campagne</div>
+          <div class="admin-tab" onclick="showMarketingTab('history',this)">Historique</div>
         </div>
-        <div class="admin-card">
-          <h3>Campagnes recentes</h3>
+
+        <!-- Compose tab -->
+        <div id="marketing-compose">
+          <div class="admin-card">
+            <h3>Composer une campagne email</h3>
+
+            <div class="lead-form">
+              <div class="form-group full">
+                <label>Segment de destinataires</label>
+                <select id="mkt-segment" style="width:100%">
+                  <option value="all">Tous les prospects</option>
+                  <option value="new">Nouveaux (moins de 7 jours)</option>
+                  <option value="no_simulation">Sans simulation (30 jours)</option>
+                  <option value="scpi">Interesses SCPI</option>
+                </select>
+              </div>
+              <div class="form-group full">
+                <label>Objet de l'email</label>
+                <input type="text" id="mkt-subject" placeholder="Ex: Decouvrez nos meilleures SCPI du mois" />
+              </div>
+              <div class="form-group full">
+                <label>Corps du message <span style="font-size:12px;color:var(--neutral-400)">(HTML autorise, variables: {{prenom}}, {{nom}}, {{email}})</span></label>
+                <textarea id="mkt-body" rows="10" placeholder="Bonjour {{prenom}},
+
+Nous avons selectionne pour vous les meilleures opportunites d'investissement ce mois-ci...
+
+Cordialement,
+L'equipe Stratege" style="font-family:'JetBrains Mono',monospace;font-size:13px"></textarea>
+              </div>
+              <div class="full" style="display:flex;gap:12px">
+                <button class="btn-ghost" onclick="previewCampaign()">Apercu</button>
+                <button class="btn-primary" onclick="sendCampaign()" id="mkt-send-btn">Envoyer la campagne</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- History tab -->
+        <div id="marketing-history" style="display:none">
+          <div class="admin-card" style="padding:0;overflow:hidden">
+            <table class="admin-table">
+              <thead><tr><th>Campagne</th><th>Segment</th><th>Envoyes</th><th>Erreurs</th><th>Date</th><th>Envoye par</th></tr></thead>
+              <tbody id="mkt-history-tbody">
+                <tr><td colspan="6" style="text-align:center;color:var(--neutral-400);padding:20px">Chargement...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== CREDIT DOSSIERS ===== -->
+      <div id="admin-credit-section" class="admin-section" style="display:none">
+        <div class="admin-header">
+          <h1>Dossiers credit</h1>
+        </div>
+        <div class="stat-grid">
+          <div class="stat-card"><div class="stat-value" id="credit-total">0</div><div class="stat-label">Dossiers total</div></div>
+          <div class="stat-card"><div class="stat-value" id="credit-en-etude">0</div><div class="stat-label">En etude</div></div>
+          <div class="stat-card"><div class="stat-value" id="credit-acceptes">0</div><div class="stat-label">Acceptes</div></div>
+          <div class="stat-card"><div class="stat-value" id="credit-refuses">0</div><div class="stat-label">Refuses</div></div>
+        </div>
+        <div class="admin-card" style="padding:0;overflow:hidden">
           <table class="admin-table">
-            <thead><tr><th>Campagne</th><th>Envoyes</th><th>Ouverts</th><th>Clics</th><th>Date</th><th>Statut</th></tr></thead>
-            <tbody>
-              <tr><td>Newsletter Mars - Top SCPI 2026</td><td>312</td><td>147 (47%)</td><td>25 (8%)</td><td>01/03/2026</td><td><span class="status-dot green"></span>Envoye</td></tr>
-              <tr><td>Alerte nouveau bien - Lyon T2</td><td>89</td><td>52 (58%)</td><td>14 (16%)</td><td>27/02/2026</td><td><span class="status-dot green"></span>Envoye</td></tr>
-              <tr><td>Guide defiscalisation 2026</td><td>245</td><td>98 (40%)</td><td>18 (7%)</td><td>15/02/2026</td><td><span class="status-dot green"></span>Envoye</td></tr>
+            <thead><tr><th>Client</th><th>Montant</th><th>Duree</th><th>Revenus</th><th>Mensualite</th><th>Scoring</th><th>Statut</th><th>Actions</th></tr></thead>
+            <tbody id="credit-tbody">
+              <tr><td colspan="8" style="text-align:center;color:var(--neutral-400);padding:20px">Chargement des dossiers...</td></tr>
             </tbody>
           </table>
         </div>
@@ -418,10 +507,26 @@
   </div>
 </div>
 
+<!-- ===== EMAIL PREVIEW MODAL ===== -->
+<div id="email-preview-modal" class="email-preview-overlay">
+  <div class="email-preview-box">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <h3>Apercu de l'email</h3>
+      <button onclick="document.getElementById('email-preview-modal').style.display='none'" style="background:none;border:none;font-size:24px;cursor:pointer">&times;</button>
+    </div>
+    <div style="background:var(--neutral-100);padding:12px 16px;border-radius:8px;margin-bottom:16px">
+      <strong>Objet :</strong> <span id="preview-subject"></span>
+    </div>
+    <div id="preview-body" style="background:#fff;padding:24px;border:1px solid var(--neutral-200);border-radius:8px;font-size:14px;line-height:1.6"></div>
+  </div>
+</div>
+
 <script src="assets/shared.js?v=122"></script>
 <script>
 // JWT-based admin authentication
 var adminUser = null;
+var lastKnownLeadCount = 0;
+var notificationsPollingId = null;
 
 async function adminLogin() {
   var email = document.getElementById('admin-email').value.trim();
@@ -466,7 +571,13 @@ async function adminLogin() {
 function adminLogout() {
   localStorage.removeItem('admin_token');
   adminUser = null;
+  if (notificationsPollingId) clearInterval(notificationsPollingId);
   location.reload();
+}
+
+function getAuthHeaders() {
+  var token = localStorage.getItem('admin_token');
+  return token ? { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
 }
 
 function showDashboard() {
@@ -481,7 +592,10 @@ function showDashboard() {
   loadBiens();
   loadSenioriales();
   loadAdminRdv();
+  loadCreditDossiers();
   updateStats();
+  requestNotificationPermission();
+  startNotificationsPolling();
 }
 
 // On page load: verify existing token
@@ -502,7 +616,6 @@ function showDashboard() {
       localStorage.removeItem('admin_token');
     }
   } catch (e) {
-    // Network error — keep login screen
     localStorage.removeItem('admin_token');
   }
 })();
@@ -512,6 +625,59 @@ function showAdmin(section, el) {
   document.getElementById('admin-' + section + '-section').style.display = 'block';
   document.querySelectorAll('.admin-nav a').forEach(function(a) { a.classList.remove('active'); });
   if (el) el.classList.add('active');
+  // Load data for specific sections
+  if (section === 'marketing') loadCampaignHistory();
+  if (section === 'credit') loadCreditDossiers();
+}
+
+// ===== NOTIFICATIONS POLLING =====
+function requestNotificationPermission() {
+  if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+}
+
+function startNotificationsPolling() {
+  // Initial fetch to set baseline
+  fetchLeadCount(true);
+  // Poll every 30 seconds
+  notificationsPollingId = setInterval(function() { fetchLeadCount(false); }, 30000);
+}
+
+async function fetchLeadCount(isInitial) {
+  try {
+    var res = await fetch('/api/admin?action=stats');
+    var data = await res.json();
+    if (!data.success) return;
+    var currentCount = data.total_leads || 0;
+
+    if (isInitial) {
+      lastKnownLeadCount = currentCount;
+      return;
+    }
+
+    var newLeads = currentCount - lastKnownLeadCount;
+    if (newLeads > 0) {
+      // Show badge on prospects nav
+      var navProspects = document.getElementById('nav-prospects');
+      var existingBadge = navProspects.querySelector('.nav-badge');
+      if (existingBadge) existingBadge.remove();
+      var badge = document.createElement('span');
+      badge.className = 'nav-badge';
+      badge.textContent = '+' + newLeads;
+      navProspects.appendChild(badge);
+
+      // Browser notification
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification('Stratege - Nouveau prospect', {
+          body: newLeads + ' nouveau' + (newLeads > 1 ? 'x' : '') + ' prospect' + (newLeads > 1 ? 's' : '') + ' enregistre' + (newLeads > 1 ? 's' : ''),
+          icon: '/favicon.svg'
+        });
+      }
+
+      lastKnownLeadCount = currentCount;
+    }
+  } catch(e) {}
 }
 
 // ===== PROSPECTS =====
@@ -544,9 +710,13 @@ function loadProspects(filter) {
 }
 
 function filterProspects(filter, el) {
-  document.querySelectorAll('.admin-tab').forEach(function(t) { t.classList.remove('active'); });
+  document.querySelectorAll('#admin-prospects-section .admin-tab').forEach(function(t) { t.classList.remove('active'); });
   el.classList.add('active');
   loadProspects(filter);
+  // Clear badge when viewing prospects
+  var navProspects = document.getElementById('nav-prospects');
+  var badge = navProspects.querySelector('.nav-badge');
+  if (badge) badge.remove();
 }
 
 function saveLead() {
@@ -593,7 +763,7 @@ async function loadBiens() {
   } catch(e) {}
 }
 
-// ===== SENIORIALES =====
+// ===== SENIORIALES (Enhanced) =====
 async function loadSenioriales() {
   try {
     var res = await fetch('/api/senioriales/programmes');
@@ -601,11 +771,18 @@ async function loadSenioriales() {
     if (!data.programmes) return;
     document.getElementById('sen-total').textContent = data.total_programmes;
     document.getElementById('sen-date').textContent = data.scraped_at ? new Date(data.scraped_at).toLocaleDateString('fr-FR') + ' ' + new Date(data.scraped_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}) : '-';
+
+    // Count programmes with photos
+    var withPhotos = data.programmes.filter(function(p) { return p.images && p.images.length > 0; }).length;
+    document.getElementById('sen-photos').textContent = withPhotos + '/' + data.total_programmes;
+
     var tbody = document.getElementById('sen-tbody');
     tbody.innerHTML = '';
     data.programmes.forEach(function(p) {
+      var photoCount = (p.images && p.images.length) ? p.images.length + ' img' : 'Aucune';
+      var photoClass = (p.images && p.images.length) ? 'color:#22c55e' : 'color:var(--neutral-400)';
       var tr = document.createElement('tr');
-      tr.innerHTML = '<td><strong>' + p.titre + '</strong></td><td>' + (p.ville || '-') + '</td><td>' + (p.region || '-') + '</td><td class="mono">' + (p.prix_min ? p.prix_min.toLocaleString('fr-FR') + ' EUR' : '-') + '</td><td>' + (p.categorie || 'acheter') + '</td><td><a href="' + (p.url_detail || '#') + '" target="_blank" class="btn-ghost btn-small">Voir</a></td>';
+      tr.innerHTML = '<td><strong>' + p.titre + '</strong></td><td>' + (p.ville || '-') + '</td><td>' + (p.region || '-') + '</td><td class="mono">' + (p.prix_min ? p.prix_min.toLocaleString('fr-FR') + ' EUR' : '-') + '</td><td style="' + photoClass + ';font-size:13px">' + photoCount + '</td><td>' + (p.categorie || 'acheter') + '</td><td><a href="' + (p.url_detail || '#') + '" target="_blank" class="btn-ghost btn-small">Voir</a></td>';
       tbody.appendChild(tr);
     });
   } catch(e) {
@@ -614,27 +791,313 @@ async function loadSenioriales() {
 }
 
 async function refreshSenioriales() {
+  loadSenioriales();
+}
+
+var senSyncInterval = null;
+
+async function launchSeniorialesSync() {
+  var progressDiv = document.getElementById('sen-sync-progress');
+  progressDiv.style.display = 'block';
+  document.getElementById('sen-sync-title').textContent = 'Initialisation du scraping...';
+  document.getElementById('sen-progress-fill').style.width = '0%';
+  document.getElementById('sen-progress-text').textContent = 'Initialisation...';
+  document.getElementById('sen-sync-status').textContent = '';
+
   try {
-    await fetch('/api/senioriales/clear-lock', { method:'POST' });
-    var res = await fetch('/api/senioriales/init', { method:'POST' });
-    var data = await res.json();
-    alert('Scraping lance : ' + (data.urls_to_detail || 0) + ' programmes a scraper. Utilisez /api/senioriales/next en boucle.');
+    // Clear lock first
+    await fetch('/api/senioriales/clear-lock', { method: 'POST' });
+    // Init
+    var initRes = await fetch('/api/senioriales/init', { method: 'POST' });
+    var initData = await initRes.json();
+
+    if (!initData.ok) {
+      document.getElementById('sen-sync-status').textContent = 'Erreur: ' + (initData.error || 'init echoue');
+      return;
+    }
+
+    document.getElementById('sen-sync-title').textContent = 'Scraping en cours...';
+    document.getElementById('sen-sync-status').textContent = initData.programmes_from_list + ' programmes trouves, ' + initData.urls_to_detail + ' pages detail a scraper';
+
+    // Auto-loop /next every 3s
+    senSyncInterval = setInterval(async function() {
+      try {
+        var nextRes = await fetch('/api/senioriales/next', { method: 'POST' });
+        var nextData = await nextRes.json();
+
+        if (!nextData.ok) {
+          clearInterval(senSyncInterval);
+          document.getElementById('sen-sync-status').textContent = 'Erreur: ' + (nextData.error || 'echec');
+          return;
+        }
+
+        var pct = Math.round((nextData.done / nextData.total) * 100);
+        document.getElementById('sen-progress-fill').style.width = pct + '%';
+        document.getElementById('sen-progress-text').textContent = nextData.done + ' / ' + nextData.total;
+
+        if (nextData.programme) {
+          document.getElementById('sen-sync-status').textContent = 'Scrape: ' + nextData.programme.titre + ' (' + (nextData.programme.ville || '') + ')';
+        }
+
+        if (nextData.finished) {
+          clearInterval(senSyncInterval);
+          document.getElementById('sen-sync-title').textContent = 'Synchronisation terminee !';
+          document.getElementById('sen-sync-status').textContent = nextData.message;
+          document.getElementById('sen-progress-fill').style.width = '100%';
+          // Reload data
+          setTimeout(function() {
+            loadSenioriales();
+            progressDiv.style.display = 'none';
+          }, 3000);
+        }
+      } catch(e) {
+        clearInterval(senSyncInterval);
+        document.getElementById('sen-sync-status').textContent = 'Erreur reseau: ' + e.message;
+      }
+    }, 3000);
   } catch(e) {
-    alert('Erreur: ' + e.message);
+    document.getElementById('sen-sync-status').textContent = 'Erreur: ' + e.message;
   }
+}
+
+async function launchSeniorialesPhotos() {
+  var progressDiv = document.getElementById('sen-sync-progress');
+  progressDiv.style.display = 'block';
+  document.getElementById('sen-sync-title').textContent = 'Enrichissement photos...';
+  document.getElementById('sen-progress-fill').style.width = '0%';
+  document.getElementById('sen-progress-text').textContent = 'Demarrage...';
+  document.getElementById('sen-sync-status').textContent = '';
+
+  var photoLoop = setInterval(async function() {
+    try {
+      var res = await fetch('/api/senioriales/enrich-photos', { method: 'POST' });
+      var data = await res.json();
+
+      if (!data.ok) {
+        clearInterval(photoLoop);
+        document.getElementById('sen-sync-status').textContent = 'Erreur: ' + (data.error || 'echec');
+        return;
+      }
+
+      if (data.done) {
+        clearInterval(photoLoop);
+        document.getElementById('sen-sync-title').textContent = 'Photos enrichies !';
+        document.getElementById('sen-sync-status').textContent = data.message || 'Tous les programmes ont des images';
+        document.getElementById('sen-progress-fill').style.width = '100%';
+        document.getElementById('sen-progress-text').textContent = 'Termine';
+        setTimeout(function() {
+          loadSenioriales();
+          progressDiv.style.display = 'none';
+        }, 3000);
+        return;
+      }
+
+      // Show progress
+      var remaining = data.remaining || 0;
+      var total = remaining + 1; // approximate
+      document.getElementById('sen-sync-status').textContent = (data.titre || data.id) + ' : ' + data.images_found + ' images trouvees, ' + remaining + ' restant' + (remaining > 1 ? 's' : '');
+
+      if (total > 0) {
+        var pct = Math.round(((total - remaining) / total) * 100);
+        document.getElementById('sen-progress-fill').style.width = Math.min(pct, 95) + '%';
+        document.getElementById('sen-progress-text').textContent = (total - remaining) + ' traites';
+      }
+    } catch(e) {
+      clearInterval(photoLoop);
+      document.getElementById('sen-sync-status').textContent = 'Erreur: ' + e.message;
+    }
+  }, 3000);
 }
 
 // ===== RDV =====
 async function loadAdminRdv() {
-  // Load from KV via API
   try {
     var container = document.getElementById('admin-rdv-list');
     container.innerHTML = '<table class="admin-table"><thead><tr><th>Ref</th><th>Date</th><th>Heure</th><th>Client</th><th>Type</th><th>Mode</th><th>Statut</th></tr></thead><tbody id="admin-rdv-tbody"></tbody></table>';
-    // We'll populate from the RDV API when it's ready
     document.getElementById('admin-rdv-tbody').innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--neutral-400);padding:20px">Les rendez-vous pris via le site apparaitront ici automatiquement</td></tr>';
   } catch(e) {}
 }
 
+// ===== MARKETING =====
+function showMarketingTab(tab, el) {
+  document.querySelectorAll('#admin-marketing-section .admin-tab').forEach(function(t) { t.classList.remove('active'); });
+  el.classList.add('active');
+  document.getElementById('marketing-compose').style.display = tab === 'compose' ? 'block' : 'none';
+  document.getElementById('marketing-history').style.display = tab === 'history' ? 'block' : 'none';
+  if (tab === 'history') loadCampaignHistory();
+}
+
+function previewCampaign() {
+  var subject = document.getElementById('mkt-subject').value || '(Aucun objet)';
+  var body = document.getElementById('mkt-body').value || '';
+
+  // Replace variables with example values
+  var rendered = body
+    .replace(/\{\{prenom\}\}/g, 'Jean')
+    .replace(/\{\{nom\}\}/g, 'Dupont')
+    .replace(/\{\{email\}\}/g, 'jean.dupont@email.com');
+
+  // Convert newlines to <br> if not HTML
+  if (!rendered.includes('<')) {
+    rendered = rendered.replace(/\n/g, '<br>');
+  }
+
+  document.getElementById('preview-subject').textContent = subject;
+  document.getElementById('preview-body').innerHTML = rendered;
+  document.getElementById('email-preview-modal').style.display = 'flex';
+}
+
+async function sendCampaign() {
+  var segment = document.getElementById('mkt-segment').value;
+  var subject = document.getElementById('mkt-subject').value.trim();
+  var body = document.getElementById('mkt-body').value.trim();
+  var btn = document.getElementById('mkt-send-btn');
+
+  if (!subject || !body) {
+    alert('Objet et corps du message requis');
+    return;
+  }
+
+  if (!confirm('Envoyer cette campagne au segment "' + document.getElementById('mkt-segment').selectedOptions[0].text + '" ?')) return;
+
+  btn.disabled = true;
+  btn.textContent = 'Envoi en cours...';
+
+  // Convert newlines to <br> if plain text
+  var htmlBody = body;
+  if (!htmlBody.includes('<')) {
+    htmlBody = '<p style="color:#3F4E66;font-size:16px;line-height:1.6">' + htmlBody.replace(/\n\n/g, '</p><p style="color:#3F4E66;font-size:16px;line-height:1.6">').replace(/\n/g, '<br>') + '</p>';
+  }
+
+  try {
+    var res = await fetch('/api/admin/marketing?action=send', {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ segment: segment, subject: subject, bodyHtml: htmlBody })
+    });
+    var data = await res.json();
+
+    if (data.success) {
+      alert('Campagne envoyee ! ' + data.sent_count + ' email(s) envoye(s)' + (data.errors ? ', ' + data.errors + ' erreur(s)' : ''));
+      document.getElementById('mkt-subject').value = '';
+      document.getElementById('mkt-body').value = '';
+      loadCampaignHistory();
+    } else {
+      alert('Erreur: ' + (data.error || 'echec envoi'));
+    }
+  } catch(e) {
+    alert('Erreur reseau: ' + e.message);
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Envoyer la campagne';
+}
+
+async function loadCampaignHistory() {
+  var tbody = document.getElementById('mkt-history-tbody');
+  try {
+    var res = await fetch('/api/admin/marketing?action=history', {
+      headers: getAuthHeaders()
+    });
+    var data = await res.json();
+
+    if (!data.success || !data.campaigns || data.campaigns.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--neutral-400);padding:20px">Aucune campagne envoyee</td></tr>';
+      return;
+    }
+
+    var segmentLabels = { all:'Tous', 'new':'Nouveaux', no_simulation:'Sans simulation', scpi:'SCPI' };
+
+    tbody.innerHTML = '';
+    data.campaigns.forEach(function(c) {
+      var tr = document.createElement('tr');
+      var dateStr = c.sent_at ? new Date(c.sent_at).toLocaleDateString('fr-FR') + ' ' + new Date(c.sent_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}) : '-';
+      tr.innerHTML =
+        '<td><strong>' + (c.subject || '-') + '</strong></td>' +
+        '<td>' + (segmentLabels[c.segment] || c.segment) + '</td>' +
+        '<td>' + (c.sent_count || 0) + '</td>' +
+        '<td>' + (c.errors || 0) + '</td>' +
+        '<td>' + dateStr + '</td>' +
+        '<td>' + (c.sent_by || '-') + '</td>';
+      tbody.appendChild(tr);
+    });
+  } catch(e) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--neutral-400);padding:20px">Erreur de chargement</td></tr>';
+  }
+}
+
+// ===== CREDIT DOSSIERS =====
+var creditDossiers = [
+  { id:'CR-001', prenom:'Jean', nom:'Dupont', montant:250000, duree:20, revenus:4500, statut:'recu' },
+  { id:'CR-002', prenom:'Marie', nom:'Martin', montant:180000, duree:25, revenus:3200, statut:'en_etude' },
+  { id:'CR-003', prenom:'Luc', nom:'Moreau', montant:320000, duree:20, revenus:5800, statut:'accepte' },
+  { id:'CR-004', prenom:'Sophie', nom:'Lefebvre', montant:200000, duree:15, revenus:2800, statut:'refuse' },
+  { id:'CR-005', prenom:'Pierre', nom:'Durand', montant:150000, duree:20, revenus:3500, statut:'en_etude' },
+  { id:'CR-006', prenom:'Anne', nom:'Girard', montant:280000, duree:25, revenus:4200, statut:'recu' },
+];
+
+function calculateMensualite(montant, duree, taux) {
+  taux = taux || 0.035; // 3.5% default
+  var mensuel = taux / 12;
+  var n = duree * 12;
+  return Math.round(montant * (mensuel * Math.pow(1 + mensuel, n)) / (Math.pow(1 + mensuel, n) - 1));
+}
+
+function calculateScoring(mensualite, revenus) {
+  var ratio = (mensualite / revenus) * 100;
+  return { ratio: Math.round(ratio * 10) / 10, class: ratio < 33 ? 'scoring-green' : ratio <= 40 ? 'scoring-orange' : 'scoring-red' };
+}
+
+function loadCreditDossiers() {
+  var tbody = document.getElementById('credit-tbody');
+  tbody.innerHTML = '';
+
+  var statusLabels = { recu:'Recu', en_etude:'En etude', accepte:'Accepte', refuse:'Refuse' };
+  var statusColors = { recu:'blue', en_etude:'yellow', accepte:'green', refuse:'red' };
+
+  var countEnEtude = 0, countAcceptes = 0, countRefuses = 0;
+
+  creditDossiers.forEach(function(d, idx) {
+    var mensualite = calculateMensualite(d.montant, d.duree);
+    var scoring = calculateScoring(mensualite, d.revenus);
+
+    if (d.statut === 'en_etude') countEnEtude++;
+    if (d.statut === 'accepte') countAcceptes++;
+    if (d.statut === 'refuse') countRefuses++;
+
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td><strong>' + d.prenom + ' ' + d.nom + '</strong></td>' +
+      '<td style="font-family:JetBrains Mono;font-size:13px">' + d.montant.toLocaleString('fr-FR') + ' EUR</td>' +
+      '<td>' + d.duree + ' ans</td>' +
+      '<td style="font-family:JetBrains Mono;font-size:13px">' + d.revenus.toLocaleString('fr-FR') + ' EUR</td>' +
+      '<td style="font-family:JetBrains Mono;font-size:13px">' + mensualite.toLocaleString('fr-FR') + ' EUR</td>' +
+      '<td class="' + scoring.class + '">' + scoring.ratio + '% <span style="font-weight:400;font-size:11px">(' + (scoring.ratio < 33 ? 'Bon' : scoring.ratio <= 40 ? 'Limite' : 'Excessif') + ')</span></td>' +
+      '<td><span class="status-dot ' + statusColors[d.statut] + '"></span>' + statusLabels[d.statut] + '</td>' +
+      '<td style="display:flex;gap:6px;align-items:center">' +
+        '<select class="status-select" onchange="changeCreditStatus(' + idx + ',this.value)">' +
+          '<option value="recu"' + (d.statut==='recu'?' selected':'') + '>Recu</option>' +
+          '<option value="en_etude"' + (d.statut==='en_etude'?' selected':'') + '>En etude</option>' +
+          '<option value="accepte"' + (d.statut==='accepte'?' selected':'') + '>Accepte</option>' +
+          '<option value="refuse"' + (d.statut==='refuse'?' selected':'') + '>Refuse</option>' +
+        '</select>' +
+        '<button class="btn-ghost btn-small" onclick="alert(\'Documents du dossier ' + d.id + ' - fonctionnalite a venir\')">Docs</button>' +
+      '</td>';
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById('credit-total').textContent = creditDossiers.length;
+  document.getElementById('credit-en-etude').textContent = countEnEtude;
+  document.getElementById('credit-acceptes').textContent = countAcceptes;
+  document.getElementById('credit-refuses').textContent = countRefuses;
+}
+
+function changeCreditStatus(idx, newStatus) {
+  creditDossiers[idx].statut = newStatus;
+  loadCreditDossiers();
+}
+
+// ===== STATS =====
 function updateStats() {
   document.getElementById('stat-prospects').textContent = prospects.length;
   document.getElementById('stat-rdv').textContent = '3';
