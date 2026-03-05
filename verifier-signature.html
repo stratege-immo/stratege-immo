@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verifier un document signe — Stratege</title>
+  <meta name="description" content="Verifiez l'authenticite d'un document signe electroniquement via Stratege." />
+  <link rel="canonical" href="https://stratege-immo.fr/verifier-signature" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css?v=124" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#4ECDC4">
+  <style>
+    .verify-container {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    .verify-card {
+      background: var(--white, #fff);
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+      border: 1px solid var(--neutral-100, #e9ecef);
+    }
+    .verify-title {
+      font-family: var(--font-display, 'Playfair Display', serif);
+      font-size: 28px;
+      color: var(--neutral-900, #1B2A4A);
+      margin-bottom: 8px;
+      text-align: center;
+    }
+    .verify-subtitle {
+      text-align: center;
+      color: var(--neutral-500, #6c757d);
+      font-size: 15px;
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+    .verify-form {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .verify-input {
+      flex: 1;
+      padding: 14px 18px;
+      border: 2px solid var(--neutral-200, #dee2e6);
+      border-radius: 10px;
+      font-size: 15px;
+      font-family: 'JetBrains Mono', monospace;
+      transition: border-color 0.2s;
+      background: var(--white, #fff);
+      color: var(--neutral-900, #1B2A4A);
+    }
+    .verify-input:focus {
+      outline: none;
+      border-color: #4ECDC4;
+    }
+    .verify-input::placeholder {
+      color: var(--neutral-400, #adb5bd);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+    }
+    .verify-btn {
+      padding: 14px 28px;
+      background: #4ECDC4;
+      color: #1B2A4A;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      white-space: nowrap;
+    }
+    .verify-btn:hover {
+      background: #3dbdb5;
+      transform: translateY(-1px);
+    }
+    .verify-btn:active {
+      transform: translateY(0);
+    }
+    .verify-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .verify-hint {
+      text-align: center;
+      color: var(--neutral-400, #adb5bd);
+      font-size: 12px;
+      margin-bottom: 32px;
+    }
+    .verify-result {
+      display: none;
+      margin-top: 24px;
+      padding: 28px;
+      border-radius: 12px;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .verify-result.valid {
+      display: block;
+      background: #d4edda;
+      border: 1px solid #c3e6cb;
+    }
+    .verify-result.invalid {
+      display: block;
+      background: #f8d7da;
+      border: 1px solid #f5c6cb;
+    }
+    .result-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .result-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .valid .result-icon {
+      background: #28a745;
+      color: white;
+    }
+    .invalid .result-icon {
+      background: #dc3545;
+      color: white;
+    }
+    .result-icon svg {
+      width: 24px;
+      height: 24px;
+    }
+    .result-title {
+      font-family: var(--font-display, 'Playfair Display', serif);
+      font-size: 20px;
+    }
+    .valid .result-title { color: #155724; }
+    .invalid .result-title { color: #721c24; }
+    .result-desc {
+      font-size: 14px;
+    }
+    .valid .result-desc { color: #155724; }
+    .invalid .result-desc { color: #721c24; }
+    .result-details {
+      margin-top: 16px;
+    }
+    .result-field {
+      display: flex;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+      font-size: 14px;
+    }
+    .result-field:last-child {
+      border-bottom: none;
+    }
+    .result-field-label {
+      width: 160px;
+      font-weight: 600;
+      color: #155724;
+      flex-shrink: 0;
+    }
+    .result-field-value {
+      color: #1B2A4A;
+      word-break: break-all;
+    }
+    .result-field-value.mono {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+    }
+    .result-actions {
+      margin-top: 20px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .result-actions a {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 18px;
+      background: #1B2A4A;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    .result-actions a:hover {
+      background: #2D3A52;
+    }
+    @media (max-width: 600px) {
+      .verify-form {
+        flex-direction: column;
+      }
+      .verify-card {
+        padding: 24px;
+      }
+      .result-field {
+        flex-direction: column;
+        gap: 4px;
+      }
+      .result-field-label {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar"></nav>
+
+  <!-- HERO -->
+  <section class="hero" style="min-height:auto;padding:120px 0 40px">
+    <div class="container" style="text-align:center">
+      <span class="badge badge-teal" style="margin-bottom:16px;display:inline-block">Verification</span>
+      <h1><span class="highlight">Verifier</span> un document signe</h1>
+      <p style="max-width:600px;margin:16px auto 0;color:var(--neutral-500);font-size:16px;line-height:1.7">
+        Saisissez la reference ou le hash SHA-256 d'un document pour verifier son authenticite et son integrite.
+      </p>
+    </div>
+  </section>
+
+  <!-- VERIFY FORM -->
+  <section style="padding:0 0 80px">
+    <div class="verify-container">
+      <div class="verify-card">
+        <div class="verify-form">
+          <input type="text" id="verifyInput" class="verify-input" placeholder="Reference (SIG-...) ou hash SHA-256" autocomplete="off" />
+          <button id="verifyBtn" class="verify-btn" onclick="doVerify()">Verifier</button>
+        </div>
+        <div class="verify-hint">Exemple : SIG-1709654321000-AB3F ou un hash SHA-256 de 64 caracteres</div>
+
+        <div id="resultValid" class="verify-result">
+          <!-- Filled by JS -->
+        </div>
+        <div id="resultInvalid" class="verify-result">
+          <!-- Filled by JS -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer style="background:#1B2A4A;color:white;padding:40px 0;text-align:center">
+    <div class="container">
+      <p style="color:#4ECDC4;font-family:var(--font-display);font-size:20px;margin-bottom:8px">STRATEGE</p>
+      <p style="color:rgba(255,255,255,0.5);font-size:12px;line-height:1.8">
+        JESPER SAS — Marque Stratege<br/>
+        Carte professionnelle CPI — Lyon<br/>
+        contact@stratege-immo.fr | stratege-immo.fr
+      </p>
+    </div>
+  </footer>
+
+  <script src="assets/shared.js?v=124"></script>
+  <script>
+    const API = '/api/signature';
+
+    // Auto-verify from URL params
+    document.addEventListener('DOMContentLoaded', function() {
+      const params = new URLSearchParams(window.location.search);
+      const ref = params.get('ref');
+      const hash = params.get('hash');
+      if (ref) {
+        document.getElementById('verifyInput').value = ref;
+        doVerify();
+      } else if (hash) {
+        document.getElementById('verifyInput').value = hash;
+        doVerify();
+      }
+    });
+
+    // Enter key support
+    document.getElementById('verifyInput').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') doVerify();
+    });
+
+    async function doVerify() {
+      const input = document.getElementById('verifyInput').value.trim();
+      const btn = document.getElementById('verifyBtn');
+      const validEl = document.getElementById('resultValid');
+      const invalidEl = document.getElementById('resultInvalid');
+
+      if (!input) return;
+
+      // Reset
+      validEl.className = 'verify-result';
+      invalidEl.className = 'verify-result';
+      btn.disabled = true;
+      btn.textContent = 'Verification...';
+
+      try {
+        // Determine if it's a reference or hash
+        const isRef = input.startsWith('SIG-');
+        const param = isRef ? 'ref=' + encodeURIComponent(input) : 'hash=' + encodeURIComponent(input);
+        const res = await fetch(API + '?action=verify&' + param);
+        const data = await res.json();
+
+        if (data.success && data.valid) {
+          const dateStr = new Date(data.timestamp).toLocaleDateString('fr-FR', {
+            day: 'numeric', month: 'long', year: 'numeric',
+            hour: '2-digit', minute: '2-digit'
+          });
+
+          validEl.innerHTML = '<div class="result-header">' +
+            '<div class="result-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></div>' +
+            '<div><div class="result-title">Document authentique</div>' +
+            '<div class="result-desc">Ce document a ete signe electroniquement et son integrite est verifiee.</div></div></div>' +
+            '<div class="result-details">' +
+            '<div class="result-field"><div class="result-field-label">Reference</div><div class="result-field-value mono">' + data.reference + '</div></div>' +
+            '<div class="result-field"><div class="result-field-label">Signataire</div><div class="result-field-value">' + data.signer_name + '</div></div>' +
+            '<div class="result-field"><div class="result-field-label">Type de document</div><div class="result-field-value">' + (data.doc_type_label || data.doc_type) + '</div></div>' +
+            '<div class="result-field"><div class="result-field-label">Date de signature</div><div class="result-field-value">' + dateStr + '</div></div>' +
+            '<div class="result-field"><div class="result-field-label">Hash SHA-256</div><div class="result-field-value mono">' + (data.hash || '-') + '</div></div>' +
+            '</div>' +
+            '<div class="result-actions">' +
+            '<a href="' + API + '?action=download&ref=' + encodeURIComponent(data.reference) + '">Telecharger le PDF</a>' +
+            '<a href="' + API + '?action=certificate&ref=' + encodeURIComponent(data.reference) + '" target="_blank">Certificat d\'authenticite</a>' +
+            '</div>';
+          validEl.className = 'verify-result valid';
+        } else {
+          invalidEl.innerHTML = '<div class="result-header">' +
+            '<div class="result-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 18L18 6M6 6l12 12"/></svg></div>' +
+            '<div><div class="result-title">Document non trouve ou falsifie</div>' +
+            '<div class="result-desc">Aucune signature correspondante n\'a ete trouvee. Verifiez la reference ou le hash saisi.</div></div></div>';
+          invalidEl.className = 'verify-result invalid';
+        }
+      } catch (err) {
+        invalidEl.innerHTML = '<div class="result-header">' +
+          '<div class="result-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 18L18 6M6 6l12 12"/></svg></div>' +
+          '<div><div class="result-title">Erreur de verification</div>' +
+          '<div class="result-desc">Impossible de contacter le serveur. Veuillez reessayer.</div></div></div>';
+        invalidEl.className = 'verify-result invalid';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Verifier';
+      }
+    }
+  </script>
+
+</body>
+</html>

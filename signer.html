@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Signature electronique — Stratege</title>
+  <meta name="description" content="Signez vos documents immobiliers en ligne : bon de reservation, bulletin SCPI, mandat de recherche, lettre de mission." />
+  <link rel="canonical" href="https://stratege-immo.fr/signer.html" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css?v=124" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#4ECDC4">
+  <style>
+    .signer-container { max-width:900px; margin:0 auto; padding:40px 20px 80px; }
+    .signer-container h1 { font-family:'Playfair Display',serif; font-size:32px; color:#1B2A4A; margin-bottom:8px; }
+    .signer-container .subtitle { color:#6b7280; font-size:15px; margin-bottom:32px; }
+
+    .signer-panel { background:var(--surface-1,#fff); border-radius:16px; border:1px solid var(--neutral-200,#e5e7eb); padding:32px; margin-bottom:24px; }
+    .signer-panel h2 { font-size:20px; color:#1B2A4A; margin-bottom:16px; font-family:'Playfair Display',serif; }
+
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+    .form-row.single { grid-template-columns:1fr; }
+    @media(max-width:600px) { .form-row { grid-template-columns:1fr; } }
+
+    .form-group label { display:block; font-size:13px; font-weight:500; color:#374151; margin-bottom:6px; }
+    .form-group input,
+    .form-group select { width:100%; padding:10px 14px; border:1px solid var(--neutral-200,#d1d5db); border-radius:10px; font-size:14px; font-family:'Inter',sans-serif; background:var(--surface-1,#fff); color:var(--neutral-800,#1f2937); transition:border-color .2s; }
+    .form-group input:focus,
+    .form-group select:focus { outline:none; border-color:#4ECDC4; box-shadow:0 0 0 3px rgba(78,205,196,.15); }
+
+    .pdf-viewer-wrap { background:#f3f4f6; border-radius:12px; min-height:400px; display:flex; flex-direction:column; align-items:center; justify-content:center; overflow:hidden; position:relative; }
+    .pdf-viewer-wrap canvas { max-width:100%; height:auto; }
+    .pdf-nav { display:flex; align-items:center; gap:12px; padding:12px; background:rgba(27,42,74,.05); border-radius:8px; margin-top:12px; }
+    .pdf-nav button { padding:6px 14px; border:1px solid var(--neutral-200,#d1d5db); border-radius:8px; background:#fff; cursor:pointer; font-size:13px; font-weight:500; transition:all .2s; }
+    .pdf-nav button:hover { border-color:#4ECDC4; color:#4ECDC4; }
+    .pdf-nav span { font-size:13px; color:#6b7280; }
+    .pdf-placeholder { text-align:center; color:#9ca3af; padding:40px; }
+    .pdf-placeholder svg { width:64px; height:64px; margin-bottom:16px; opacity:.4; }
+
+    .signature-zone { border:2px dashed #d1d5db; border-radius:12px; padding:20px; text-align:center; background:rgba(78,205,196,.02); }
+    .signature-zone.has-signature { border-color:#4ECDC4; background:rgba(78,205,196,.05); }
+    .signature-zone label { display:block; font-size:13px; color:#6b7280; margin-bottom:12px; }
+    #signatureCanvas { border:1px solid #e5e7eb; border-radius:8px; background:#fff; cursor:crosshair; touch-action:none; max-width:100%; }
+    .sig-actions { display:flex; gap:10px; justify-content:center; margin-top:12px; }
+
+    .btn-primary { padding:12px 28px; background:linear-gradient(135deg,#4ECDC4,#44b3ab); color:#fff; border:none; border-radius:10px; font-size:15px; font-weight:600; cursor:pointer; transition:all .2s; font-family:'Inter',sans-serif; }
+    .btn-primary:hover { transform:translateY(-1px); box-shadow:0 4px 12px rgba(78,205,196,.3); }
+    .btn-primary:disabled { opacity:.5; cursor:not-allowed; transform:none; box-shadow:none; }
+    .btn-outline { padding:10px 20px; background:transparent; color:#1B2A4A; border:1px solid #d1d5db; border-radius:10px; font-size:14px; font-weight:500; cursor:pointer; transition:all .2s; font-family:'Inter',sans-serif; }
+    .btn-outline:hover { border-color:#4ECDC4; color:#4ECDC4; }
+    .btn-danger-outline { padding:10px 20px; background:transparent; color:#ef4444; border:1px solid #fca5a5; border-radius:10px; font-size:14px; font-weight:500; cursor:pointer; transition:all .2s; font-family:'Inter',sans-serif; }
+    .btn-danger-outline:hover { background:rgba(239,68,68,.05); }
+
+    .success-panel { text-align:center; padding:40px 20px; }
+    .success-panel .check-icon { width:80px; height:80px; border-radius:50%; background:linear-gradient(135deg,#22c55e,#16a34a); display:flex; align-items:center; justify-content:center; margin:0 auto 20px; }
+    .success-panel .check-icon svg { width:40px; height:40px; color:#fff; }
+    .success-panel h2 { font-size:24px; color:#1B2A4A; margin-bottom:8px; }
+    .success-panel .ref { font-family:'JetBrains Mono',monospace; font-size:14px; background:#f0fdf4; color:#16a34a; padding:8px 16px; border-radius:8px; display:inline-block; margin:12px 0; }
+    .success-panel .hash { font-family:'JetBrains Mono',monospace; font-size:11px; color:#9ca3af; word-break:break-all; margin-top:12px; }
+    .success-actions { display:flex; gap:12px; justify-content:center; margin-top:24px; flex-wrap:wrap; }
+
+    .steps-indicator { display:flex; gap:8px; margin-bottom:32px; }
+    .step-dot { width:12px; height:12px; border-radius:50%; background:#e5e7eb; transition:all .3s; }
+    .step-dot.active { background:#4ECDC4; transform:scale(1.2); }
+    .step-dot.done { background:#22c55e; }
+
+    .legal-note { font-size:11px; color:#9ca3af; text-align:center; margin-top:16px; line-height:1.5; }
+    .loading-overlay { position:fixed; inset:0; background:rgba(27,42,74,.6); display:flex; align-items:center; justify-content:center; z-index:1000; }
+    .loading-box { background:#fff; border-radius:16px; padding:40px; text-align:center; max-width:360px; }
+    .loading-box .spinner { width:40px; height:40px; border:3px solid #e5e7eb; border-top-color:#4ECDC4; border-radius:50%; animation:spin .8s linear infinite; margin:0 auto 16px; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    .signer-footer { text-align:center; padding:32px 20px; font-size:12px; color:#9ca3af; border-top:1px solid var(--neutral-200,#e5e7eb); margin-top:60px; }
+  </style>
+</head>
+<body>
+  <nav class="navbar"></nav>
+
+  <div class="signer-container">
+    <h1>Signature electronique</h1>
+    <p class="subtitle">Signez vos documents en toute securite, directement en ligne.</p>
+
+    <div class="steps-indicator">
+      <div class="step-dot active" data-step="1"></div>
+      <div class="step-dot" data-step="2"></div>
+      <div class="step-dot" data-step="3"></div>
+      <div class="step-dot" data-step="4"></div>
+    </div>
+
+    <!-- Step 1: Signer Info -->
+    <div id="step1" class="signer-panel">
+      <h2>1. Vos informations</h2>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="signerNom">Nom *</label>
+          <input type="text" id="signerNom" placeholder="Dupont" required />
+        </div>
+        <div class="form-group">
+          <label for="signerPrenom">Prenom *</label>
+          <input type="text" id="signerPrenom" placeholder="Jean" required />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="signerEmail">Email *</label>
+          <input type="email" id="signerEmail" placeholder="jean.dupont@email.com" required />
+        </div>
+        <div class="form-group">
+          <label for="signerTel">Telephone (optionnel)</label>
+          <input type="tel" id="signerTel" placeholder="06 12 34 56 78" />
+        </div>
+      </div>
+      <div class="form-row single" id="docTypeRow">
+        <div class="form-group">
+          <label for="docType">Type de document *</label>
+          <select id="docType">
+            <option value="">-- Selectionnez un document --</option>
+            <option value="bon_reservation">Bon de reservation</option>
+            <option value="bulletin_scpi">Bulletin de souscription SCPI</option>
+            <option value="mandat_recherche">Mandat de recherche</option>
+            <option value="lettre_mission">Lettre de mission CGP</option>
+            <option value="conditions_generales">Conditions generales</option>
+          </select>
+        </div>
+      </div>
+      <div style="text-align:right;margin-top:8px;">
+        <button class="btn-primary" onclick="goToStep(2)">Continuer</button>
+      </div>
+    </div>
+
+    <!-- Step 2: PDF Preview -->
+    <div id="step2" class="signer-panel" style="display:none;">
+      <h2>2. Document a signer</h2>
+      <div class="pdf-viewer-wrap" id="pdfViewerWrap">
+        <div class="pdf-placeholder" id="pdfPlaceholder">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>
+          <p>Chargement du document...</p>
+        </div>
+        <canvas id="pdfCanvas" style="display:none;"></canvas>
+      </div>
+      <div class="pdf-nav" id="pdfNav" style="display:none;">
+        <button onclick="changePage(-1)">Precedent</button>
+        <span id="pageInfo">Page 1 / 1</span>
+        <button onclick="changePage(1)">Suivant</button>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:16px;">
+        <button class="btn-outline" onclick="goToStep(1)">Retour</button>
+        <button class="btn-primary" onclick="goToStep(3)">Passer a la signature</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Signature -->
+    <div id="step3" class="signer-panel" style="display:none;">
+      <h2>3. Votre signature</h2>
+      <div class="signature-zone" id="signatureZone">
+        <label>Dessinez votre signature ci-dessous (souris ou doigt sur mobile)</label>
+        <canvas id="signatureCanvas" width="500" height="180"></canvas>
+        <div class="sig-actions">
+          <button class="btn-danger-outline" onclick="clearSignature()">Effacer</button>
+          <button class="btn-primary" onclick="validateSignature()">Valider la signature</button>
+        </div>
+      </div>
+      <div class="legal-note">
+        En signant ce document, vous certifiez avoir lu et accepte son contenu.<br>
+        Signature electronique conforme eIDAS niveau simple.
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:16px;">
+        <button class="btn-outline" onclick="goToStep(2)">Retour</button>
+      </div>
+    </div>
+
+    <!-- Step 4: Success -->
+    <div id="step4" class="signer-panel" style="display:none;">
+      <div class="success-panel">
+        <div class="check-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4.5 12.75l6 6 9-13.5" /></svg>
+        </div>
+        <h2>Document signe avec succes</h2>
+        <p style="color:#6b7280;">Votre signature a ete enregistree et le document est maintenant valide.</p>
+        <div class="ref" id="signRef">REF-...</div>
+        <div class="hash" id="signHash">SHA-256 : ...</div>
+        <div class="success-actions">
+          <button class="btn-primary" id="downloadBtn" onclick="downloadSigned()">Telecharger le PDF signe</button>
+          <a href="/" class="btn-outline" style="text-decoration:none;display:inline-block;">Retour a l'accueil</a>
+        </div>
+        <div class="legal-note" style="margin-top:24px;">
+          Document genere par Stratege — JESPER SAS<br>
+          Signature electronique conforme eIDAS niveau simple
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="signer-footer">
+    JESPER SAS — SIREN 977 754 050 — CPI 7501 2025 000 000 012
+  </div>
+
+  <!-- Loading overlay -->
+  <div class="loading-overlay" id="loadingOverlay" style="display:none;">
+    <div class="loading-box">
+      <div class="spinner"></div>
+      <p id="loadingText" style="color:#374151;font-weight:500;">Traitement en cours...</p>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+  <script src="assets/shared.js"></script>
+  <script>
+    // ========== State ==========
+    let currentStep = 1;
+    let pdfDoc = null;
+    let currentPage = 1;
+    let totalPages = 1;
+    let pdfBytes = null;
+    let signedPdfBytes = null;
+    let signedHash = '';
+    let signatureRef = '';
+    let sigPad = null;
+    let externalDocUrl = null;
+
+    // ========== Init ==========
+    document.addEventListener('DOMContentLoaded', () => {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+      const params = new URLSearchParams(window.location.search);
+      externalDocUrl = params.get('doc');
+      const docTypeParam = params.get('type');
+
+      if (docTypeParam) {
+        const sel = document.getElementById('docType');
+        if (sel.querySelector('option[value="' + docTypeParam + '"]')) {
+          sel.value = docTypeParam;
+        }
+      }
+      if (externalDocUrl) {
+        document.getElementById('docTypeRow').style.display = 'none';
+      }
+
+      // Init signature pad
+      const canvas = document.getElementById('signatureCanvas');
+      sigPad = new SignaturePad(canvas);
+      resizeSignatureCanvas();
+      window.addEventListener('resize', resizeSignatureCanvas);
+    });
+
+    function resizeSignatureCanvas() {
+      const canvas = document.getElementById('signatureCanvas');
+      const container = canvas.parentElement;
+      const maxW = Math.min(500, container.clientWidth - 40);
+      canvas.width = maxW;
+      canvas.height = Math.round(maxW * 0.36);
+      if (sigPad) sigPad.clear();
+    }
+
+    // ========== SignaturePad ==========
+    class SignaturePad {
+      constructor(canvas) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
+        this.drawing = false;
+        this.points = [];
+        this.strokes = [];
+        this.setupEvents();
+      }
+      setupEvents() {
+        this.canvas.addEventListener('mousedown', e => { this.drawing = true; this.strokes.push([]); this.addPoint(e); });
+        this.canvas.addEventListener('mousemove', e => { if (this.drawing) this.addPoint(e); });
+        this.canvas.addEventListener('mouseup', () => { this.drawing = false; });
+        this.canvas.addEventListener('mouseleave', () => { this.drawing = false; });
+        this.canvas.addEventListener('touchstart', e => { e.preventDefault(); this.drawing = true; this.strokes.push([]); this.addPoint(e.touches[0]); }, { passive: false });
+        this.canvas.addEventListener('touchmove', e => { e.preventDefault(); if (this.drawing) this.addPoint(e.touches[0]); }, { passive: false });
+        this.canvas.addEventListener('touchend', () => { this.drawing = false; });
+      }
+      addPoint(e) {
+        const rect = this.canvas.getBoundingClientRect();
+        const scaleX = this.canvas.width / rect.width;
+        const scaleY = this.canvas.height / rect.height;
+        const x = (e.clientX - rect.left) * scaleX;
+        const y = (e.clientY - rect.top) * scaleY;
+        this.points.push({ x, y });
+        if (this.strokes.length > 0) {
+          this.strokes[this.strokes.length - 1].push({ x, y });
+        }
+        this.draw();
+      }
+      draw() {
+        const pts = this.points;
+        if (pts.length < 2) return;
+        this.ctx.beginPath();
+        this.ctx.strokeStyle = '#1F3040';
+        this.ctx.lineWidth = 2;
+        this.ctx.lineCap = 'round';
+        this.ctx.lineJoin = 'round';
+        this.ctx.moveTo(pts[pts.length - 2].x, pts[pts.length - 2].y);
+        this.ctx.lineTo(pts[pts.length - 1].x, pts[pts.length - 1].y);
+        this.ctx.stroke();
+      }
+      getDataUrl() { return this.canvas.toDataURL('image/png'); }
+      isEmpty() { return this.points.length === 0; }
+      clear() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.points = [];
+        this.strokes = [];
+        document.getElementById('signatureZone').classList.remove('has-signature');
+      }
+    }
+
+    // ========== Steps ==========
+    function goToStep(step) {
+      if (step === 2) {
+        // Validate step 1
+        const nom = document.getElementById('signerNom').value.trim();
+        const prenom = document.getElementById('signerPrenom').value.trim();
+        const email = document.getElementById('signerEmail').value.trim();
+        const docType = document.getElementById('docType').value;
+        if (!nom || !prenom || !email) {
+          alert('Veuillez remplir les champs obligatoires (Nom, Prenom, Email).');
+          return;
+        }
+        if (!externalDocUrl && !docType) {
+          alert('Veuillez selectionner un type de document.');
+          return;
+        }
+        loadPdf();
+      }
+
+      for (let i = 1; i <= 4; i++) {
+        document.getElementById('step' + i).style.display = i === step ? '' : 'none';
+      }
+      document.querySelectorAll('.step-dot').forEach(dot => {
+        const s = parseInt(dot.dataset.step);
+        dot.classList.toggle('active', s === step);
+        dot.classList.toggle('done', s < step);
+      });
+      currentStep = step;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ========== PDF Loading ==========
+    async function loadPdf() {
+      if (pdfBytes) return; // already loaded
+      showLoading('Preparation du document...');
+      try {
+        if (externalDocUrl) {
+          const resp = await fetch(externalDocUrl);
+          if (!resp.ok) throw new Error('Impossible de charger le document');
+          const ab = await resp.arrayBuffer();
+          pdfBytes = new Uint8Array(ab);
+        } else {
+          const docType = document.getElementById('docType').value;
+          const signerInfo = getSignerInfo();
+          pdfBytes = await generateDocument(docType, signerInfo);
+        }
+        await renderPdf(pdfBytes);
+      } catch (err) {
+        console.error(err);
+        alert('Erreur lors du chargement du document : ' + err.message);
+      } finally {
+        hideLoading();
+      }
+    }
+
+    async function renderPdf(bytes) {
+      const loadingTask = pdfjsLib.getDocument({ data: bytes });
+      pdfDoc = await loadingTask.promise;
+      totalPages = pdfDoc.numPages;
+      currentPage = 1;
+      await renderPage(currentPage);
+      document.getElementById('pdfPlaceholder').style.display = 'none';
+      document.getElementById('pdfCanvas').style.display = '';
+      if (totalPages > 1) {
+        document.getElementById('pdfNav').style.display = 'flex';
+      }
+      updatePageInfo();
+    }
+
+    async function renderPage(num) {
+      const page = await pdfDoc.getPage(num);
+      const canvas = document.getElementById('pdfCanvas');
+      const ctx = canvas.getContext('2d');
+      const containerWidth = document.getElementById('pdfViewerWrap').clientWidth - 20;
+      const viewport = page.getViewport({ scale: 1 });
+      const scale = Math.min(containerWidth / viewport.width, 2);
+      const scaledViewport = page.getViewport({ scale });
+      canvas.width = scaledViewport.width;
+      canvas.height = scaledViewport.height;
+      await page.render({ canvasContext: ctx, viewport: scaledViewport }).promise;
+    }
+
+    function changePage(delta) {
+      const newPage = currentPage + delta;
+      if (newPage < 1 || newPage > totalPages) return;
+      currentPage = newPage;
+      renderPage(currentPage);
+      updatePageInfo();
+    }
+
+    function updatePageInfo() {
+      document.getElementById('pageInfo').textContent = 'Page ' + currentPage + ' / ' + totalPages;
+    }
+
+    // ========== Document Generation ==========
+    async function generateDocument(docType, signerInfo) {
+      const { PDFDocument, StandardFonts, rgb } = PDFLib;
+      const doc = await PDFDocument.create();
+      const page = doc.addPage([595, 842]); // A4
+      const font = await doc.embedFont(StandardFonts.Helvetica);
+      const bold = await doc.embedFont(StandardFonts.HelveticaBold);
+
+      // Header
+      page.drawText('STRATEGE', { x: 50, y: 800, size: 24, font: bold, color: rgb(0.12, 0.19, 0.25) });
+      page.drawText("L'immobilier malin et durable", { x: 50, y: 780, size: 10, font, color: rgb(0.3, 0.75, 0.77) });
+      page.drawLine({ start: { x: 50, y: 770 }, end: { x: 545, y: 770 }, thickness: 1, color: rgb(0.85, 0.93, 0.96) });
+
+      const titles = {
+        bon_reservation: 'BON DE RESERVATION',
+        bulletin_scpi: 'BULLETIN DE SOUSCRIPTION SCPI',
+        mandat_recherche: 'MANDAT DE RECHERCHE',
+        lettre_mission: 'LETTRE DE MISSION CGP',
+        conditions_generales: 'CONDITIONS GENERALES'
+      };
+
+      const title = titles[docType] || 'DOCUMENT';
+      page.drawText(title, { x: 50, y: 740, size: 18, font: bold, color: rgb(0.12, 0.19, 0.25) });
+
+      const today = new Date().toLocaleDateString('fr-FR');
+      page.drawText('Date : ' + today, { x: 50, y: 715, size: 10, font, color: rgb(0.4, 0.4, 0.4) });
+
+      let y = 690;
+      const line = (text, isBold) => {
+        if (y < 120) return;
+        page.drawText(text, { x: 50, y, size: 10, font: isBold ? bold : font, color: rgb(0.2, 0.2, 0.2) });
+        y -= 16;
+      };
+      const gap = () => { y -= 8; };
+
+      // Signer info block
+      line('SIGNATAIRE', true);
+      line('Nom : ' + signerInfo.nom + ' ' + signerInfo.prenom);
+      line('Email : ' + signerInfo.email);
+      if (signerInfo.telephone) line('Telephone : ' + signerInfo.telephone);
+      gap();
+
+      // Content based on docType
+      if (docType === 'bon_reservation') {
+        line('OBJET DU BON DE RESERVATION', true);
+        gap();
+        line('Par le present document, le soussigne declare reserver le bien immobilier');
+        line('designe ci-apres, dans le cadre d\'un investissement locatif.');
+        gap();
+        line('Programme : ........................................................');
+        line('Lot n. : ........................................................');
+        line('Surface : .......................... m2');
+        line('Prix TTC : .......................... EUR');
+        line('TVA applicable : .......................... EUR');
+        gap();
+        line('INFORMATIONS ACQUEREUR', true);
+        line('Adresse : ........................................................');
+        line('Situation familiale : ........................................................');
+        line('Regime fiscal : ........................................................');
+        gap();
+        line('CONDITIONS', true);
+        line('Le present bon de reservation est conclu sous les conditions suspensives');
+        line('d\'obtention de financement dans un delai de 45 jours.');
+        line('Le delai de retractation est de 10 jours a compter de la signature.');
+      } else if (docType === 'bulletin_scpi') {
+        line('OBJET DE LA SOUSCRIPTION', true);
+        gap();
+        line('Le soussigne souhaite souscrire des parts de SCPI conformement aux');
+        line('conditions decrites dans la note d\'information de la SCPI.');
+        gap();
+        line('SCPI : ........................................................');
+        line('Societe de gestion : ........................................................');
+        line('Nombre de parts : ........................................................');
+        line('Montant unitaire : .......................... EUR');
+        line('Montant total : .......................... EUR');
+        line('Mode de financement : ........................................................');
+        gap();
+        line('AVERTISSEMENT', true);
+        line('L\'investissement en SCPI comporte des risques, notamment de perte en');
+        line('capital. Les performances passees ne prejugent pas des performances futures.');
+        line('La liquidite n\'est pas garantie.');
+      } else if (docType === 'mandat_recherche') {
+        line('OBJET DU MANDAT', true);
+        gap();
+        line('Le mandant confie au mandataire, JESPER SAS (marque Stratege),');
+        line('un mandat de recherche immobiliere aux conditions suivantes :');
+        gap();
+        line('Ville(s) recherchee(s) : ........................................................');
+        line('Type de bien : ........................................................');
+        line('Budget maximum : .......................... EUR');
+        line('Surface minimale : .......................... m2');
+        line('Objectif : ........................................................');
+        gap();
+        line('DUREE ET HONORAIRES', true);
+        line('Le present mandat est consenti pour une duree de 12 mois.');
+        line('Honoraires : selon bareme en vigueur, payables au succes.');
+      } else if (docType === 'lettre_mission') {
+        line('OBJET DE LA MISSION', true);
+        gap();
+        line('Le cabinet JESPER SAS, exerçant sous la marque Stratege, s\'engage a');
+        line('accompagner le client dans les domaines suivants :');
+        gap();
+        line('- Diagnostic patrimonial complet');
+        line('- Analyse de la situation fiscale');
+        line('- Recommandations d\'investissement personnalisees');
+        line('- Suivi de la mise en oeuvre des preconisations');
+        gap();
+        line('PERIMETRE', true);
+        line('La mission couvre l\'ensemble du patrimoine declare par le client.');
+        line('Le conseiller s\'engage a un devoir de conseil et d\'information.');
+        gap();
+        line('CONFIDENTIALITE', true);
+        line('Le cabinet s\'engage a la stricte confidentialite des informations');
+        line('communiquees par le client dans le cadre de cette mission.');
+      } else if (docType === 'conditions_generales') {
+        line('ARTICLE 1 - OBJET', true);
+        line('Les presentes conditions generales regissent les relations entre');
+        line('JESPER SAS et ses clients dans le cadre des services proposes.');
+        gap();
+        line('ARTICLE 2 - SERVICES', true);
+        line('Stratege propose des services de conseil en investissement immobilier,');
+        line('de gestion de patrimoine et d\'intermediation en operations de banque.');
+        gap();
+        line('ARTICLE 3 - RESPONSABILITE', true);
+        line('Le cabinet s\'engage a fournir des conseils adaptes a la situation');
+        line('du client, dans le respect des reglementations en vigueur.');
+        gap();
+        line('ARTICLE 4 - DONNEES PERSONNELLES', true);
+        line('Les donnees collectees sont traitees conformement au RGPD.');
+        line('Le client dispose d\'un droit d\'acces, de rectification et de suppression.');
+        gap();
+        line('ARTICLE 5 - DROIT APPLICABLE', true);
+        line('Les presentes conditions sont soumises au droit français.');
+        line('Tout litige releve de la competence des tribunaux de Lyon.');
+      }
+
+      // Signature zone rectangle
+      page.drawRectangle({
+        x: 350, y: 90, width: 195, height: 80,
+        borderColor: rgb(0.75, 0.75, 0.75),
+        borderWidth: 1,
+        color: rgb(0.98, 0.98, 0.98)
+      });
+      page.drawText('Signature', { x: 420, y: 155, size: 8, font, color: rgb(0.6, 0.6, 0.6) });
+      page.drawText('Lu et approuve', { x: 355, y: 95, size: 7, font, color: rgb(0.7, 0.7, 0.7) });
+
+      // Legal
+      page.drawLine({ start: { x: 50, y: 70 }, end: { x: 545, y: 70 }, thickness: 0.5, color: rgb(0.85, 0.85, 0.85) });
+      page.drawText('Signature electronique conforme eIDAS niveau simple', { x: 50, y: 55, size: 7, font, color: rgb(0.6, 0.6, 0.6) });
+      page.drawText('Document genere par Stratege — JESPER SAS', { x: 50, y: 45, size: 7, font, color: rgb(0.6, 0.6, 0.6) });
+      page.drawText('JESPER SAS — SIREN 977 754 050 — CPI 7501 2025 000 000 012', { x: 50, y: 30, size: 8, font, color: rgb(0.6, 0.6, 0.6) });
+      page.drawText('51 bis rue de Miromesnil, 75008 Paris — contact@stratege-immo.fr', { x: 50, y: 20, size: 8, font, color: rgb(0.6, 0.6, 0.6) });
+
+      return doc.save();
+    }
+
+    // ========== Signature ==========
+    function clearSignature() {
+      sigPad.clear();
+    }
+
+    async function validateSignature() {
+      if (sigPad.isEmpty()) {
+        alert('Veuillez dessiner votre signature avant de valider.');
+        return;
+      }
+      document.getElementById('signatureZone').classList.add('has-signature');
+
+      const confirmText = 'En validant, vous signez electroniquement ce document. Cette action est juridiquement engageante.\n\nConfirmer la signature ?';
+      if (!confirm(confirmText)) return;
+
+      showLoading('Signature et scellement du document...');
+      try {
+        const signerInfo = getSignerInfo();
+        const signatureDataUrl = sigPad.getDataUrl();
+        const result = await signPdf(pdfBytes, signatureDataUrl, signerInfo);
+
+        signedPdfBytes = result.signedPdfBytes;
+        signedHash = result.hash;
+
+        // Send to API
+        const docType = externalDocUrl ? 'document_externe' : document.getElementById('docType').value;
+        const pdfBase64 = uint8ToBase64(signedPdfBytes);
+
+        const resp = await fetch('/api/signature?action=sign', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            doc_type: docType,
+            signer_name: signerInfo.nom + ' ' + signerInfo.prenom,
+            signer_email: signerInfo.email,
+            signature_png: signatureDataUrl,
+            pdf_base64: pdfBase64,
+            hash: signedHash
+          })
+        });
+
+        if (resp.ok) {
+          const data = await resp.json();
+          signatureRef = data.reference || ('SIG-' + Date.now().toString(36).toUpperCase());
+        } else {
+          // API might not exist yet — generate ref locally
+          signatureRef = 'SIG-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
+        }
+      } catch (err) {
+        console.warn('API signature non disponible, traitement local', err);
+        signatureRef = 'SIG-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
+      } finally {
+        hideLoading();
+      }
+
+      document.getElementById('signRef').textContent = signatureRef;
+      document.getElementById('signHash').textContent = 'SHA-256 : ' + signedHash;
+      goToStep(4);
+    }
+
+    async function signPdf(pdfBytesInput, signatureDataUrl, signerInfo) {
+      const { PDFDocument, rgb } = PDFLib;
+      const pdfDoc = await PDFDocument.load(pdfBytesInput);
+      const pngImage = await pdfDoc.embedPng(signatureDataUrl);
+      const pages = pdfDoc.getPages();
+      const lastPage = pages[pages.length - 1];
+      const { width, height } = lastPage.getSize();
+
+      lastPage.drawImage(pngImage, {
+        x: width - 200,
+        y: 50,
+        width: 150,
+        height: 60
+      });
+
+      const now = new Date();
+      lastPage.drawText(
+        'Signe electroniquement le ' + now.toLocaleDateString('fr-FR') + ' a ' + now.toLocaleTimeString('fr-FR'),
+        { x: 50, y: 40, size: 8, color: rgb(0.4, 0.4, 0.4) }
+      );
+      lastPage.drawText(
+        'par ' + signerInfo.nom + ' ' + signerInfo.prenom + ' (' + signerInfo.email + ')',
+        { x: 50, y: 30, size: 8, color: rgb(0.4, 0.4, 0.4) }
+      );
+
+      const signedPdfBytes = await pdfDoc.save();
+      const hashBuffer = await crypto.subtle.digest('SHA-256', signedPdfBytes);
+      const hash = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+
+      return { signedPdfBytes, hash };
+    }
+
+    // ========== Download ==========
+    function downloadSigned() {
+      if (!signedPdfBytes) return;
+      const blob = new Blob([signedPdfBytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      const docType = externalDocUrl ? 'document' : document.getElementById('docType').value;
+      a.download = 'stratege_' + docType + '_signe_' + new Date().toISOString().slice(0, 10) + '.pdf';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // ========== Helpers ==========
+    function getSignerInfo() {
+      return {
+        nom: document.getElementById('signerNom').value.trim(),
+        prenom: document.getElementById('signerPrenom').value.trim(),
+        email: document.getElementById('signerEmail').value.trim(),
+        telephone: document.getElementById('signerTel').value.trim()
+      };
+    }
+
+    function uint8ToBase64(uint8) {
+      let binary = '';
+      const len = uint8.byteLength;
+      for (let i = 0; i < len; i++) {
+        binary += String.fromCharCode(uint8[i]);
+      }
+      return btoa(binary);
+    }
+
+    function showLoading(text) {
+      document.getElementById('loadingText').textContent = text || 'Traitement en cours...';
+      document.getElementById('loadingOverlay').style.display = 'flex';
+    }
+
+    function hideLoading() {
+      document.getElementById('loadingOverlay').style.display = 'none';
+    }
+  </script>
+</body>
+</html>

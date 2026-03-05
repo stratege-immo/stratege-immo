@@ -324,7 +324,7 @@ async function handleReset(request, env, secret) {
   return jsonResponse({ success: true, message: 'Mot de passe modifié avec succès' });
 }
 
-// ── SMS Verification (Twilio Verify) ────────────────────
+// ── Phone Verification via Email OTP (Mailchannels) ─────
 async function handleSendSMS(request, env, secret) {
   const rateLimited = await checkRateLimit(request, env, 'sms');
   if (rateLimited) return rateLimited;
@@ -349,19 +349,44 @@ async function handleSendSMS(request, env, secret) {
   user.phone_verified = false;
   await env.STRATEGE_DB.put(userKey, JSON.stringify(user));
 
-  // Send verification via Twilio Verify
-  const creds = btoa(`${env.TWILIO_ACCOUNT_SID}:${env.TWILIO_AUTH_TOKEN}`);
-  const res = await fetch(`https://verify.twilio.com/v2/Services/${env.TWILIO_VERIFY_SID}/Verifications`, {
-    method: 'POST',
-    headers: { 'Authorization': `Basic ${creds}`, 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({ To: phone, Channel: 'sms' })
-  });
-  const data = await res.json();
-  if (!res.ok) {
-    return jsonResponse({ success: false, error: data.message || 'Erreur envoi SMS' }, 400);
+  // Generate 6-digit OTP
+  const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+  // Store OTP in KV with 10 min TTL
+  await env.STRATEGE_DB.put(`otp:${payload.email}`, JSON.stringify({
+    code,
+    phone,
+    attempts: 0,
+    created_at: new Date().toISOString()
+  }), { expirationTtl: 600 });
+
+  // Send OTP via email (Mailchannels)
+  const otpHtml = emailWrapper(`
+<h2 style="color:#1B2A4A;font-family:Georgia,serif;margin:0 0 16px;text-align:center">Verification de votre telephone</h2>
+<p style="color:#3F4E66;font-size:16px;line-height:1.6;margin:0 0 24px;text-align:center">
+Voici votre code de verification :
+</p>
+<div style="text-align:center;margin:32px 0">
+<span style="font-size:36px;font-weight:700;color:#1B2A4A;letter-spacing:8px;background:#F0F7F6;padding:16px 32px;border-radius:12px;display:inline-block;font-family:monospace">${code}</span>
+</div>
+<p style="color:#6B7F99;font-size:14px;text-align:center;margin:0 0 8px">
+Ce code expire dans 10 minutes.
+</p>
+<p style="color:#6B7F99;font-size:13px;text-align:center;margin:0">
+Si vous n'avez pas demande ce code, ignorez cet email.
+</p>`);
+
+  try {
+    await sendEmail(env, {
+      to: payload.email,
+      subject: `Code de verification Stratege : ${code}`,
+      html: otpHtml
+    });
+  } catch (e) {
+    return jsonResponse({ success: false, error: 'Erreur envoi email de verification' }, 500);
   }
 
-  return jsonResponse({ success: true, message: 'Code SMS envoyé', status: data.status });
+  return jsonResponse({ success: true, message: 'Code de verification envoye par email' });
 }
 
 async function handleVerifySMS(request, env, secret) {
@@ -375,18 +400,25 @@ async function handleVerifySMS(request, env, secret) {
 
   const body = await request.json();
   const code = sanitize(body.code);
-  const phone = sanitize(body.phone);
-  if (!code || !phone) return jsonResponse({ success: false, error: 'Code et téléphone requis' }, 400);
+  if (!code) return jsonResponse({ success: false, error: 'Code requis' }, 400);
 
-  const creds = btoa(`${env.TWILIO_ACCOUNT_SID}:${env.TWILIO_AUTH_TOKEN}`);
-  const res = await fetch(`https://verify.twilio.com/v2/Services/${env.TWILIO_VERIFY_SID}/VerificationCheck`, {
-    method: 'POST',
-    headers: { 'Authorization': `Basic ${creds}`, 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({ To: phone, Code: code })
-  });
-  const data = await res.json();
+  // Look up OTP from KV
+  const otpKey = `otp:${payload.email}`;
+  const otpData = await env.STRATEGE_DB.get(otpKey);
+  if (!otpData) {
+    return jsonResponse({ success: false, error: 'Aucun code en attente. Renvoyez un code.' }, 400);
+  }
 
-  if (data.status === 'approved') {
+  const otp = JSON.parse(otpData);
+
+  // Anti-brute-force: max 3 attempts
+  if (otp.attempts >= 3) {
+    await env.STRATEGE_DB.delete(otpKey);
+    return jsonResponse({ success: false, error: 'Trop de tentatives. Renvoyez un nouveau code.' }, 429);
+  }
+
+  if (code === otp.code) {
+    // Success: mark phone as verified
     const userKey = `user:${payload.email}`;
     const userData = await env.STRATEGE_DB.get(userKey);
     if (userData) {
@@ -394,10 +426,19 @@ async function handleVerifySMS(request, env, secret) {
       user.phone_verified = true;
       await env.STRATEGE_DB.put(userKey, JSON.stringify(user));
     }
-    return jsonResponse({ success: true, message: 'Téléphone vérifié', verified: true });
+    await env.STRATEGE_DB.delete(otpKey);
+    return jsonResponse({ success: true, verified: true, message: 'Telephone verifie avec succes' });
   }
 
-  return jsonResponse({ success: false, error: 'Code incorrect ou expiré', verified: false }, 400);
+  // Wrong code: increment attempts
+  otp.attempts += 1;
+  if (otp.attempts >= 3) {
+    await env.STRATEGE_DB.delete(otpKey);
+    return jsonResponse({ success: false, error: 'Trop de tentatives. Renvoyez un nouveau code.' }, 429);
+  }
+
+  await env.STRATEGE_DB.put(otpKey, JSON.stringify(otp), { expirationTtl: 600 });
+  return jsonResponse({ success: false, error: 'Code incorrect', verified: false }, 400);
 }
 
 // ── Email Verification ─────────────────────────────────

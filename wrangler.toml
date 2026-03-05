@@ -8,3 +8,9 @@ id = "5ca28b2b0a4e4aa7a699fd2577339ebd"
 
 [ai]
 binding = "AI"
+
+# R2 bucket for documents > 5MB
+# Uncomment after: wrangler r2 bucket create stratege-docs
+# [[r2_buckets]]
+# binding = "STRATEGE_R2"
+# bucket_name = "stratege-docs"

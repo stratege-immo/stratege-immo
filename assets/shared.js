@@ -358,3 +358,37 @@ window.onerror = function(msg, src, line, col, err) {
     }).catch(function() {});
   } catch(e) {}
 };
+
+// ── Analytics tracking (self-hosted) ────────────────────
+function track(event, props) {
+  try {
+    var data = {
+      event: event || 'page_view',
+      props: props || {},
+      page: location.pathname,
+      referrer: document.referrer || '',
+      ts: Date.now()
+    };
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon('/api/analytics', JSON.stringify(data));
+    } else {
+      fetch('/api/analytics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      }).catch(function() {});
+    }
+  } catch(e) {}
+}
+
+// Auto page_view on load
+track('page_view');
+
+// Auto-track elements with data-track attribute
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('[data-track]').forEach(function(el) {
+    el.addEventListener('click', function() {
+      track(el.getAttribute('data-track'), { label: el.textContent.trim().slice(0, 50) });
+    });
+  });
+});
